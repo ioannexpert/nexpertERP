@@ -1,0 +1,28 @@
+:root{
+
+    --bRadius: 5px;
+    --pad: 10px;
+
+    /* Colors */
+    --gray: #707070;    
+    --blue: #2185D0;
+}
+
+body{
+    padding: 0px;
+    margin: 0px;
+}
+
+body *, input{
+    font-family: 'IBM Plex Sans', sans-serif;
+}
+
+a{
+    color: var(--blue);
+}
+
+button{
+    background-color: transparent;
+    border: 0px;
+    cursor: pointer;
+}
