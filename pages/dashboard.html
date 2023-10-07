@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Rubik:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+        
+        <!-- Icons -->
+        <link rel = 'stylesheet' href="/assets/fontawesome-pro-6.3.0-web (2)/fontawesome-pro-6.3.0-web/css/all.css">
+        <link rel = 'stylesheet' href="/assets/fontawesome-pro-6.3.0-web (2)/fontawesome-pro-6.3.0-web/css/fontawesome.css">
+
+        <!-- Custom css -->
+        <link rel = 'stylesheet' href="/assets/css/main.css">
+        <link rel = 'stylesheet' href="/assets/css//dashboard/dashboard.css">
+        <link rel="stylesheet" href="/assets/css/dashboard/index.css">
+
+    </head>
+    <body>
+        <div class="topbar">
+            <div class="left_side">
+                <img src = '/assets/images/shutterstock_1846527508 [Converted].png' height="40px" alt="Logo" /> Dashboard
+            </div>
+            <div class="search_bar not_active" onclick="main()">
+                <input type = 'text' placeholder="Search"/>
+                <div class="cover">
+                    <i class="fa-solid fa-search"></i>
+                    <span>nexpert</span>
+                </div>
+            </div>
+            <div class="icons">
+                <i class="fa-light fa-box-archive"></i>
+                <i class="fa-light fa-bell"></i>
+                <i class="fa-light fa-message"></i>
+                <i class="fa-light fa-user-gear"></i>
+            </div>
+        </div>
+
+       <div class="content_container menu_on">
+            <div class="menu">
+                <div class="menu_button" onclick="open_menu()">
+                    <i class="fa-regular fa-chevrons-left"></i>
+                </div>
+
+                <div class="menu_link">
+
+                    <div class="menu_header">
+                        <i class="fa-regular fa-star"></i> 
+                        <span>
+                            Favorites
+                        </span>
+                    </div>
+
+                </div>
+
+                <div class="menu_link">
+
+                    <a class="menu_header">
+                        <i class="fa-regular fa-coins"></i>
+                        <span>
+                            Financials
+                        </span>
+                    </a>
+
+                </div>
+
+                <div class="menu_link">
+
+                    <a class="menu_header">
+                        <i class="fa-regular fa-hand-holding-dollar"></i>
+                        <span>
+                            Money and marketing
+                        </span>
+                    </a>
+
+                </div>
+
+                <div class="menu_link">
+
+                    <a class="menu_header">
+                        <i class="fa-regular fa-tag"></i>
+                        <span>
+                            Purchase
+                        </span>
+                    </a>
+
+                </div>
+
+                <div class="menu_link">
+
+                    <a class="menu_header">
+                        <i class="fa-regular fa-truck"></i>
+                        <span>
+                            Logistics
+                        </span>
+                    </a>
+
+                </div>
+
+                <div class="menu_link">
+
+                    <a class="menu_header">
+                        <i class="fa-regular fa-robot"></i>
+                        <span>
+                            Production
+                        </span>
+                    </a>
+
+                </div>
+
+                <div class="menu_link">
+
+                    <a class="menu_header">
+                        <i class="fa-regular fa-network-wired"></i>
+                        <span>
+                            Org. Administration
+                        </span>
+                    </a>
+
+                </div>
+
+                <div class="menu_link">
+
+                    <a class="menu_header">
+                        <i class="fa-regular fa-microchip-ai"></i>
+                        <span>
+                            System
+                        </span>
+                    </a>
+
+                </div>
+
+                <div class="menu_link">
+
+                    <a class="menu_header">
+                        <i class="fa-classic fa-regular fa-database"></i>
+                        <span>
+                            Data Center
+                        </span>
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div class="page_content">
+               <no_content>
+                    <img src="/assets/images/12643932_5031661.svg"/>
+                    <p>No analysis to show yet. Please click here to add data sources. </p>
+               </no_content>
+            </div>
+       </div>
+
+        <script>
+            function main()
+            {
+                let search_bar = document.querySelector(".search_bar");
+
+                if (search_bar.classList.contains("not_active"))
+                {
+                    search_bar.classList.remove("not_active");
+                    search_bar.classList.add("active");
+
+                    search_bar.querySelector("input").focus();
+                }
+                else{
+                    search_bar.classList.remove("active");
+                    search_bar.classList.add("not_active");
+                }
+            }
+
+            function open_menu()
+            {
+                let content_container = document.querySelector(".content_container");
+
+                content_container.classList.toggle("menu_on");
+            }
+        </script>
+    </body>
+</html>

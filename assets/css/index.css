@@ -21,7 +21,7 @@ body{
     flex-direction: column;
     align-items: center;
     
-    width: 300px;
+    width: 330px;
     padding: 10px 20px;
     background-color: white;
     border-radius: var(--bRadius);
@@ -69,13 +69,32 @@ body{
 
 .login--container button{
     margin-top: 40px;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    font-weight: 500;
+    font-size: 20px;
+    color: var(--purple);
 }
 
 .login--container button img 
 {
     transform: scale(.8);
+    filter: drop-shadow(6px 6px 5px rgba(0,0,0,0.3));
+
+    transition: filter .4s, transform .4s, opacity .3s;
 }
 
+.login--container button:hover img{
+    filter: drop-shadow(3px 3px 5px rgba(0,0,0,0.5));
+}
+
+.login--container button img.next{
+    opacity: 0;
+    transform: translateX(200px);
+}
 
 @media (max-height: 500px) {
 
@@ -94,5 +113,13 @@ body{
         width: 280px;
         margin: 0px auto;
         padding: 10px 10px;
+    }
+
+    .input--container{
+        width: 100%;
+    }
+
+    .login--extras{
+        width: 100%;
     }
 }

@@ -6,6 +6,9 @@
     /* Colors */
     --gray: #707070;    
     --blue: #2185D0;
+
+    --purple: #AF49D9;
+    --light_purple: #AF49D972;
 }
 
 body{
@@ -15,6 +18,7 @@ body{
 
 body *, input{
     font-family: 'IBM Plex Sans', sans-serif;
+    box-sizing: border-box;
 }
 
 a{
