@@ -37,11 +37,24 @@
                     <a href = '/forgot'>Forgot password</a>
                 </div>
 
-                <button>
-                    <img src = '/assets/images/shutterstock_1846527508 [Converted].png' alt="Logo"/>
+                <button onclick="main()">
+                    <img src = '/assets/images/shutterstock_1846527508 [Converted].png' id = 'test' alt="Logo"/>
+                    <span>Connect</span>
                 </button>
 
             </div>
         </div>
+
+        <script>
+            function main()
+            {
+                document.querySelector("#test").classList.add("next");
+                document.querySelector("#test").parentNode.querySelector("span").textContent = "Wrong credentials";
+
+                setTimeout(()=>{
+                    document.querySelector("#test").classList.remove("next");
+                }, 2000)
+            }
+        </script>
     </body>
 </html>
