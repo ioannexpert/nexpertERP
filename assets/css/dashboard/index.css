@@ -1,20 +1,240 @@
 .page_content 
 {
+    max-width: calc(100vw - 300px);
+}
+
+.page_menu
+{
+    background-color: var(--light_purple);
+    display: flex;
+    column-gap: 15px;
+    padding: var(--pad);
+    border-radius: var(--bRadius);
+
+    box-shadow: 0px 25px 20px -20px rgba(0, 0, 0, 0.45);
+}
+
+.page_menu--item
+{   
+    font-weight: 500;
+    padding: calc(var(--pad) / 2);
+    border-radius: calc(var(--bRadius) / 2);
+
+    cursor: pointer;
+}
+
+.page_menu--item:hover{
+    background-color: var(--light_gray);
+}
+
+.page_menu--item.active{
+    background-color: var(--light_gray);
+}
+
+.excel_header{
+    margin-top: 30px;
+    background-color: var(--light_gray);
+    padding: var(--pad);
+    border-radius: var(--bRadius);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+
+    display: flex;
+}
+
+.excel_header--group{
+    background-color: white;
+    padding: var(--pad);
+    border-radius: var(--bRadius);
+    box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+    
+}
+
+.excel_header--group:hover{
+    box-shadow: 0 3px 7px 0 rgba(0, 0, 0, .13), 0 1px 2px 0 rgba(0, 0, 0, .11);
+}
+
+.font_group{
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+}
+
+.font_group .excel_group--row:nth-child(1){
+    display: grid;
+    grid-template-columns: 200px auto auto auto;
+    column-gap: 10px;
+}
+
+.font_group .excel_group--row:nth-child(2){
+    display: grid;
+    grid-template-columns: 30px 30px 30px 30px;
+    column-gap: 10px;
+}
+
+.excel_group--row.detail{
+    text-align: center;
+    font-weight: 500;
+    font-size: 12px;
+    border-top: 1px solid var(--purple);
+    padding-top: 5px;
+
+    color: var(--purple);
+}
+
+/* Body */
+
+.excel_table{
+    width: calc(100% - 50px);
+    margin-left: 50px;
+    overflow: auto;
+    padding: 30px 50px;
+}
+
+.excel_table--header{
+    background-color: var(--light_gray);
+    margin-top: 15px;
+    border-radius: var(--bRadius) var(--bRadius) 0px 0px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    column-gap: 5px;
+
+    width: fit-content;
+}
+
+.excel_table--header_items
+{
+    --numCols: 3;
+    display: grid;
+    column-gap: 1px;
+    grid-template-columns: repeat(var(--numCols), max-content);
+}
+
+.excel_table--header_actions
+{
+    position: absolute;
+    top: 0px;
+    opacity: 0;
+    background-color: white;
+    transform: translateY(0%);
+
+    width: 100%;
+    left: -2px;
+    padding: calc(var(--pad) / 2);
+    border-radius: var(--bRadius);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.25), inset 0px 0px 0px 1px rgba(255, 255, 255, 0.1);
+    transition: all .4s;
+}
+
+.excel_table--header_actions button:hover i{
+    color: var(--purple);
+}
+
+.excel_table--header_elem:hover > .excel_table--header_actions
+{
+    opacity: 1;
+    transform: translateY(-100%);
+}
+
+.excel_table--header_elem{
+    display: flex;
+    align-items: center;
+    border-right: 2px solid var(--purple);
+    column-gap: 5px;
+    padding: var(--pad) 5px;
+    position: relative;
+    font-weight: bold;
+}
+
+.excel_table--header_elem i{
+    color: var(--gray);
+    cursor: pointer;
+}
+
+.excel_table--col_plus{
+    width: 130px;
+    height: 30px;
+    border-radius: var(--bRadius);
+    font-size: 16px;
+    font-weight: bold;
+    background-color: var(--light_purple);
+
+    padding: 0px 5px;
+    display: flex;
+    column-gap: 5px;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+
+    transition: all .4s;
+}
+
+.excel_table--col_plus:hover{
+    background-color: var(--purple);
+    color: white;
+}
+
+.excel_table--body
+{
+    background-color: white;
+    margin-top: 1px;
+    border: 1px solid var(--light_gray);
+    background-color: var(--gray    );
+    width: fit-content;
+    padding: 1px;
+    position: relative;
+}
+
+.excel_table--body_row
+{
+    display: grid;
+    column-gap: 1px;
+    background-color: var(--gray);
+    grid-template-columns: 181px max-content;
+    position: relative;
+    margin-bottom: 1px;
+}
+
+.excel_table--body_row::before{
+    content: attr(data-row-num);
+    position: absolute;
+    width: 50px;
+    height: 100%;
+    background-color: var(--light_purple);
+    left: -50px;
+    font-weight: bold;
+    font-size: 14px;
+
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-no_content{
-    display: flex;
-    flex-direction: column;
-    margin-top: -60px;
-    justify-content: center;
+.excel_table--body_cell{
+    padding: 4px;
+    position: relative;    
+    outline: none;
+    background-color: white;
+    font-size: 12px;
+    font-family: Arial;
 }
 
-no_content p{
-    text-align: center;
-    color: var(--purple);
-    font-weight: bold;
+.excel_table--body_cell.active::before{
+    content: "";
+    width: calc(100% - 1px);
+    height: calc(100% - 1px);
+    border: 2px solid var(--purple);
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    z-index: 9999;
 }
 
+.cell_selector{
+    width: 0px;
+    height: 0px;
+    border: 2px solid var(--purple);
+    position: absolute;
+    z-index: 999;
+    pointer-events: none;
+}

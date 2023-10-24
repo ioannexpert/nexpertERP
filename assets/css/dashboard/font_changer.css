@@ -1,0 +1,84 @@
+.font_changer{
+    position: relative;
+}
+
+.font_changer input{
+    border: 0px;
+    outline: none;
+}
+
+.font_changer--header
+{
+    border: 1px solid black;
+    padding: 3px;
+}
+
+.font_changer .font_changer--content{
+    background-color: var(--gray);
+    max-height: 0px;
+    overflow: auto;
+    padding: 0px 2px;
+    position: absolute;
+    width: 100%;
+}
+
+.font_changer--font
+{
+    padding: 2px ;
+    background-color: var(--light_gray);
+    margin: 2px 0px;
+    cursor: pointer;
+
+    text-indent: 10px;
+}
+
+.font_changer.active .font_changer--content{
+    max-height: 200px;
+}
+
+.action_button{
+    background-color: transparent;
+    outline: none;
+    font-size: 20px;
+    border-radius: 5px;
+}
+
+.action_button.up{
+    font-size: 20px;
+    font-weight: bold;
+    padding-right: 10px;
+}
+
+.action_button.active{
+    background-color: var(--light_purple);
+}
+
+.action_button.down{
+    font-size: 18px;
+    font-weight: 400;
+}
+
+.action_button.bold{
+    font-weight: bold;
+}
+
+.action_button.italic{
+    font-style: italic;
+}
+
+.action_button.underline{
+    text-decoration: underline;
+}
+
+.action_button.strike{
+    text-decoration: line-through;
+}
+
+.action_button i{
+    position: absolute;
+    font-size: 12px;
+}
+
+.action_button:active{
+    background-color: var(--light_gray);
+}

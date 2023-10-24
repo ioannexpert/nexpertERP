@@ -16,7 +16,24 @@
         <link rel = 'stylesheet' href="/assets/css/main.css">
         <link rel = 'stylesheet' href="/assets/css//dashboard/dashboard.css">
         <link rel="stylesheet" href="/assets/css/dashboard/index.css">
+        <link rel="stylesheet" href="/assets/css/dashboard/font_changer.css">
+        <link rel="stylesheet" href="/assets/css/dashboard/excel_formula.css">
 
+
+                <!-- Libs  -->
+                <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/css/selectize.default.min.css"
+                integrity="sha512-pTaEn+6gF1IeWv3W1+7X7eM60TFu/agjgoHmYhAfLEU8Phuf6JKiiE8YmsNC0aCgQv4192s4Vai8YZ6VNM6vyQ=="
+                crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js"
+                integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ=="
+                crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+                
+        <!-- Custom js  -->
+        <script src = '/assets/js/dash_index.js'></script>
+        <script src = '/assets/js/font_changer.js'></script>
+        <script src = '/assets/js/excel_formula.js'></script>
+        <script src = '/assets/js/excel_table.js'></script>
     </head>
     <body>
         <div class="topbar">
@@ -146,11 +163,106 @@
             </div>
 
             <div class="page_content">
-               <no_content>
-                    <img src="/assets/images/12643932_5031661.svg"/>
-                    <p>No analysis to show yet. Please click here to add data sources. </p>
-               </no_content>
+
+                <div class="page_menu">
+                    <div class="page_menu--item active">
+                        Home
+                    </div>
+                    <div class="page_menu--item">
+                        Business Intelligence
+                    </div>
+                    <div class="page_menu--item">
+                        Documents
+                    </div>
+                    <div class="page_menu--item">
+                        Customers
+                    </div>
+                </div>
+
+                <div class="excel_header">
+                    <div class="excel_header--group font_group">
+                        
+                        <div class="excel_group--row">
+                            <div class="font_changer active">
+                                <div class="font_changer--header">
+                                    <input type="text" /> 
+                                    <i class="fa-solid fa-chevron-down"></i>
+                                </div>
+    
+                                <div class="font_changer--content">
+                      
+                                </div>
+                            </div>
+    
+                            <select id = 'fontSize'>
+                            </select>
+    
+                            <button class="action_button up">
+                                A
+                                <i class="fa-regular fa-chevron-up"></i>
+                            </button>
+    
+                            <button class="action_button down">
+                                A
+                                <i class="fa-regular fa-chevron-down    "></i>
+                            </button>
+                        </div>
+                        <div class="excel_group--row">
+                            <button class="action_button bold">
+                                B
+                            </button>
+                            <button class="action_button italic">
+                                I
+                            </button>
+
+                            <button class="action_button underline">
+                                U
+                            </button>
+
+                            <button class="action_button strike">
+                                S
+                            </button>
+                        </div>
+
+                        <div class="excel_group--row detail">
+                            Font Customization
+                        </div>
+                    </div>
+                </div>
+
+                <div class = "excel_formula">
+                    <div class="excel_formula_input empty" contenteditable="true" >
+                    </div>
+                    <button class="formula_apply" contenteditable="false">Enter</button>
+
+                    <div class="excel_formula--list">
+         
+                    </div>
+                </div>
+
+                <div class="excel_table">
+
+                    <div class="excel_table--header">
+                        
+                        <div class="excel_table--header_items">
+          
+                        </div>
+
+                        <div class="excel_table--col_plus">
+                            <i class="fa-regular fa-plus"></i> Add column
+                        </div>
+
+                    </div>
+
+                    <div class="excel_table--body">
+                        <div class="cell_selector"></div>
+                 
+                    </div>
+
+                </div>
             </div>
+
+
        </div>
 
         <script>

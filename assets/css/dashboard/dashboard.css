@@ -24,6 +24,9 @@
     cursor: pointer;
     overflow-x: hidden;
     position: relative;
+    width: 100%;
+    max-width: 900px;
+    margin: auto;
 }
 
 
