@@ -17,6 +17,8 @@
         <link rel = 'stylesheet' href="/assets/css//dashboard/dashboard.css">
         <link rel="stylesheet" href="/assets/css/dashboard/index.css">
         <link rel="stylesheet" href="/assets/css/dashboard/font_changer.css">
+        <link rel="stylesheet" href="/assets/css/dashboard/excel_formula.css">
+
 
                 <!-- Libs  -->
                 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
@@ -30,6 +32,7 @@
         <!-- Custom js  -->
         <script src = '/assets/js/dash_index.js'></script>
         <script src = '/assets/js/font_changer.js'></script>
+        <script src = '/assets/js/excel_formula.js'></script>
         <script src = '/assets/js/excel_table.js'></script>
     </head>
     <body>
@@ -228,11 +231,12 @@
                 </div>
 
                 <div class = "excel_formula">
-                    <input type = 'text' placeholder="Formula"/>
+                    <div class="excel_formula_input empty" contenteditable="true" >
+                    </div>
+                    <button class="formula_apply" contenteditable="false">Enter</button>
+
                     <div class="excel_formula--list">
-                        <div class="excel_formula--list_item">
-                            Min
-                        </div>
+         
                     </div>
                 </div>
 
@@ -242,25 +246,6 @@
                         
                         <div class="excel_table--header_items">
           
-                            <!-- <div class="excel_table--header_elem">
-                                <div class="excel_table--header_actions">
-
-                                    <button class="small_action" title="Sort Ascending">
-                                        <i class="fa-regular fa-arrow-up-z-a"></i>
-                                    </button>         
-                                    
-                                    <button class="small_action" title="Sort Descending">
-                                        <i class="fa-regular fa-arrow-down-z-a"></i>
-                                    </button>      
-                                    
-                                    <button class="small_action" title="Sort Descending">
-                                        <i class="fa-regular fa-square-xmark"></i>
-                                    </button>    
-
-                                </div>
-                                Customer Number
-                            </div> -->
-                            
                         </div>
 
                         <div class="excel_table--col_plus">
@@ -270,9 +255,8 @@
                     </div>
 
                     <div class="excel_table--body">
-                        <div class="cell_selector"/>
+                        <div class="cell_selector"></div>
                  
-
                     </div>
 
                 </div>

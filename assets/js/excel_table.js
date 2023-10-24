@@ -18,13 +18,19 @@ const header_cell_template = `
 <header_name contenteditable='true'/>
 </div>`;
 
+const cellSelectEvent = document.createEvent("HTMLEvents");
+cellSelectEvent.initEvent("cellSelected", true, true);
 
-function excel(header_info, data, elem, font_changer)
+
+function excel(header_info, data, elem, font_changer, formula)
 {
     this.htmlParent = elem; 
     this.header = header_info;
     this.data = data;
     this.font = font_changer;
+    this.formula = formula;
+
+    this.formula.excelTable = this;
 
     this.selectStart = null;
     this.selectEnd = null;
@@ -251,6 +257,17 @@ excel.prototype.dataRow_node = function(data_Object, _index)
     return row;
 }
 
+excel.prototype.selectCellText = function(cell){
+
+    let selection = document.getSelection();
+    if (selection.toString() === "")
+    {
+        selection.selectAllChildren(cell);
+    }
+
+    return selection;
+}
+
 excel.prototype.cellNode = function (col_Object, _index)
 {
     let cell = document.createElement("div");
@@ -258,11 +275,40 @@ excel.prototype.cellNode = function (col_Object, _index)
     cell.contentEditable = true;
     cell.textContent = col_Object.value;
     cell.dataset.cellIndex = _index;
+    cell.dataset.colUuid = col_Object.uuid;
 
     this.loadNodeCellStyles(col_Object, cell);
 
-    cell.onfocus = ()=>{
-        this.select_cell(col_Object, cell);
+    cell.onfocus = (ev)=>{
+        this.select_cell(col_Object, cell, ev);
+    }
+
+    cell.oncopy = (ev)=>{
+        if (ev.target.dataset.formula)
+        {
+            ev.clipboardData.setData("text/plain", JSON.stringify({"content": ev.target.dataset.formula, "isFormula": true}));
+        }else{
+            let selection = this.selectCellText(cell);
+            ev.clipboardData.setData("text/plain", JSON.stringify({"content": selection.toString(), "isFormula": false}));
+        }
+
+        ev.preventDefault();
+    }
+
+    cell.onpaste = (ev)=>{
+        let obj = JSON.parse((ev.originalEvent || ev).clipboardData.getData('text/plain'));
+
+        if (obj.isFormula)
+        {
+            this.formula.copiedFormula(obj.content, cell)
+        }else{
+            const selection = document.getSelection();
+            if (!selection.rangeCount) return false;
+            selection.deleteFromDocument();
+            selection.getRangeAt(0).insertNode(document.createTextNode(obj.content));
+        }
+
+        ev.preventDefault();
     }
 
     return cell;
@@ -283,17 +329,30 @@ excel.prototype.loadNodeCellStyles = function (col_Object, node){
     }
 }
 
-excel.prototype.select_cell = function (col_Object, node)
+excel.prototype.select_cell = function (col_Object, node, event)
 {
-    this.selectEnd = node;
-    if (!this.shiftKey)
-    {
-        this.selectStart = node;
-        this.font.loadStyles(this.buildStylesObject(node));
+    
+    if (!this.formula.nodeSelector){
+        this.selectEnd = node;
+        if (!this.shiftKey)
+        {
+            this.selectStart = node;
+            this.font.loadStyles(this.buildStylesObject(node));
+        }
+
+        //position the cellSelector
+        this.positionCellSelector(this.calculateSelectWidth(), this.calculateSelectHeight());
+    }
+    else{
+        event.preventDefault();
     }
 
-    //position the cellSelector
-    this.positionCellSelector(this.calculateSelectWidth(), this.calculateSelectHeight());
+    let ev = new CustomEvent("cellSelected",{
+        detail: {
+            value: `$${node.parentNode.dataset.rowNum}@${this.getColNameByUuid(node.dataset.colUuid)}`
+        }
+    });
+    document.dispatchEvent(ev);
 }
 
 excel.prototype.buildStylesObject = function(node)
@@ -371,4 +430,35 @@ excel.prototype.getNodesFromSelection = function()
     }
 
     return nodes;
+}
+
+excel.prototype.getColNameByUuid = function(uuid)
+{
+    for (let index = 0;index<=this.header.length;index++)
+    {
+        if (this.header[index].uuid === uuid)
+        {
+            return this.header[index].name.replaceAll(" ","");
+        }
+    }
+}
+
+excel.prototype.getCellIndexByHeaderName = function (headerName)
+{
+    for (let index = 0;index < this.header.length;index++)
+    {
+        if (this.header[index].name.replaceAll(" ","") == headerName)
+        {
+            return index;
+        }
+    }
+
+    return -1;
+}
+
+excel.prototype.getCellValueByCoords = function(cellCoords){
+    let rowNum = cellCoords.split("@")[0].slice(1,), cellIndex = this.getCellIndexByHeaderName(cellCoords.split("@")[1]);
+    let cellNode = document.querySelector(`.excel_table--body_row[data-row-num='${rowNum}']`).querySelector(`.excel_table--body_cell[data-cell-index='${cellIndex}']`);
+
+    return cellNode.innerText;
 }

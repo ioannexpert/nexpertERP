@@ -1,4 +1,4 @@
-var font = null, excel_table = null;
+var font = null, excel_table = null, formula = null;
 
 const header = [
     {"name": "Sales Order Number", "notes": "Unique identifier for the order", "uuid": "5728a7a3-14ec-4ab9-84cc-9b4bf2b7b54d"},
@@ -109,9 +109,12 @@ const data = [
 
 $(function(){
 
+    formula = new formula_maker(document.querySelector(".excel_formula_input"), document.querySelector(".excel_formula--list"));
+    formula.init_fns();
+
     font = new font_changer(document.querySelector(".font_group"));
     font.init();
 
-    excel_table = new excel(header, data, document.querySelector(".excel_table"), font);
+    excel_table = new excel(header, data, document.querySelector(".excel_table"), font, formula);
     excel_table.init();
 })
