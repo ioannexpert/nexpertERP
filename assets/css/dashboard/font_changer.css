@@ -50,7 +50,7 @@
 }
 
 .action_button.active{
-    background-color: var(--light_purple);
+    background-color: var(--light_orange);
 }
 
 .action_button.down{

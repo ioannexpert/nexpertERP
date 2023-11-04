@@ -18,8 +18,11 @@
     padding: 2px;
     outline: none;
     border-radius: var(--bRadius);
-    border: 2px solid var(--purple);
+    border: 2px solid var(--orange);
     position: relative;
+
+    font-weight: 400;
+    color: black;
 }
 
 .excel_formula_input.empty:not(.disabled)::after{
@@ -53,7 +56,7 @@
 }
 
 .excel_formula--list_item{
-    background-color: var(--light_purple);
+    background-color: var(--light_orange);
     border-radius: var(--bRadius);
     padding: calc(var(--pad) / 2);
 
@@ -63,13 +66,13 @@
 }
 
 .excel_formula--list_item:hover{
-    background-color: var(--purple);
+    background-color: var(--orange);
     color: white;
 }
 
 .excel_formula_input func 
 {
-    color: var(--purple);
+    color: var(--orange);
     font-weight: bold;
     display: inline-block;
     height: 100%;
@@ -82,15 +85,15 @@
     cursor: pointer;
 }
 
-.excel_formula_input args:hover{
+.excel_formula_input args.hover{
     background-color: var(--gray);
 }
 
 .formula_apply{
-    background-color: var(--light_purple);
+    background-color: var(--light_orange);
     position: absolute;
-    top: 12px;
-    right: 12px;
+    top: 1px;
+    right: 1px;
     padding: calc(var(--pad) / 2);
     border-radius: var(--bRadius) 0px 0px var(--bRadius);
     color: black;
@@ -100,6 +103,50 @@
 }
 
 .formula_apply:hover{
-    background-color: var(--purple);
+    background-color: var(--orange);
     color: white;
+}
+
+.excel_formula--searchList{
+    background-color: white;
+    padding: var(--pad);
+    border-radius: var(--bRadius);
+    position: absolute;
+    top: 45px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    z-index: 9999;
+
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s .4s, opacity .4s 0s;
+}
+
+.excel_formula--searchList.on{
+    visibility: visible;
+    opacity: 1;
+
+    transition: visibility 0s, opacity .4s .2s;
+}
+
+.excel_formula--result{
+    background-color: var(--light_orange);
+    padding: calc(var(--pad) / 2);
+    border-radius: var(--bRadius);
+    font-weight: bold;
+    cursor: pointer;
+
+    transition: all .4s;
+}
+
+.excel_formula--result:hover{
+    background-color: var(--orange);
+    color: white;
+}
+
+.excel_formula--result i{
+    margin-right: 10px;
 }

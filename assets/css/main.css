@@ -6,16 +6,26 @@
     /* Colors */
     --gray: #707070;   
     --light_gray: #F5F5F5;
+
+    --green: #7BA537;
+    --light_green: #A5CC66;
+
+    --dark_green: #008037;
      
     --blue: #2185D0;
+ 
+    --orange: #FF914D;
+    --light_orange: #FFBD59;
 
-    --purple: #AF49D9;
-    --light_purple: #AF49D972;
+    --yellow: #FFDE59;
+
+    --text_color: #01295F;
 }
 
 body{
     padding: 0px;
     margin: 0px;
+    color: var(--text_color);
 }
 
 body *, input{
@@ -31,4 +41,38 @@ button{
     background-color: transparent;
     border: 0px;
     cursor: pointer;
+}
+
+.submit_button
+{
+    background-color: var(--light_green);
+    border-radius: var(--bRadius);
+    padding: var(--pad);
+
+    color: black;
+    font-weight: bold;
+    transition: all .4s;
+}
+
+.submit_button:hover{
+    color: white;
+    background-color: var(--green);
+}
+
+.submit_button.maxW{
+    width: 100%;
+}
+
+.submit_button.small{
+    padding: calc(var(--pad) / 2);
+    font-size: 14px;
+}
+
+i[data-for='close']
+{
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    color: red;
+    font-size: 20px;
 }

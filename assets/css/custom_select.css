@@ -1,0 +1,77 @@
+.custom_select{
+    z-index: 9999;
+}
+
+.custom_select--header{
+    background-color: var(--light_gray);
+    border-radius: var(--bRadius);
+    padding: calc(var(--pad) / 2);
+
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    column-gap: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    margin: 10px auto;
+    width: 100%;
+    cursor: pointer;;
+}
+
+.custom_select--options_container{
+    position: absolute;
+    background-color: var(--light_gray);
+    border-radius: var(--bRadius);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+
+    display: grid;
+    grid-template-rows: 0fr;
+    width: calc(100% - 10px);
+    transition: all .4s;
+}
+
+.custom_select--options_fake_container{
+    overflow: hidden;
+}
+
+.custom_select--options{
+    display: flex;
+    flex-direction: column;
+    row-gap: 8px;
+
+    padding: calc(var(--pad) / 2);
+}
+
+.custom_select--option{
+    padding: calc(var(--pad) / 2);
+    border-radius: var(--bRadius);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+
+    display: flex;
+    column-gap: 5px;
+    align-items: center;
+    padding-left: 25px;
+    position: relative;
+}
+
+.custom_select--option::before{
+    content: "\f00c";
+    font-family: 'Font Awesome 6 Pro';
+    color: var(--blue);
+
+    position: absolute;
+    left: 5px;
+    opacity: 0;
+    transition: opacity .4s;
+}
+
+.custom_select--option.checked::before{
+    opacity: 1;
+}
+
+.custom_select--option:hover{
+    background-color: white;
+}
+
+.custom_select.active .custom_select--options_container{
+    grid-template-rows: 1fr;
+}
+
