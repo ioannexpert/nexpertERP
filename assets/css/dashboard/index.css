@@ -116,11 +116,16 @@
     padding: var(--pad);
     border-radius: var(--bRadius);
     box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
-    
 }
 
 .excel_header--group:hover{
     box-shadow: 0 3px 7px 0 rgba(0, 0, 0, .13), 0 1px 2px 0 rgba(0, 0, 0, .11);
+}
+
+.excel_header--group.vertical{
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
 }
 
 .font_group{

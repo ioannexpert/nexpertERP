@@ -165,6 +165,14 @@ excel.prototype.addSheet = function (sheetName){
 
 excel.prototype.init_listeners = function(){
 
+    document.querySelector("#save").addEventListener("click",()=>{
+        this.save_current_sheet();
+    })
+
+    document.querySelector("#save_all").addEventListener("click",()=>{
+        alert("Not yet implemented!");
+    })
+
     document.querySelector(".excel_sheets--container .fa-plus").addEventListener("click",(ev)=>{
         document.querySelector(".excel_sheets--menu").style.top = `${ev.target.offsetTop + ev.target.clientHeight + 5}px`;
         document.querySelector(".excel_sheets--menu").classList.toggle("active");
@@ -608,17 +616,20 @@ excel.prototype.save_current_sheet = function(){
 
     //make the request
     if (Object.keys(data).length != 0)
-    $.ajax({
-        url: "/excel/saveSheet",
-        type: "POST",
-        contentType: "application/json",
-        data: JSON.stringify(body),
-        success: ()=>{
-            alert("Salvat cu bine!");
-        },error: ()=>{
-            alert("Nu s-a salvat :(");
-        }
-    })
+        $.ajax({
+            url: "/excel/saveSheet",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(body),
+            success: ()=>{
+                alert("Salvat cu bine!");
+            },error: ()=>{
+                alert("Nu s-a salvat :(");
+            }
+        })
+    else{
+        alert("Nothing to be saved! Do some editing! Smart :)");
+    }
 }
 
 excel.prototype.cellNode = function (col_Object, _index)
