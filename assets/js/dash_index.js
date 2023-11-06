@@ -21,7 +21,8 @@ const header = [
     {"name": "Delivery Date", "notes": "Expected delivery date", "uuid": "e4f2d15d-8c7b-4f3a-bcaf-0d3c3f7fffc4"},
     {"name": "Order Source", "notes": "Order origin (e.g., online or in-store)", "uuid": "6f43c8f0-3e49-456f-8e82-01ab08dd943e"},
     {"name": "Discounts", "notes": "Applied discounts", "uuid": "8e1d28d1-5c6a-47b3-8f86-84fbcce9c8e3"},
-    {"name": "Order Line Status", "notes": "Status of each line in the order", "uuid": "9a5c73e9-437e-4a5e-bda3-fb68ac7dc9cd"}
+    {"name": "Order Line Status", "notes": "Status of each line in the order", "uuid": "9a5c73e9-437e-4a5e-bda3-fb68ac7dc9cd" },
+    {"name": "Formula column test", "notes": "This is a test","uuid": "9a5c73e9-437e-4a5e-bda3-fb68ac7dc9c2", "formula":"MIN($X-0@Discounts, $X+1@Discounts)"}
   ];
 
 const data = [
@@ -47,7 +48,8 @@ const data = [
         {"value": "2023-10-20", "uuid": "e4f2d15d-8c7b-4f3a-bcaf-0d3c3f7fffc4"},
         {"value": "Online Store", "uuid": "6f43c8f0-3e49-456f-8e82-01ab08dd943e"},
         {"value": "5.00", "uuid": "8e1d28d1-5c6a-47b3-8f86-84fbcce9c8e3"},
-        {"value": "In Stock", "uuid": "9a5c73e9-437e-4a5e-bda3-fb68ac7dc9cd"}
+        {"value": "In Stock", "uuid": "9a5c73e9-437e-4a5e-bda3-fb68ac7dc9cd"},
+        {"value": "Loading", "uuid": "9a5c73e9-437e-4a5e-bda3-fb68ac7dc9c2"}
       ],
       "rowID": "1"
     },
@@ -73,7 +75,8 @@ const data = [
         {"value": "2023-10-18", "uuid": "e4f2d15d-8c7b-4f3a-bcaf-0d3c3f7fffc4"},
         {"value": "Phone Order", "uuid": "6f43c8f0-3e49-456f-8e82-01ab08dd943e"},
         {"value": "10.00", "uuid": "8e1d28d1-5c6a-47b3-8f86-84fbcce9c8e3"},
-        {"value": "Backordered", "uuid": "9a5c73e9-437e-4a5e-bda3-fb68ac7dc9cd"}
+        {"value": "Backordered", "uuid": "9a5c73e9-437e-4a5e-bda3-fb68ac7dc9cd"},
+        {"value": "Loading", "uuid": "9a5c73e9-437e-4a5e-bda3-fb68ac7dc9c2"}
       ],
       "rowID": "2"
     },
@@ -99,22 +102,41 @@ const data = [
         {"value": "2023-10-19", "uuid": "e4f2d15d-8c7b-4f3a-bcaf-0d3c3f7fffc4"},
         {"value": "In-Store Purchase", "uuid": "6f43c8f0-3e49-456f-8e82-01ab08dd943e"},
         {"value": "0.00", "uuid": "8e1d28d1-5c6a-47b3-8f86-84fbcce9c8e3"},
-        {"value": "Discontinued", "uuid": "9a5c73e9-437e-4a5e-bda3-fb68ac7dc9cd"}
+        {"value": "Discontinued", "uuid": "9a5c73e9-437e-4a5e-bda3-fb68ac7dc9cd"},
+        {"value": "Loading", "uuid": "9a5c73e9-437e-4a5e-bda3-fb68ac7dc9c2"}
       ],
       "rowID": "3"
     }
   ]
   ;
 
-
+var customSelect;
 $(function(){
 
-    formula = new formula_maker(document.querySelector(".excel_formula_input"), document.querySelector(".excel_formula--list"));
-    formula.init_fns();
+  document.querySelector(".excel_header--menu").addEventListener("click", (ev)=>{
+    if (ev.target.className.startsWith("excel_header--menu_item"))
+    {
+      document.querySelector(".excel_header--menu_item.active")?.classList.remove("active");
+      ev.target.classList.add("active");
+      //ok
+      let index = Array.from(document.querySelector(".excel_header--menu_container").children).indexOf(ev.target);
+      //show that index 
+      let tabToShow = Array.from(document.querySelectorAll(".excel_header--page"))[index];
+      document.querySelector(".excel_header--page.active").classList.remove("active");
+      tabToShow.classList.add("active");
+    }
+  })
 
-    font = new font_changer(document.querySelector(".font_group"));
-    font.init();
+  customSelect = new customSelect();
 
-    excel_table = new excel(header, data, document.querySelector(".excel_table"), font, formula);
-    excel_table.init();
+  customSelect.init(document.querySelector(".custom_select"));
+
+  formula = new formula_maker(document.querySelector(".excel_formula_input"), document.querySelector(".excel_formula--list"));
+  formula.init_fns();
+
+  font = new font_changer(document.querySelector(".font_group"));
+  font.init();
+
+  excel_table = new excel(document.querySelector(".excel_table"), font, formula);
+  excel_table.init();
 })
