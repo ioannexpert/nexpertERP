@@ -3,6 +3,9 @@ const router = express.Router();
 const ERRORS = require("../errors");
 const REGEX = require("../regex");
 const mongo = require("../managers/mongoDB");
+
+const mysql = require("../managers/mysql");
+
 const { ObjectId } = require("mongodb");
 const { v4: uuidv4 } = require('uuid');
 const constants = require("../constants");
@@ -143,6 +146,42 @@ router.post("/get_header", async (req, res)=>{
     }
 })
 
+router.get("/get_all_headers", async (req, res)=>{
+    let connection = await mongo.getConnection();
+    if (connection)
+    {
+        try{
+            let result = await connection.db("nextERP").collection("headers").aggregate([
+                {
+                  $lookup: {
+                    from: 'sheets',
+                    localField: 'sheetId',
+                    foreignField: '_id',
+                    as: 'sheetInfo'
+                  }
+                },
+                {
+                  $unwind: '$sheetInfo'
+                },
+                {
+                  $project: {
+                    _id: 1,
+                    sheetName: '$sheetInfo.sheetName',
+                    name: 1
+                  }
+                }
+              ]).toArray();
+    
+              res.send(result);
+        }catch(e){
+            res.status(500).send(ERRORS.MONGO_DB_QUERY);
+        }
+
+    }else{
+        res.status(500).send(ERRORS.MONGO_DB_CONNECTION);
+    }
+})
+
 router.get("/test",async (req, res)=>{
 
     let connection = await mongo.getConnection();
@@ -178,7 +217,7 @@ router.post("/parse_rows", async (req, res)=>{
 
 router.post("/saveSheet",async (req, res)=>{
     const {sheetId, data} = req.body;
-    console.log(data);
+
     if(sheetId != undefined && data != undefined)
     {
         let connection = await mongo.getConnection();
@@ -186,6 +225,7 @@ router.post("/saveSheet",async (req, res)=>{
         {
             let queryObject = [];
             Object.keys(data).forEach((cellCoords)=>{
+                console.log(data[cellCoords]);
                 let rowId = parseInt(cellCoords.split("@")[0]), headerId = cellCoords.split("@")[1];
                 let filter = {rowId, uuid: headerId};
                 let update = {
@@ -195,7 +235,9 @@ router.post("/saveSheet",async (req, res)=>{
                         uuid: headerId,
                         styles: data[cellCoords].styles,
                         formula: data[cellCoords].formula,
-                        sheetId: new ObjectId(sheetId) 
+                        sheetId: new ObjectId(sheetId),
+                        type: data[cellCoords].type,
+                        typeParams: data[cellCoords].typeParams
                     }
                 }
                 queryObject.push(
@@ -222,6 +264,59 @@ router.post("/saveSheet",async (req, res)=>{
         }
     }else{
         res.status(500).send(ERRORS.INCOMPLETE_REQUEST);
+    }
+})
+
+router.post("/changeSheetName", async (req, res)=>{
+    const {sheetId, name} = req.body;
+
+    if (sheetId !== undefined && name !== undefined)
+    {
+        let connection = await mongo.getConnection();
+
+        if (connection)
+        {
+            try{
+                await connection.db("nextERP").collection("sheets").updateOne({_id: new ObjectId(sheetId)},{$set: {sheetName: name}});
+                res.sendStatus(200);
+            }catch(e){
+                console.log(e);
+                res.status(500).send(ERRORS.MONGO_DB_QUERY);                
+            }
+        }else{
+            res.status(500).send(ERRORS.MONGO_DB_CONNECTION);
+        }
+
+    }else{
+        res.status(500).send(ERRORS.INCOMPLETE_REQUEST);
+    }
+})
+
+router.post("/removeSheet",async (req, res)=>{
+    let {sheetId} = req.body;
+
+    if (sheetId !== undefined)
+    {
+        let connection = await mongo.getConnection();
+
+        if (connection)
+        {
+            try{
+                await connection.db("nextERP").collection("sheets").deleteMany({_id: new ObjectId(sheetId)});
+                await connection.db("nextERP").collection("cells").deleteMany({sheetId: new ObjectId(sheetId)});
+                await connection.db("nextERP").collection("headers").deleteMany({sheetId: new ObjectId(sheetId)});
+                res.sendStatus(200);
+            }catch(e){
+                console.log(e);
+                res.status(500).send(ERRORS.MONGO_DB_QUERY);                
+            }
+        }else{
+            res.status(500).send(ERRORS.MONGO_DB_CONNECTION);
+        }
+
+    }else{
+        res.status(500).send(ERRORS.INCOMPLETE_REQUEST);
+
     }
 })
 

@@ -21,6 +21,7 @@ async function getConnection()
             return connection
         }
         catch(e){
+            console.log(e);
             return null;
         }
     }

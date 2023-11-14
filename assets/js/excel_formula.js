@@ -27,6 +27,12 @@ function formula_maker(input, list)
             "formula_name": "SUM",
             "docs": "this function does the SUM",
             "click_fn": this.sumClick
+        },
+        {
+            "displayName": "Hyperlink",
+            "formula_name": "Hyperlink",
+            "docs": "this function inserts a hyperlink",
+            "click_fn": this.hyperlinkClick
         }
     ];
 }
@@ -667,4 +673,35 @@ formula_maker.prototype.compileGeneralizedFormula = function (formula, currentRo
     })
 
     return formula;
+}
+
+formula_maker.prototype.hyperlinkClick = function(context){
+    //open the modal 
+    if (modalLib !== undefined)
+    {
+        if (false && context.excelTable.getNodesFromSelection().length == 0)
+        {
+            Toastify({
+                text: "Please select a cell!",
+                className: "toast_error"
+            }).showToast();
+        }else{
+            let dn = new DynamicNodes();
+
+            let url_input = dn.input("Link","URL",undefined, "hyperlink_url", undefined, "spaced");
+            let content_input = dn.input("Cell content","Link",undefined, "hyperlink_content", undefined, "spaced",{"margin-top": "15px"});
+
+            let cellCoordInput = dn.input("Cell coordinates", "!Sheet#rowNum@colName",undefined, "hyperlink_coords", undefined, "spaced");
+
+            let linkCellNode = dn.frag(cellCoordInput, dn.or("var(--light_gray)"));
+
+            modalLib.setView(new view_selector(["Link to web page","Link to cell"],[dn.frag(url_input, content_input, dn.button("submit_button", "Submit", "fa-regular fa-check",{"float": "right", "margin-top": "15px"},{fn: this.setHyperlink_url, context: this, args: [url_input, content_input]})), linkCellNode]), "Insert Hyperlink");
+            modalLib.open();
+        }
+    }
+}
+
+formula_maker.prototype.setHyperlink_url = function (url, content){
+    
+    console.log(url.querySelector("input").value);
 }

@@ -1,5 +1,12 @@
 .custom_select{
     z-index: 9999;
+    position: relative;
+    min-width: 200px;
+}
+
+.custom_select.icons_select{
+    width: fit-content;
+    min-width: auto;
 }
 
 .custom_select--header{
@@ -14,6 +21,14 @@
     margin: 10px auto;
     width: 100%;
     cursor: pointer;;
+}
+
+.custom_select.noMargin .custom_select--header{
+    margin: 0px auto;
+}
+
+.custom_select.custom_select.noMargin .custom_select--options_container{
+    margin-top: 10px;
 }
 
 .custom_select--options_container{
@@ -73,5 +88,13 @@
 
 .custom_select.active .custom_select--options_container{
     grid-template-rows: 1fr;
+    width: 100%;
+    min-width: 200px;
 }
+
+.custom_select.icons_select.active .custom_select--options_container{
+    min-width: 60px;
+    width: max-content;
+}
+
 

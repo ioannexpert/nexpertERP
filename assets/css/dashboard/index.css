@@ -96,6 +96,7 @@
 
 .excel_header--page.multiple_tabs{
     display: flex;
+    column-gap: 15px;
 }
 
 .excel_hasTitle::before{
@@ -144,6 +145,25 @@
     display: grid;
     grid-template-columns: 30px 30px 30px 30px;
     column-gap: 10px;
+}
+
+.content_type{
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+}
+
+.content_type .excel_group--row.hidden{
+    height: 0px;
+    display: none;
+    overflow: hidden;
+}
+
+.content_type .excel_group--row:nth-child(2)
+{
+    display: flex;
+    flex-direction: row;
+    column-gap: 5px;
 }
 
 .excel_group--row.detail{
@@ -396,7 +416,7 @@
     transition: visibility 0s .4s, opacity .4s 0s;
 }
 
-.excel_table--col_plus.on .excel_table--add_col_menu
+.excel_table--add_col_menu.open
 {
     visibility: visible;
     opacity: 1;
@@ -413,11 +433,11 @@
     
     background-color: var(--light_orange);
     border-radius: var(--bRadius);
-    overflow: auto;
 
     display: grid;
     grid-template-columns: 1fr auto;
     align-items: center;
+    position: relative;
 }
 
 .excel_sheets--container .fa-plus{
@@ -434,15 +454,15 @@
     background-color: rgba(255, 255, 255, .8);
 }
 
-.excel_sheets--container::-webkit-scrollbar {
+.excel_sheets::-webkit-scrollbar {
     height: 7px;
 }
 
-.excel_sheets--container::-webkit-scrollbar-track {
-    background: #ffffff;
+.excel_sheets::-webkit-scrollbar-track {
+    background: var(--light_orange);
 }
 
-.excel_sheets--container::-webkit-scrollbar-thumb {
+.excel_sheets::-webkit-scrollbar-thumb {
     background-color: var(--blue);
     border-radius: 18px;
     border: 1px none #ffffff;
@@ -451,6 +471,7 @@
 .excel_sheets{
     padding: calc(var(--pad) / 2) var(--pad);
     display: flex;
+    overflow: auto;
 }
 
 .excel_sheet{
@@ -461,6 +482,9 @@
     align-items: center;
     cursor: pointer;
     font-weight: bold;
+    position: relative;
+
+    text-wrap: nowrap;
 }
 
 .excel_sheet:hover{
@@ -496,6 +520,8 @@
 
     opacity: 0;
     visibility: hidden;
+    border-radius: var(--bRadius);
+    
 
     transition: visibility 0s .4s, opacity .4s 0s;
 }
@@ -509,4 +535,84 @@
 
 .excel_sheets--menu #add_sheet{
     margin-top: 10px;
+}
+
+.excel--context_menu{
+    position: absolute;
+    background-color: white;
+    box-shadow: 0 7px 15px 0 rgba(0, 0, 0, .13), 0 1px 4px 0 rgba(0, 0, 0, .11);
+    border-radius: var(--bRadius);
+    border: 1px solid var(--gray);
+    width: 100%;
+    min-width: 120px;
+    bottom: 20%;
+    overflow: hidden;
+    z-index: 9999;
+    
+    opacity: 0;
+    visibility: hidden;
+
+    transition: bottom .4s, opacity .4s, visibility 0s .4s;
+}
+
+.excel--context_menu.open{
+    bottom: 100%;
+    opacity: 1;
+    visibility: visible;
+    transition: bottom .4s, opacity .4s, visibility 0s 0s;
+}
+
+.excel--context_item{
+    display: flex;
+    flex-direction: row;
+    column-gap: 10px;
+    padding: calc(var(--pad) / 2);
+    cursor: pointer;
+}
+
+.excel--context_item.danger{
+    color: var(--red);
+}
+
+.excel--context_item.normal{
+    color: var(--blue);
+}
+
+.excel--context_item:hover{
+    background-color: var(--light_gray);
+}
+
+.excel--context_item:not(:last-child){
+    border-bottom: 1px solid var(--gray);
+}
+
+
+/* Types */
+.excel_table--body_cell.type_date date_value
+{
+    display: block;
+    width: 80%;
+
+}
+
+.excel_table--body_cell.type_date::after{
+    content: "\f133";
+    font-family: 'Font Awesome 6 Pro';
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    width: 20%;
+    height: 100%;
+    font-size: 15px;
+    background-color: var(--light_gray);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hyperlink_methods{
+    display: flex;
+    flex-direction: row;
+    column-gap: 2px;
+    background-color: var(--gray);
 }
