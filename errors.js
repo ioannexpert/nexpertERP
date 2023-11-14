@@ -1,5 +1,6 @@
 const EXCEL_CODE = 1;
 const SERVER_CODE = 9;
+const AUTH_CODE = 8;
 
 const EXCEL_SHEET_NAME_EMPTY = {
     "body": "The sheet name cannot be empty!",
@@ -57,6 +58,35 @@ const INCOMPLETE_REQUEST = {
     "request": ""
 }
 
+const MYSQL_DB_CONNECTION = {
+    "body": "Database error",
+    "code": `${SERVER_CODE}003`,
+    "shortBody": "Database error",
+    "request": "Please try again later!"
+};
+
+const MYSQL_DB_QUERY = {
+    "body": "Database error",
+    "code": `${SERVER_CODE}004`,
+    "shortBody": "Database error",
+    "request": "Please try again later!"
+};
+
+const AUTH_NO_USER_FOUND = {
+    "body": "No user found!",
+    "code": `${AUTH_CODE}000`,
+    "shortBody": "No user found",
+    "request": "Please change the username!"
+};
+
+const AUTH_WRONG_PASS = {
+    "body": "Credentials are wrong!",
+    "code": `${AUTH_CODE}001`,
+    "shortBody": "Credentials are wrong",
+    "request": ""
+};
+
 module.exports = {
-    EXCEL_SHEET_NAME_EMPTY, EXCEL_SHEET_NAME_NOT_VALID, MONGO_DB_CONNECTION, EXCEL_SHEET_NAME_NOT_UNIQUE, MONGO_DB_QUERY, INCOMPLETE_REQUEST, EXCEL_SHEET_NULL, EXCEL_HEADER_NOT_UNIQUE
+    EXCEL_SHEET_NAME_EMPTY, EXCEL_SHEET_NAME_NOT_VALID, MONGO_DB_CONNECTION, EXCEL_SHEET_NAME_NOT_UNIQUE, MONGO_DB_QUERY, INCOMPLETE_REQUEST, EXCEL_SHEET_NULL, EXCEL_HEADER_NOT_UNIQUE, MYSQL_DB_CONNECTION, MYSQL_DB_QUERY, AUTH_NO_USER_FOUND,
+    AUTH_WRONG_PASS
 }

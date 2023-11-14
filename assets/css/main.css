@@ -9,15 +9,21 @@
 
     --green: #7BA537;
     --light_green: #A5CC66;
-
     --dark_green: #008037;
      
-    --blue: #2185D0;
+    --blue: #0453B4;
+    --light_blue: #5FA6FC;
+
+    --cyan: #03989E;
+    --light_cyan: #04D5DC;
  
     --orange: #FF914D;
     --light_orange: #FFBD59;
 
     --yellow: #FFDE59;
+
+    --red: #FF3333;
+    --light_red: #FF5757;
 
     --text_color: #01295F;
 }
@@ -33,6 +39,10 @@ body *, input{
     box-sizing: border-box;
 }
 
+body.modal{
+    overflow: hidden;
+}
+
 a{
     color: var(--blue);
 }
@@ -41,6 +51,10 @@ button{
     background-color: transparent;
     border: 0px;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    column-gap: 5px;
 }
 
 .submit_button
@@ -59,7 +73,24 @@ button{
     background-color: var(--green);
 }
 
-.submit_button.maxW{
+.cancel_button
+{
+    background-color: var(--light_red);
+    border-radius: var(--bRadius);
+    padding: var(--pad);
+
+    color: black;
+    font-weight: bold;
+    transition: all .4s;
+}
+
+.cancel_button:hover{
+    color: white;
+    background-color: var(--red);
+}
+
+
+button.maxW{
     width: 100%;
 }
 
@@ -73,6 +104,38 @@ i[data-for='close']
     position: absolute;
     top: 5px;
     right: 5px;
-    color: red;
+    color: var(--red);
     font-size: 20px;
+}
+
+i.static[data-for='close']
+{
+    position: relative;
+    top: 0px;
+    right: 0px;
+    color: var(--red);
+}
+
+.or{
+    width: 100%;
+    margin: 10px 0px;
+    position: relative;
+    text-align: center;
+}
+
+.or::after{
+    content: "OR";
+    background-color: inherit;
+    position: relative;
+}
+
+.or::before{
+    content: "";
+    position: absolute;
+    background-color: var(--orange);
+    left: 0px;
+    width: 100%;
+    height: 3px;
+    top: calc((100% - 3px) / 2);
+    
 }

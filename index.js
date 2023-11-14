@@ -2,13 +2,26 @@ const express = require("express");
 const app = express();
 const path = require("path");
 const mustache = require("mustache-express");
+const cookieParser = require("cookie-parser");
+const { checkLogin } = require("./middlewares");
 
+const mongo = require("./managers/mongoDB");
+
+(async ()=>{
+    //let con = await mongo.getConnection();
+   //con.db("nextERP").collection("cells").deleteMany({});
+})();
+
+app.use(cookieParser("nextERP"));
 app.use(express.json());
+
+
 // Router imports 
 const excelRouter = require("./routers/excel");
+const authRouter = require("./routers/auth");
 
 app.use("/excel",excelRouter);
-
+app.use("/auth",authRouter);
 // END ROUTING 
 
 app.engine('html', mustache());
@@ -18,17 +31,15 @@ app.use(express.static(path.join(__dirname, 'pages')));
 app.use("/assets",express.static(path.join(__dirname, "assets")));
 
 
-app.get("/",(req, res)=>{
-    res.render("index.html");
-})
 
-app.get("/dashboard",(req, res)=>{
-    res.render("dashboard.html");
+app.get("/dashboard", checkLogin,(req, res)=>{
+    res.render("dashboard.html",req.user);
 })
 
 app.get("/test",(req, res)=>{
     res.render("test.html");
 })
+
 
 app.listen(3000,()=>{
     console.log("App started on port 3000");

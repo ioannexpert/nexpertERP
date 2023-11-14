@@ -38,6 +38,8 @@ customSelect.prototype.init = function(node)
     let optionParent = document.createElement("div");
     optionParent.className = "custom_select--options";
 
+    let defaultNode = null;
+
     //build the options object 
     Array.from(options).forEach((option_elem, _index)=>{
         //check for icon 
@@ -46,6 +48,7 @@ customSelect.prototype.init = function(node)
         let optionValue = option_elem.dataset.value || textNode;
 
         let optionNode = document.createElement("div");
+        optionNode.dataset.value = optionValue;
         optionNode.className = "custom_select--option";
         i!== null && optionNode.appendChild(i);
         optionNode.appendChild(document.createTextNode(textNode));
@@ -55,6 +58,8 @@ customSelect.prototype.init = function(node)
         }
         
         optionParent.appendChild(optionNode);
+
+        defaultNode = option_elem.dataset.default == 'true' ? optionNode : defaultNode;
     })  
 
     let optionParentContainer = document.createElement("div");
@@ -73,11 +78,22 @@ customSelect.prototype.init = function(node)
     node.onclick = ()=>{
         node.classList.toggle("active");
     }
+    console.log(defaultNode);
+    this.pickDefault(defaultNode);
 }
 
-customSelect.prototype.pickOption = function (node, optionValue, optionI, optionText, optionNode)
+customSelect.prototype.pickDefault = function(option){
+    if (option)
+    {
+        option.click();
+        option.click();
+    }
+}
+
+customSelect.prototype.pickOption = function (node, optionValue, optionI, optionText, optionNode, silent)
 {
     let uuid = node.dataset.uuid;
+    let prev = this.nodes[uuid].value;
     //pick the option 
     this.nodes[uuid].value = optionValue;
 
@@ -97,10 +113,10 @@ customSelect.prototype.pickOption = function (node, optionValue, optionI, option
     header.querySelector(".custom_select--title").textContent = optionText;
     optionNode.classList.add("checked");
 
-    //TODO TRIGGER EVENT 
-    node.dispatchEvent(new CustomEvent("customSelect_changed",{
+    !silent && node.dispatchEvent(new CustomEvent("customSelect_changed",{
         detail: {
-            "value": optionValue
+            "value": optionValue,
+            "prev": prev
         }
     }))
 }
@@ -110,4 +126,13 @@ customSelect.prototype.getPickedOption = function(node)
     let uuid = node.dataset.uuid;
 
     return this.nodes[uuid]?.value || null;
+}
+
+customSelect.prototype.selectOption = function(node, optionValue, silent = true)
+{
+    let optionNode = node.querySelector(`.custom_select--option[data-value='${optionValue}']`);
+    if (optionNode)
+    {
+        this.pickOption(node, optionValue, optionNode.querySelector("i"), optionNode.innerText.trim(), optionNode, silent);
+    }
 }

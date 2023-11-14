@@ -20,6 +20,15 @@ fontSizeEvent.initEvent("fontSize_change", true, true);
 const fontFamEvent = document.createEvent("HTMLEvents");
 fontFamEvent.initEvent("fontFam_change", true, true);
 
+const cellTypeEvent = document.createEvent("HTMLEvents");
+cellTypeEvent.initEvent("cellType_change", true, true);
+
+const dateFormatChange = document.createEvent("HTMLEvents");
+dateFormatChange.initEvent("dateFormat_change", true, true);
+
+const decimalChange = document.createEvent("HTMLEvents");
+decimalChange.initEvent("decimal_change", true, true);
+
 function font_changer(elem)
 {
     this.htmlParent = elem;
@@ -110,6 +119,95 @@ font_changer.prototype.init = function (){
             else 
                 this.htmlParent.querySelector(".action_button.strike").classList.remove("active");
         })
+
+        //data_type
+        this.htmlParent.querySelector("#content_type").addEventListener("customSelect_changed",(ev)=>{
+
+            let type = ev.detail.value;
+            this.changeCellType(type);
+
+            let e = new CustomEvent("cellType_change",{
+                detail: {
+                    value: type,
+                    prev_type: ev.detail.prev
+                }
+            });
+            document.dispatchEvent(e);
+
+        });
+
+        this.htmlParent.querySelector("#date_format").addEventListener("customSelect_changed",(ev)=>{
+            let val = ev.detail.value;
+
+            document.dispatchEvent(new CustomEvent("dateFormat_change",{
+                detail: {
+                    value: val
+                }
+            }))
+        })
+
+        this.htmlParent.querySelector("#float_left").addEventListener("click",()=>{
+            document.dispatchEvent(
+                new CustomEvent("decimal_change",{
+                    detail: {
+                        value: -1
+                    }
+                })
+            )
+        })
+
+        this.htmlParent.querySelector("#float_right").addEventListener("click",()=>{
+            document.dispatchEvent(
+                new CustomEvent("decimal_change",{
+                    detail: {
+                        value: 1
+                    }
+                })
+            )
+        })
+}
+
+
+
+font_changer.prototype.loadCellType = function (cellNode)
+{
+    let type = cellNode.dataset?.type || "string";
+    customSelect.selectOption(this.htmlParent.querySelector("#content_type"), type);
+    if (type == "date")
+    {
+        customSelect.selectOption(this.htmlParent.querySelector("#date_format"), cellNode.dataset.format || "DD.MM.YYYY", true);
+    }
+    this.changeCellType(type);
+
+}
+
+font_changer.prototype.changeCellType = function(type)
+{
+    //hide all rows for now 
+    Array.from(this.htmlParent.querySelector(".content_type").querySelectorAll(".excel_group--row[data-for]")).forEach((elem)=>{elem.classList.add("hidden")});
+
+    //first we should show the sub-menu for this type 
+    this.htmlParent.querySelector(`.content_type .excel_group--row[data-for='${type}']`)?.classList.remove("hidden");
+}
+
+font_changer.prototype.checkCellType = function(type, node){
+    let value = node.innerText, ok = false;
+
+    switch(type)
+    {
+        case "string":
+            ok = true;
+        break;
+        case "number":
+            let intValue = parseFloat(value);
+            ok = !isNaN(intValue);
+        break;
+        case "date":
+            ok = true;
+        break;
+    }
+
+    return ok;
 }
 
 font_changer.prototype.change_bold = function (value = null){

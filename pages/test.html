@@ -1,46 +1,36 @@
 <html>
     <head>
+        <link rel = 'stylesheet' href="/assets/css/main.css">
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
-        <style>
-            body{
-                padding: 0px;
-                margin: 0px;
-            }
-            .body--wrapper{
-                width: 100%;
-                height: 100%;
-                position: fixed;
-                left: 0px;
-                top: 0px;
-                /*background: linear-gradient(to right, #FFBD59, #FF914D) no-repeat border-box, radial-gradient(circle at center, red, yellow) no-repeat border-box;*/
-                background: url('/assets/images/ffflux.svg');
-                background-size: cover;
-            }
-            .bubble{
-                --size: 40vw;
-                position: absolute;
-                background-color: #00C2CB;
-                border-radius: 50%;
-                opacity: .4;
-                filter: blur(30px);
-            }
-
-            .one{
-                top: -150px;
-                left: -50px;
-            }
-
-            .small{
-                width: var(--size);
-                height: var(--size);
-                ;
-            }
-        </style>
-
+        <link rel = 'stylesheet' href="/assets/fontawesome-pro-6.3.0-web (2)/fontawesome-pro-6.3.0-web/css/all.css">
+        <link rel = 'stylesheet' href="/assets/fontawesome-pro-6.3.0-web (2)/fontawesome-pro-6.3.0-web/css/fontawesome.css">
+      <script src="/assets/js/column_selector.js"></script>
+        <link rel = 'stylesheet' href = '/assets/css/column_selector.css'>
     </head>
     <body>
-        <div class="body--wrapper">
-            <div class="bubble one small"></div>
-        </div>
+
+        <!-- <div class="column_selector">
+            <div class="column_selector--header">
+                <input type = 'text' placeholder="Select column" />
+                <i class="fa-regular fa-chevron-down"></i>
+            </div>
+
+            <div class="column_selector--container">
+                <div class="column_selector--list">
+                    <div class="column_selector--group">
+                        <span>Sheet 2</span>
+                        <div class="column_selector--item">ProductId</div>
+                    </div>
+                </div>
+            </div>
+        </div> -->
+
+        <script>
+            var test = new column_selector();
+            document.querySelector("body").appendChild(test.getNode());
+            
+            
+        </script>
     </body>
 </html>

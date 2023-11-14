@@ -12,6 +12,9 @@
         <link rel = 'stylesheet' href="/assets/css/main.css">
         <link rel = 'stylesheet' href="/assets/css/index.css">
 
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+        <script src="/assets/js/login.js"></script>
+
     </head>
     <body>
         <div class = "login--holder">
@@ -20,12 +23,12 @@
 
                 <div class="input--container">
                     <label class="label">Username</label>
-                    <input type = 'text' placeholder="name@domain.com"/>
+                    <input type = 'text' placeholder="name@domain.com" id="user"/>
                 </div>
 
                 <div class="input--container">
                     <label class="label">Password</label>
-                    <input type = 'password' placeholder="Password"/>
+                    <input type = 'password' placeholder="Password" id="pass"/>
                 </div>
 
                 <div class="login--extras">
@@ -37,24 +40,12 @@
                     <a href = '/forgot'>Forgot password</a>
                 </div>
 
-                <button onclick="main()">
-                    <img src = '/assets/images/shutterstock_1846527508 [Converted].png' id = 'test' alt="Logo"/>
+                <button onclick="login()">
+                    <img src = '/assets/images/shutterstock_1846527508 [Converted].png' id = 'logo' alt="Logo"/>
                     <span>Connect</span>
                 </button>
 
             </div>
         </div>
-
-        <script>
-            function main()
-            {
-                document.querySelector("#test").classList.add("next");
-                document.querySelector("#test").parentNode.querySelector("span").textContent = "Wrong credentials";
-
-                setTimeout(()=>{
-                    document.querySelector("#test").classList.remove("next");
-                }, 2000)
-            }
-        </script>
     </body>
 </html>

@@ -1,5 +1,5 @@
 body{
-    background-image: url("/assets/images/Group\ 252.png");
+    background-image: url("/assets/images/colorful-farm-fields-from-sunflower-wheat-rye-corn.jpg");
     background-repeat: no-repeat;
     background-size: cover;
 }
@@ -8,7 +8,7 @@ body{
 {
     width: 100vw;
     min-height: 100vh;
-    background-image: linear-gradient(to right, transparent 70%, white);
+    background-image: linear-gradient(to right, transparent 40%, rgba(255, 255, 255, .8));
 
     display: flex;
     justify-content: end;

@@ -110,33 +110,31 @@ const data = [
   ]
   ;
 
-var customSelect;
+var customSelect, cal, modalLib;
 $(function(){
+  modalLib = new modal();
 
-  document.querySelector(".excel_header--menu").addEventListener("click", (ev)=>{
-    if (ev.target.className.startsWith("excel_header--menu_item"))
-    {
-      document.querySelector(".excel_header--menu_item.active")?.classList.remove("active");
-      ev.target.classList.add("active");
-      //ok
-      let index = Array.from(document.querySelector(".excel_header--menu_container").children).indexOf(ev.target);
-      //show that index 
-      let tabToShow = Array.from(document.querySelectorAll(".excel_header--page"))[index];
-      document.querySelector(".excel_header--page.active").classList.remove("active");
-      tabToShow.classList.add("active");
-    }
+  dayjs.extend(window.dayjs_plugin_customParseFormat);
+  cal = new calendar(document.querySelector(".calendar"));
+
+  document.querySelector(".farm_selector").addEventListener("click",(ev)=>{
+    document.querySelector(".farm_selector").classList.toggle("open");
   })
 
   customSelect = new customSelect();
 
-  customSelect.init(document.querySelector(".custom_select"));
+  Array.from(document.querySelectorAll(".custom_select")).forEach((node)=>{
+    customSelect.init(node);
+  })
 
   formula = new formula_maker(document.querySelector(".excel_formula_input"), document.querySelector(".excel_formula--list"));
   formula.init_fns();
 
-  font = new font_changer(document.querySelector(".font_group"));
+  font = new font_changer(document.querySelector("#fontCustom"));
   font.init();
 
   excel_table = new excel(document.querySelector(".excel_table"), font, formula);
   excel_table.init();
+
+  formula.hyperlinkClick(formula);
 })
