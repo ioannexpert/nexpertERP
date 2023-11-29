@@ -15,16 +15,10 @@
         <!-- Custom css -->
         <link rel = 'stylesheet' href="/assets/css/main.css">
         <link rel = 'stylesheet' href="/assets/css//dashboard/dashboard.css">
-        <link rel="stylesheet" href="/assets/css/dashboard/index.css">
-        <link rel="stylesheet" href="/assets/css/dashboard/font_changer.css">
-        <link rel="stylesheet" href="/assets/css/dashboard/excel_formula.css">
+        <link rel="stylesheet" href="/assets/css/dashboard/page.css">
         <link rel = 'stylesheet' href="/assets/css/custom_select.css">
         <link rel  = 'stylesheet' href="/assets/css/confirm.css">
-        <link rel = 'stylesheet' href="/assets/css/calendar.css">
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-        <link rel = "stylesheet" href="/assets/css/modal.css">
-        <link rel = "stylesheet" href="/assets/css/view_selector.css">
-        <link rel = "stylesheet" href="/assets/css/column_selector.css">
 
                 <!-- Libs  -->
                 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
@@ -36,25 +30,20 @@
                 crossorigin="anonymous" referrerpolicy="no-referrer"></script>
                 
         <!-- Custom js  -->
-        <script src = '/assets/js/dashboard_menu.js'></script>
+        <script src="/assets/js/page.js"></script>
+        <script src="/assets/js/dashboard_menu.js"></script>
         <script src = '/assets/js/view_selector.js'></script>
         <script src = '/assets/js/DynamicNodes.js'></script>
         <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/customParseFormat.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
-        <script src = '/assets/js/custom_select.js'></script>
-        <script src = '/assets/js/dash_index.js'></script>
-        <script src = '/assets/js/font_changer.js'></script>
-        <script src = '/assets/js/excel_formula.js'></script>
-        <script src = '/assets/js/excel_table.js'></script>
         <script src = '/assets/js/confirm.js'></script>
-        <script src = '/assets/js/calendar.js'></script>
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
         <script src="/assets/js/modal.js"></script>
         <script src="/assets/js/column_selector.js"></script>
 
     </head>
     <body>
-
+        <input type = 'hidden' id = 'page_id' value='{{pageId}}'/>
         <div class="body--wrapper">
             <div class="bubble one small"></div>
         </div>
@@ -123,7 +112,6 @@
                     <span>{{userRole}}</span>
                 </div>
 
-                <input type = 'hidden' id = 'page_name' value = {{pageName}}/>
                 <input type = 'hidden' id = 'doc_id' value = {{doc_id}} />
                 
                 {{#pages}}
@@ -142,7 +130,7 @@
                     </div>
                     <div class="menu_page--content_container">
                         <div class="menu_page--content">
-
+                            
                             <button class="primary_button maxW small" onclick="toggle_doc_form(this)"><i class="fa-regular fa-plus"></i> Create document</button>
     
                             <div class="add_doc--form_container">
@@ -239,336 +227,15 @@
 
             </div>
 
-            <div class="page_content">
+        <div class="page_content">
+            <h2>Documents for page {{pageName}}</h2>
 
-                <div class="excel_header--menu">
-                    <div class="excel_header--menu_container">
-                        <div class="excel_header--menu_item active">
-                            Styling
-                        </div>
-                        <div class="excel_header--menu_item">
-                            Formula
-                        </div>
-                        <div class="excel_header--menu_item">
-                            Document
-                        </div>
-                    </div>
-                </div>
-
-                <div class="excel_header">
-                    <div class="excel_header--page multiple_tabs active" id="fontCustom">
-
-                            <div class="excel_header--group font_group">
-                            
-                                <div class="excel_group--row">
-                                    <div class="font_changer active">
-                                        <div class="font_changer--header">
-                                            <input type="text" /> 
-                                            <i class="fa-solid fa-chevron-down"></i>
-                                        </div>
-            
-                                        <div class="font_changer--content">
-                            
-                                        </div>
-                                    </div>
-            
-                                    <select id = 'fontSize'>
-                                    </select>
-            
-                                    <button class="action_button up">
-                                        A
-                                        <i class="fa-regular fa-chevron-up"></i>
-                                    </button>
-            
-                                    <button class="action_button down">
-                                        A
-                                        <i class="fa-regular fa-chevron-down    "></i>
-                                    </button>
-                                </div>
-                                <div class="excel_group--row">
-                                    <button class="action_button bold">
-                                        B
-                                    </button>
-                                    <button class="action_button italic">
-                                        I
-                                    </button>
-        
-                                    <button class="action_button underline">
-                                        U
-                                    </button>
-        
-                                    <button class="action_button strike">
-                                        S
-                                    </button>
-                                </div>
-        
-                                <div class="excel_group--row detail">
-                                    Font Customization
-                                </div>
-                            </div>
-
-                            <div class="excel_header--group content_type">
-                            
-                                <div class="excel_group--row">
-                                    <div class="custom_select noMargin" id = 'content_type'>
-                                        <customOption data-value="string">
-                                            <i class="fa-regular fa-text"></i>
-                                            String
-                                        </customOption>
-
-                                        <customOption data-value="number">
-                                            <i class="fa-regular fa-5"></i>
-                                            Number
-                                        </customOption>
-    
-                                        <customOption data-value="date">
-                                            <i class="fa-regular fa-calendar"></i>
-                                            Date
-                                        </customOption>
-                                  </div>
-                                </div>
-
-                                <div class="excel_group--row hidden" data-for="number">
-                                    
-                                  <div class="custom_select icons_select noMargin" style="z-index: 9998;" id="vault_type">
-                                    <customOption data-value="none" data-default="true">
-                                        <i class="fa-regular fa-coins"></i>
-                                        
-                                    </customOption>
-
-                                    <customOption data-value="euro">
-                                        <i class="fa-regular fa-euro"></i>
-                                        
-                                    </customOption>
-
-                                    <customOption data-value="dollars">
-                                        <i class="fa-regular fa-dollar"></i>
-                                        
-                                    </customOption>
-
-                                    <customOption data-value="ron">
-                                        RON
-                                    </customOption>
-
-                                    <customOption data-value="pounds">
-                                        <i class="fa-regular fa-sterling-sign"></i>
-
-                                    </customOption>
-
-                              </div>
-                              
-                                <button class="action_button" id="percentage">
-                                    %
-                                </button>
-                                <button class="action_button" id="float_left">
-                                    <i class="fa-regular fa-chevron-left"></i>
-                                    .00
-                                </button>
-
-                                <button class="action_button" id="float_right">
-                                    <i class="fa-regular fa-chevron-right"></i>
-                                    .00
-                                </button>
-                                </div>
-                                
-                                <div class="excel_group--row hidden" data-for="date">
-                                    <div class="custom_select  noMargin" style="z-index: 9998;" id="date_format">
-                                        <customOption data-value="DD.MM.YYYY" data-default="true">
-                                            <i class="fa-regular fa-calendar"></i>
-                                            dd.mm.yyyy
-                                        </customOption>
-
-                                        <customOption data-value="MM.DD.YYYY">
-                                            <i class="fa-regular fa-calendar"></i>
-                                            mm.dd.yyyy
-                                        </customOption>
-    
-                                  </div>
-                                  </div>
-        
-                                <div class="excel_group--row detail">
-                                    Data Format
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="excel_header--page">
-                            <div class="excel_formula_input empty" contenteditable="true" >
-                            </div>
-                            <button class="formula_apply" contenteditable="false">Enter</button>
-        
-                            <div class="excel_formula--searchList">
-                    
-                            </div>
-        
-                            <div class="excel_formula--list">
-                
-                            </div>
-                        </div>
-
-                        <div class="excel_header--page multiple_tabs">
-                            <div class="excel_header--group vertical">
-
-                                <button class="simple xl" title="Save" id="save">
-                                    <i class="fa-regular fa-floppy-disk"></i>
-                                </button>
-
-                                <button class="simple xl" title="Save all" id="save_all">
-                                    <i class="fa-regular fa-floppy-disks"></i>
-                                </button>
-
-                            </div>
-                        </div>
-                </div>
-
-    
-
-                <div class="excel_sheets--container">
-                    <div class = 'excel_sheet--menu excel--context_menu' data-for="context_menu">
-                        
-                        <div class="excel--context_item danger" data-for="delete">
-                            <i class="fa-regular fa-trash"></i> Delete
-                        </div>
-
-                        <div class="excel--context_item normal" data-for="rename">
-                            <i class="fa-regular fa-pen-to-square"></i> Rename
-                        </div>
-
-                    </div>
-                    <div class="excel_sheets">
-     
-                    </div>
-                    <i class="fa-regular fa-plus"></i>
-
-                    <div class = "excel_sheets--menu">
-                        <label>
-                            Sheet name
-                            <input class="input_one" placeholder="" value="New sheet" id="sheet_name"/>
-                        </label>
-
-                        <button class="submit_button maxW small" id="add_sheet">Submit</button>
-                    </div>
-                </div>
-
-                <div class="excel_table">
-
-                    <div class="excel_table--header">
-                        
-                        <div class="excel_table--header_items">
+            <div class="documents_container">
           
-                        </div>
-
-                        <div class="excel_table--col_plus" data-for="context_menu">
-                            <i class="fa-regular fa-plus"></i> Add column
-
-                            <div class="excel_table--add_col_menu" data-for="context_menu">
-
-                                <i class="fa-regular fa-square-x" data-for="close"></i>
-
-                              <label>
-                                Field name
-                                <input class="input_one" placeholder="" value="New field" id="col_name"/>
-                              </label>
-
-                              <div class="custom_select">
-                                    <customOption data-value="string">
-                                        <i class="fa-regular fa-text"></i>
-                                        String
-                                    </customOption>
-
-                                    <customOption data-value="date">
-                                        <i class="fa-regular fa-calendar"></i>
-                                        Date
-                                    </customOption>
-                              </div>
-                              
-                              <div class="column_forms">
-                                <div class="column_form" id = 'option'>
-
-                                </div>
-                              </div>
-
-                              <button class="submit_button maxW small" id = 'add_col'>Submit</button>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <div class="excel_table--body">
-                        <div class="cell_selector"></div>
-                 
-                    </div>
-
-                    <div class="excel_add_row">
-                        <div class="excel_table--col_plus">
-                            <i class="fa-regular fa-plus"></i> Add row
-                        </div>
-                    </div>
-
-                </div>
             </div>
-
 
        </div>
 
-       <div class="calendar">
-        <div class="calendar__opts">
-          <select name="calendar__month" id="calendar__month">
-            
-          </select>
-      
-          <select name="calendar__year" id="calendar__year">
- 
-          </select>
-        </div>
-      
-        <div class="calendar__body">
-          <div class="calendar__days">
-            <div>M</div>
-            <div>T</div>
-            <div>W</div>
-            <div>T</div>
-            <div>F</div>
-            <div>S</div>
-            <div>S</div>
-          </div>
-      
-          <div class="calendar__dates">
-      
-          </div>
-        </div>
-      
-        <div class="calendar__buttons">
-          <button class="calendar__button cancel_button">Cancel</button>
-      
-          <button class="calendar__button submit_button">Apply</button>
-        </div>
-      </div>
-
-      <template id = 'hyperlink_view'>
-        <div class="hyperlink_window">
-
-            <div class="hyperlink_methods">
-                <div class="hyperlink_method active">
-                    Link catre pagina web
-                </div>
-                <div class="hyperlink_method">
-                    Link catre celula
-                </div>
-            </div>
-            <div class="hyperlink_body">
-                <div class="hyperlink_page">
-                    pagina catre web
-                </div>
-                <div class="hyperlink_page">
-                pagina catre celula 
-                </div>
-            </div>
-
-        </div>
-    </template>
     <template id = 'sheetMenu'>
         <div class="menu_group--item">
 
@@ -600,7 +267,7 @@
                     <i class=''></i>
                 </span>
 
-                <a class="page_link" href=""></a> 
+                <a href="/document/{{pageName}}" class="page_link">{{pageName}}</a> 
                 
                 <span class="icon_holder round" onclick="show_page(this)">
                     <i class="fa-regular fa-chevron-down"></i>
@@ -642,6 +309,20 @@
 
         </div>
     </template>
+
+    <template id = 'document'>
+        <div class="document">
+            <a class="document--header" href="/document/ceva/ce">
+                <i class="fa-solid fa-folder-open"></i>
+                <span></span>
+            </a>
+            Sheets:
+            <div class="document--sheets">
+               
+            </div>
+        </div>
+    </template>
+
         <script>
             function main()
             {

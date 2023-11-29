@@ -89,13 +89,25 @@ button{
     background-color: var(--red);
 }
 
+.icon_button{
+    background-color: var(--light_gray);
+    border-radius: var(--bRadius);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    border: 1px solid var(--light_gray);
+    width: 30px;
+    height: 30px;
+}
+
+.icon_button >i {
+    font-size: 18px !important;
+}
 
 button.maxW{
     width: 100%;
 }
 
-.submit_button.small{
-    padding: calc(var(--pad) / 2);
+button.small{
+    padding: calc(var(--pad) / 2) !important;
     font-size: 14px;
 }
 
@@ -106,6 +118,7 @@ i[data-for='close']
     right: 5px;
     color: var(--red);
     font-size: 20px;
+    cursor: pointer;
 }
 
 i.static[data-for='close']
@@ -127,6 +140,7 @@ i.static[data-for='close']
     content: "OR";
     background-color: inherit;
     position: relative;
+    padding: 0px 10px;
 }
 
 .or::before{
@@ -138,4 +152,81 @@ i.static[data-for='close']
     height: 3px;
     top: calc((100% - 3px) / 2);
     
+}
+
+.condition_builder--container{
+    margin: 10px 0px;
+}
+
+.condition_builder--list{
+    padding: 10px;
+    margin: 10px 0px;
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    row-gap: 5px;
+}
+
+.condition_builder--list:empty::before{
+    content: "No conditions created!";
+    font-weight: bold;
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+}
+
+.condition_builder--condition{
+    background-color: white;
+    padding: var(--pad);
+    border-radius: var(--bRadius);
+    box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+    position: relative;
+
+    display: flex;
+    flex-direction: row;
+    line-height: 35px;
+    column-gap: 5px;
+    font-weight: bold;
+}
+
+.ux_card{
+    font-size: 16px;
+    border-radius: var(--bRadius);
+    padding: calc(var(--pad) / 2);
+    position: relative;
+    font-weight: bold;
+    overflow: hidden;
+
+    box-shadow:  3px 3px 0 0 var(--bg);
+}
+
+.ux_card i{
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+.ux_card > *{
+    z-index: 4;
+    position: relative;
+}
+
+.ux_card.info_card{
+    --bg: var(--blue);
+    --op: .2;
+}
+
+.ux_card::before{
+    content: "";
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    background-color: var(--bg);
+    opacity: var(--op);
+    z-index: 1;
 }

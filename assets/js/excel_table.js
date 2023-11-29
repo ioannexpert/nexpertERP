@@ -41,8 +41,12 @@ const cellSelectEvent = document.createEvent("HTMLEvents");
 cellSelectEvent.initEvent("cellSelected", true, true);
 
 
-function excel(elem, font_changer, formula)
+function excel(elem, font_changer, formula, sheet = undefined, row = undefined)
 {
+    //hyperlink related 
+    this.rowToSelect = row || -1;
+    this.sheetToSelect = sheet || "";
+
     this.htmlParent = elem; 
     this.header = [];
     this.data = {};
@@ -61,6 +65,7 @@ function excel(elem, font_changer, formula)
     this.selectStart = null;
     this.selectEnd = null;
     this.shiftKey = false;
+    this.ctrlKey = false;
 }
 
 excel.prototype.init = function()
@@ -79,7 +84,8 @@ excel.prototype.init = function()
 excel.prototype.parseSheets = function(){
     $.ajax({
         url: "/excel/get_sheets",
-        type: "GET",
+        type: "POST",
+        data: JSON.stringify({"doc_id": document.querySelector("#doc_id").value}),
         contentType: "application/json",
         success: (sheets)=>{
             if (sheets.length != 0)
@@ -101,10 +107,13 @@ excel.prototype.clearSheets = function(){
 excel.prototype.load_sheets = function(sheets, append = true){
     !append && this.clearSheets;
 
+    let indexSheet = 0; 
+    console.log(this.sheetToSelect);
     let frag = document.createDocumentFragment();
 
-    sheets.forEach((sheet)=>{
-
+    sheets.forEach((sheet, _index)=>{
+        if (sheet.sheetName == this.sheetToSelect)
+        indexSheet = _index;
         let node = this.sheetNode(sheet);
 
         sheet.node = node.children[0];
@@ -114,12 +123,12 @@ excel.prototype.load_sheets = function(sheets, append = true){
     })
 
     document.querySelector(".excel_sheets").appendChild(frag);
-    
-    !append && this.selectSheet(0);
+    console.log(indexSheet);
+    !append && this.selectSheet(indexSheet);
 }
 
 excel.prototype.selectSheet = function(index){
-    
+    this.resetCellSelector();
     this.clear_data();
     this.active_sheetIndex = index;
     document.querySelector(".excel_sheet.active")?.classList.remove("active");
@@ -244,7 +253,7 @@ excel.prototype.addSheet = function (sheetName){
         url: "/excel/add_sheet",
         type: "POST",
         contentType: "application/json",
-        data: JSON.stringify({sheetName}),
+        data: JSON.stringify({sheetName, "doc_id": document.querySelector("#doc_id").value}),
         success: (data)=>{
             //the id is returned 
             if (data.id)
@@ -375,6 +384,7 @@ excel.prototype.init_listeners = function(){
 
         document.addEventListener("keydown",(ev)=>{
             this.shiftKey = ev.shiftKey;
+            this.ctrlKey = ev.ctrlKey;
             if (ev.key === "Escape")
             {
                 //close all context menus 
@@ -391,6 +401,7 @@ excel.prototype.init_listeners = function(){
 
         document.addEventListener("keyup",(ev)=>{
             this.shiftKey = ev.shiftKey;
+            this.ctrlKey = ev.ctrlKey;
         })
 
         document.addEventListener("fontSize_change",(ev)=>{
@@ -709,11 +720,13 @@ excel.prototype.appendData = function(data){
             this.data[cell.sheetId][cell.rowId] = {};
         }
         this.data[cell.sheetId][cell.rowId][cell.uuid] = {
+            "_id": cell?._id,
             "formula": cell?.formula || "",
             "styles": cell?.styles || {},
             "value": cell?.value || "",
             "type": cell?.type || "string",
-            "typeParams": cell?.typeParams
+            "typeParams": cell?.typeParams,
+            "hyperlink": cell?.hyperlink || false
         }
     })
 }
@@ -770,7 +783,7 @@ excel.prototype.clear_data = function (){
 excel.prototype.load_cells = function(){
     let frag = document.createDocumentFragment();
     
-    Object.keys(this.data[this.getActiveSheet()]).forEach((rowId)=>{
+    Object.keys(this.data[this.getActiveSheet()] || []).forEach((rowId)=>{
         frag.appendChild(this.dataRow_node(this.data[this.getActiveSheet()][rowId], rowId));
     })
 
@@ -797,6 +810,22 @@ excel.prototype.dataRow_node = function(data_Object, _index)
     row.appendChild(rowDetails);
 
     row.appendChild(this.populateRow(data_Object));
+   
+    if (_index === this.rowToSelect)
+    {
+        //select this row
+        //run this later 
+        setTimeout(()=>{
+            try{
+                this.select_cell(null, row.children[1], null);
+                this.rowToSelect = -1;
+            }catch(e){
+                setTimeout(()=>{
+                    this.select_cell(null, row.children[1], null);
+                }, 100)
+            }
+        }, 100);
+    }
 
     return row;
 }
@@ -808,7 +837,6 @@ excel.prototype.populateRow = function(rowData){
     this.header[this.getActiveSheet()].forEach((header_elem, _index)=>{
         //check if we have it
         if (rowData[header_elem.uuid]){
-            console.log(rowData);
             frag.appendChild(this.cellNode({...rowData[header_elem.uuid], uuid: header_elem.uuid}, _index));
         }else{
             //no data, append blank 
@@ -886,6 +914,7 @@ excel.prototype.save_current_sheet = function(){
 
 excel.prototype.cellNode = function (col_Object, _index)
 {
+    console.log(_index);
     let cell = document.createElement("div");
     cell.className = "excel_table--body_cell";
     cell.contentEditable = true;
@@ -895,6 +924,8 @@ excel.prototype.cellNode = function (col_Object, _index)
     cell.dataset.cellIndex = _index;
     cell.dataset.colUuid = col_Object.uuid;
     cell.dataset.type = col_Object?.type || "string";
+    cell.dataset.hyperlink = col_Object.hyperlink;
+    cell.dataset.formula = col_Object.formula;
 
     if (col_Object?.typeParams)
     {
@@ -908,6 +939,10 @@ excel.prototype.cellNode = function (col_Object, _index)
 
     cell.onfocus = (ev)=>{
         this.select_cell(col_Object, cell, ev);
+        if (col_Object.hyperlink === true)
+        {
+            console.log("this is hyperlink")
+        }
         switch(cell.dataset.type)
         {
             case "date":
@@ -984,7 +1019,78 @@ excel.prototype.cellNode = function (col_Object, _index)
         ev.preventDefault();
     }
 
+    if (col_Object.hyperlink)
+    {
+        cell.onclick = (ev)=>{
+            if (this.ctrlKey)
+            {
+                //do somethjng
+                this.hyperlink_click(col_Object._id);
+            }else{
+                Toastify({
+                    className: "toast_warning",
+                    text: "Please hold ctrl to activate the link"
+                }).showToast();
+            }
+            ev.preventDefault();
+        }
+    }
+
     return cell;
+}
+
+excel.prototype.gotoDoc = function(doc_name, sheet, row)
+{
+    window.location.href = "/document/"+doc_name+"?sheet="+sheet+"&row="+row;
+}
+
+excel.prototype.hyperlink_click = function (_id){
+    $.ajax({
+        url: "/excel/run_hyperlink",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({_id}),
+        success: (data)=>{
+            console.log(data);
+            if (data?.success === true)
+            {
+                //show confirmation
+                let {sheetId, sheet, row, column, doc_id, doc_name} = data;
+                let current_doc_id = document.querySelector("#doc_id").value;
+
+                if (current_doc_id !== doc_id)
+                {
+                    let cb_submit = {
+                        context_submit: this,
+                        fn: this.gotoDoc,
+                        params: [doc_name, sheet, row]
+                    };
+                    new Confirm("Leave document",document.createTextNode("Are you sure you want to follow this hyperlink? This will get you to another page!"), {}, cb_submit);
+
+                }else{
+                    //select the needed sheetId
+                    this.sheets.forEach((sheet)=>{
+                        if (sheet._id === sheetId)
+                        {
+                            this.rowToSelect = row;
+                            sheet.node.click();
+                        }
+                    })
+                }
+                
+            }else{
+                Toastify({
+                    className: "toast_error",
+                    text: data?.body || "Hyperlink error"
+                }).showToast();
+            }
+        },error: (err)=>{
+            Toastify({
+                className: "toast_error",
+                text: err.responseJSON?.body || "Hyperlink error"
+            }).showToast();
+        }
+    })
 }
 
 excel.prototype.format_date = function (date, format)
@@ -1110,6 +1216,16 @@ excel.prototype.buildStylesObject = function(node)
     return styles;
 }
 
+excel.prototype.resetCellSelector = function(){
+    let cellSelector = document.querySelector(".cell_selector")
+    cellSelector.style.top = "0px";
+    cellSelector.style.left = "0px";
+    cellSelector.style.width = "0px";
+    cellSelector.style.height = "0px";
+    this.selectStart = null;
+    this.selectEnd = null;
+}
+
 excel.prototype.repositionCellSelector = function(){
     this.positionCellSelector(this.calculateSelectWidth(), this.calculateSelectHeight());
 }
@@ -1183,13 +1299,16 @@ excel.prototype.getNodeByCoords = function(cellCoords){
     return this.htmlParent.querySelector(`.excel_table--body_row[data-row-num='${rowId}']`)?.querySelector(`.excel_table--body_cell[data-col-uuid='${uuid}']`) || null;
 }
 
-excel.prototype.getColNameByUuid = function(uuid)
+excel.prototype.getColNameByUuid = function(uuid, replace = true)
 {
     for (let index = 0;index<=this.header[this.getActiveSheet()].length;index++)
     {
         if (this.header[this.getActiveSheet()][index].uuid === uuid)
         {
-            return this.header[this.getActiveSheet()][index].name.replaceAll(" ","");
+            if (replace)
+                return this.header[this.getActiveSheet()][index].name.replaceAll(" ","");
+            else
+                return this.header[this.getActiveSheet()][index].name;
         }
     }
 }
@@ -1209,7 +1328,7 @@ excel.prototype.getCellIndexByHeaderName = function (headerName)
 
 excel.prototype.validCellCoords = function(cellCoords)
 {
-    return /^\$[0-9]*\@[a-zA-Z]*$/.test(cellCoords);
+    return /^\$[0-9]*\@[a-zA-Z0-9-_]*$/.test(cellCoords);
 }
 
 excel.prototype.getCellValueByCoords = function(cellCoords){
@@ -1219,7 +1338,9 @@ excel.prototype.getCellValueByCoords = function(cellCoords){
     let rowNum = cellCoords.split("@")[0].slice(1,), cellIndex = this.getCellIndexByHeaderName(cellCoords.split("@")[1]);
     let cellNode = document.querySelector(`.excel_table--body_row[data-row-num='${rowNum}']`)?.querySelector(`.excel_table--body_cell[data-cell-index='${cellIndex}']`);
 
-    return cellNode?.innerText || null;
+    console.log(cellNode);
+
+    return cellNode.dataset.value || null;
 }
 
 excel.prototype.renderFormulas = function(){
@@ -1237,4 +1358,53 @@ excel.prototype.renderFormulas = function(){
 excel.prototype.getCellsForUuid = function(uuid)
 {
     return Array.from(this.htmlParent.querySelectorAll(`.excel_table--body_cell[data-col-uuid='${uuid}']`));
+}
+
+excel.prototype.node_toCellCoords = function (node, replace = true)
+{
+    let {sheetName} = this.sheets[this.active_sheetIndex];
+    return `!${sheetName}#${node.parentNode.dataset.rowNum}@${this.getColNameByUuid(node.dataset.colUuid, replace)}`;
+}
+
+excel.prototype.sheetNameToId = function (sheetName)
+{
+    for (const sheetData of this.sheets)
+    {
+        if (sheetData.sheetName == sheetName){
+            return sheetData._id;
+        }
+    }
+
+    return sheetName;
+}
+
+excel.prototype.colNameToUuid = function (colName)
+{
+    for (const headerElem of this.header[this.getActiveSheet()]){
+        console.log(headerElem.name.replaceAll(" ", ""));
+        console.log(colName);
+        if (headerElem.name.replaceAll(" ", "") === colName){
+            return headerElem.uuid;
+        }
+    }
+
+    return colName;
+}
+
+excel.prototype.coordsToGeneral = function (input)
+{
+    console.log(input);
+    input = input.replace(/(!([a-zA-Z0-9_-]*))?#?(X(\-|\+)(\d+))@?([a-zA-Z0-9-_]*)/gm, (match, g1, g2, g3, g4, g5, g6)=>{
+        console.log(match);
+        //g2 is sheetName, g3 is row, g6 is column
+        if (g2 === undefined)
+        {
+            return `!${this.getActiveSheet()}#${g3}@${this.colNameToUuid(g6)}`;      
+        }else{
+            return `!${this.sheetNameToId(g2)}#${g3}@${this.colNameToUuid(g6)}`;
+        }
+
+    })
+
+    return input;
 }

@@ -75,6 +75,7 @@ column_selector.prototype.initItem = function(row)
 
     item.onclick = ()=>{
         this.selectedId = row._id;
+        this.node.dataset.selectedId = row._id;
         this.node.querySelector(".column_selector--header input").value = `${row.sheetName}!${row.name}`;
         this.node.classList.remove("open");
     }

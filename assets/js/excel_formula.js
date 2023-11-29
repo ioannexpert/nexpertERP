@@ -326,7 +326,7 @@ formula_maker.prototype.init_fns = function(){
     document.addEventListener("keydown",(ev)=>{
         if (ev.key === "Escape")
         {
-            this.change_nodeSelector(false);
+            this.args != null && this.change_nodeSelector(false);
             this.args = null;
         }
     })
@@ -368,8 +368,11 @@ formula_maker.prototype.init_fns = function(){
 
 formula_maker.prototype.MIN = function(...args){
     let sanitizedArgs = [];
+
+    console.log(args);
     
     args.forEach((arg)=>{
+        console.log(arg);
         sanitizedArgs.push(parseFloat(this.excelTable.getCellValueByCoords(arg)));
     })
     let min = Math.min(...sanitizedArgs);
@@ -483,7 +486,7 @@ formula_maker.prototype.change_nodeSelector = function (value)
         else{
             //start applying 
             nodes.forEach((node)=>{
-                node.dataset.formula = this.generalizeFormulaByRow(this.input.innerText, node.parentNode.dataset.rowNum);
+                node.dataset.formula = this.excelTable.coordsToGeneral(this.generalizeFormulaByRow(this.input.innerText, node.parentNode.dataset.rowNum));
                 node.textContent = this.runFormula(this.input.innerText);
             })
         }
@@ -679,29 +682,146 @@ formula_maker.prototype.hyperlinkClick = function(context){
     //open the modal 
     if (modalLib !== undefined)
     {
-        if (false && context.excelTable.getNodesFromSelection().length == 0)
+        if (context.excelTable.getNodesFromSelection().length == 0)
         {
             Toastify({
                 text: "Please select a cell!",
                 className: "toast_error"
             }).showToast();
         }else{
-            let dn = new DynamicNodes();
+            if (window.dn === undefined)
+            {
+                window.dn = new DynamicNodes();
+            }
 
-            let url_input = dn.input("Link","URL",undefined, "hyperlink_url", undefined, "spaced");
-            let content_input = dn.input("Cell content","Link",undefined, "hyperlink_content", undefined, "spaced",{"margin-top": "15px"});
+            let url_input = window.dn.input("Link","URL",undefined, "hyperlink_url", undefined, "spaced");
+            let content_input = window.dn.input("Cell content","Link",undefined, "hyperlink_content", undefined, "spaced",{"margin-top": "15px"});
 
-            let cellCoordInput = dn.input("Cell coordinates", "!Sheet#rowNum@colName",undefined, "hyperlink_coords", undefined, "spaced");
+            let url_input2 = window.dn.input("Text to display","Link",undefined, "hyperlink_url", undefined, "spaced");
+            let cellCoordInput = window.dn.input("Cell coordinates", "!Sheet#rowNum@colName",undefined, "hyperlink_coords", undefined, "spaced", {"margin-top": "15px"}, true);
+       
+            cellCoordInput.onkeydown = (ev)=>{
+                context.autoCompleteCoords(cellCoordInput);
+            }
 
-            let linkCellNode = dn.frag(cellCoordInput, dn.or("var(--light_gray)"));
+            let conditionBuilder = window.dn.conditionBuilder();
 
-            modalLib.setView(new view_selector(["Link to web page","Link to cell"],[dn.frag(url_input, content_input, dn.button("submit_button", "Submit", "fa-regular fa-check",{"float": "right", "margin-top": "15px"},{fn: this.setHyperlink_url, context: this, args: [url_input, content_input]})), linkCellNode]), "Insert Hyperlink");
+            let linkCellNode = window.dn.frag(url_input2, cellCoordInput, window.dn.or("var(--light_gray)"), window.dn.helpCard("Use conditions to automatically find the targeted cells!", "info"), conditionBuilder, window.dn.button("submit_button", "Submit", "fa-regular fa-check",{"float": "right", "margin-top": "15px"},{fn: context.setHyperlink_cell, context: context, args: [conditionBuilder, cellCoordInput, url_input2]}));
+
+            modalLib.setView(new view_selector(["Link to web page","Link to cell"],[window.dn.frag(url_input, content_input, window.dn.button("submit_button", "Submit", "fa-regular fa-check",{"float": "right", "margin-top": "15px"},{fn: context.setHyperlink_url, context: context, args: [url_input, content_input]})), linkCellNode]), "Insert Hyperlink");
             modalLib.open();
         }
     }
 }
 
+
 formula_maker.prototype.setHyperlink_url = function (url, content){
     
     console.log(url.querySelector("input").value);
+}
+
+formula_maker.prototype.setHyperlink_cell = function (condition_builder, input, text){
+
+    let refCoords = [];
+
+    this.excelTable.getNodesFromSelection().forEach((node)=>{
+        refCoords.push(this.excelTable.node_toCellCoords(node, false));
+    })
+
+    console.log(refCoords);
+
+    input = input.querySelector("input").value;
+    text = text.querySelector("input").value;
+    let conditions = Array.from(condition_builder.querySelectorAll(".condition_builder--condition"));
+    let conditionObject = [];
+    //we should now build the condiiton object 
+    conditions.forEach((condition)=>{
+        let selectors = condition.querySelectorAll(".column_selector");
+
+        conditionObject.push(selectors[0].dataset.selectedId || null);
+        conditionObject.push(selectors[1].dataset.selectedId || null);
+    })
+
+    if ((input.trim()!= "" && conditions.length == 0) || (input.trim() == "" && conditions.length != 0))
+    {
+        //send the request 
+        $.ajax({
+            url: "/excel/hyperlink_cell",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({input, conditionObject, text, refCoords}),
+            success: (data)=>{
+                if (conditionObject.length != 0)
+                {
+                    //conditions
+                    data.forEach((response, index)=>{
+
+                        if (response?.success !== true)
+                        {
+                            conditions[Math.floor(index / 2)].querySelectorAll(".column_selector")[index % 2].classList.add("err");
+                            conditions[Math.floor(index / 2)].querySelectorAll(".column_selector")[index % 2].title = response.body;
+                        }else{
+                            conditions[Math.floor(index / 2)].querySelectorAll(".column_selector")[index % 2].classList.remove("err");
+                            conditions[Math.floor(index / 2)].querySelectorAll(".column_selector")[index % 2].title = "";
+                        }
+                    })
+                }else{
+                    //input only 
+                    Toastify({
+                        className: "toast_success",
+                        text: "The hyperlink was inserted!"
+                    }).showToast();
+                }
+            },error: (err)=>{
+                Toastify({
+                    className: "toast_error",
+                    text: err.responseJSON.body || "Unexpected error!"
+                }).showToast();
+            }
+        })
+    }else{
+        Toastify({
+            className: "toast_error",
+            text: "Please use only one of the methods above!"
+        }).showToast();
+    }
+}
+
+formula_maker.prototype.autoCompleteCoords = function (input)
+{
+    
+    if (window.generalTimeout !== undefined)
+        clearTimeout(window.generalTimeout);
+    
+        window.generalTimeout = setTimeout(()=>{
+            $.ajax({
+                url: "/excel/searchCoords",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({"input": input.querySelector("input").value}),
+                success: (data)=>{
+                    //append the data to ac 
+                    if (window.dn === undefined)
+                    {
+                        window.dn = new DynamicNodes();
+                    }
+                    if (data.length == 0)
+                    {
+                        window.dn.clearAc(input);
+                        window.dn.fillAc(["No matches found"], input, undefined)
+                    }
+                    else{
+                        window.dn.clearAc(input);
+                        window.dn.fillAc(data, input, input.querySelector('input'))
+                    }
+                },error: (err)=>{
+                    console.log(err);
+                    //do something :)
+                    window.dn.clearAc(input);
+                    window.dn.fillAc([err.responseJSON?.err || "No matches found!"], input, undefined)
+                }
+            })
+    }, 500);
+    
+    
 }
