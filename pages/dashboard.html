@@ -325,7 +325,15 @@
                                             <i class="fa-regular fa-calendar"></i>
                                             Date
                                         </customOption>
+                                        <customOption data-value="options">
+                                            <i class="fa-regular fa-list-radio"></i>
+                                            Options
+                                        </customOption>
                                   </div>
+                                </div>
+
+                                <div class="excel_group--row hidden" data-for="options">
+                                    <button class="primary_button maxW small" id = 'edit_options'><i class="fa-regular fa-edit"></i> Edit options</button>
                                 </div>
 
                                 <div class="excel_group--row hidden" data-for="number">
@@ -392,19 +400,7 @@
                             </div>
 
                         </div>
-                        <div class="excel_header--page">
-                            <div class="excel_formula_input empty" contenteditable="true" >
-                            </div>
-                            <button class="formula_apply" contenteditable="false">Enter</button>
-        
-                            <div class="excel_formula--searchList">
-                    
-                            </div>
-        
-                            <div class="excel_formula--list">
-                
-                            </div>
-                        </div>
+               
 
                         <div class="excel_header--page multiple_tabs">
                             <div class="excel_header--group vertical">
@@ -417,6 +413,23 @@
                                     <i class="fa-regular fa-floppy-disks"></i>
                                 </button>
 
+                            </div>
+                        </div>
+
+                        <div class="excel_formula--container">
+                            <button class="excel_functions">
+                                <i class="fa-regular fa-function"></i>
+                            </button>
+                            <div class="excel_formula_input empty" contenteditable="true" >
+                            </div>
+                            <button class="formula_apply" contenteditable="false">Enter</button>
+        
+                            <div class="excel_formula--searchList">
+                    
+                            </div>
+        
+                            <div class="excel_formula--list">
+                
                             </div>
                         </div>
                 </div>
@@ -479,6 +492,10 @@
                                     <customOption data-value="date">
                                         <i class="fa-regular fa-calendar"></i>
                                         Date
+                                    </customOption>
+                                    <customOption data-value="options">
+                                        <i class="fa-regular fa-list-radio"></i>
+                                        Options
                                     </customOption>
                               </div>
                               

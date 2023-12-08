@@ -7,6 +7,32 @@
         <link rel = 'stylesheet' href="/assets/fontawesome-pro-6.3.0-web (2)/fontawesome-pro-6.3.0-web/css/fontawesome.css">
       <script src="/assets/js/column_selector.js"></script>
         <link rel = 'stylesheet' href = '/assets/css/column_selector.css'>
+
+        <script src = '/assets/js/DynamicNodes.js'></script>
+
+        <style>
+            body{
+                padding: 20px;
+            }
+
+            .search{
+                display: inline-flex;
+                column-gap: 10px;
+                align-items: center;
+                padding: calc(var(--pad) / 2);
+                border-radius: var(--bRadius);
+                background-color: var(--light_gray);
+
+                box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+                border-bottom: 2px solid var(--gray);
+            }
+
+            .search input{
+                background-color: transparent;
+                outline: none;
+                border: 0px;
+            }
+        </style>
     </head>
     <body>
 
@@ -26,9 +52,10 @@
             </div>
         </div> -->
 
+
         <script>
-            var test = new column_selector();
-            document.querySelector("body").appendChild(test.getNode());
+            let test = new DynamicNodes();
+            document.querySelector("body").appendChild(test.searchInput());
             
             
         </script>

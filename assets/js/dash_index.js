@@ -138,5 +138,5 @@ $(function(){
   excel_table = new excel(document.querySelector(".excel_table"), font, formula, urlParams.get("sheet"), urlParams.get("row"));
   excel_table.init();
 
-  formula.hyperlinkClick(formula);
+  //formula.hyperlinkClick(formula);
 })

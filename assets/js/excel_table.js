@@ -78,7 +78,13 @@ excel.prototype.init = function()
     //run formula from columns
     //this.renderFormulas();
     this.init_listeners();
+}
 
+excel.prototype.addInitRows = function(){
+    for (let i = 1;i<=30;i++)
+    {
+        this.addRow();
+    }
 }
 
 excel.prototype.parseSheets = function(){
@@ -505,6 +511,26 @@ excel.prototype.init_listeners = function(){
                 }
             })
         })
+
+        document.addEventListener("edit_options", (ev)=>{
+            let nodes = this.getNodesFromSelection();
+            
+            if (nodes.length != 0)
+            {
+                if (modalLib !== undefined)
+                {
+                    if (window.dn === undefined)
+                    {
+                        window.dn = new DynamicNodes();
+                    }
+
+
+
+                    modalLib.setView(window.dn.options_editor(), "Edit options");
+                    modalLib.open();
+                }
+            }
+        })
 }
 
 excel.prototype.countDecimals = function(value) {
@@ -594,11 +620,10 @@ excel.prototype.addRow = function(test = false){
     //create a fakeRow object 
     let fakeRow = {};
     fakeRow.rowID = 0;
-    this.increaseRows();
 
     //set the grid
-    let rowNode = this.dataRow_node(fakeRow, this.getRowCount());
-    rowNode.style.gridTemplateColumns = this.htmlParent.querySelector(".excel_table--header").querySelector(".excel_table--header_items").style.gridTemplateColumns;
+    let rowNode = this.dataRow_node(fakeRow, this.getRowCount() + 1);
+    rowNode.style.gridTemplateColumns = this.dataRowsWidth();
 
     if (test)
     return rowNode;
@@ -653,6 +678,10 @@ excel.prototype.getActiveSheet = function(){
     return this.sheets[this.active_sheetIndex]._id;
 }
 
+excel.prototype.getActiveSheetData = function(){
+    return this.sheets[this.active_sheetIndex];
+}
+
 excel.prototype.autoSize = function(){
 
     //foreach column we should get the maximum width of it
@@ -677,9 +706,24 @@ excel.prototype.autoSize = function(){
     }   
 
     this.htmlParent.querySelector(".excel_table--header_items").style.gridTemplateColumns = templateCols;
+    let rowTemp = this.dataRowsWidth();
+
     Array.from(this.htmlParent.querySelectorAll(".excel_table--body_row")).forEach((row)=>{
-        row.style.gridTemplateColumns = templateCols;
+        row.style.gridTemplateColumns = rowTemp;
     })
+}
+
+excel.prototype.dataRowsWidth = function(){
+    let template = this.htmlParent.querySelector(".excel_table--header_items").style.gridTemplateColumns, newTemplate = '';
+    
+    template.split(" ").forEach((size, index)=>{
+        if (index == 0)
+            newTemplate += `${parseInt(size) - 3}px `;
+        else
+            newTemplate += `${parseInt(size)}px `;
+    })
+
+    return newTemplate;
 }
 
 excel.prototype.parseHeader = function(){
@@ -738,10 +782,10 @@ excel.prototype.parseData = function(){
         contentType: "application/json",
         data: JSON.stringify({"sheetId": this.getActiveSheet()}),
         success: (data)=>{
-        
+            this.rowCount[this.getActiveSheet()] = 0;
             this.appendData(data);
             this.load_cells();
-        
+            this.addInitRows();
         },error: function(){
             alert("eroare la parsare");
         }
@@ -914,7 +958,6 @@ excel.prototype.save_current_sheet = function(){
 
 excel.prototype.cellNode = function (col_Object, _index)
 {
-    console.log(_index);
     let cell = document.createElement("div");
     cell.className = "excel_table--body_cell";
     cell.contentEditable = true;
@@ -946,7 +989,6 @@ excel.prototype.cellNode = function (col_Object, _index)
         switch(cell.dataset.type)
         {
             case "date":
-                console.log(typeof cal);
                 //show the calendar 
                 if (cal instanceof calendar)
                 {
@@ -955,11 +997,15 @@ excel.prototype.cellNode = function (col_Object, _index)
                     cal.open();
                 }    
             break;
+            case "options":
+                cell.classList.toggle("active");
+            break;
         }
     }
 
     cell.onblur = (ev)=>{
         this.setCellValue(cell);
+        cell.classList.remove("active");
     }
 
     cell.onkeydown = (ev)=>{
@@ -981,9 +1027,16 @@ excel.prototype.cellNode = function (col_Object, _index)
                     ev.preventDefault();
                 }
             break;
+            case "options":
+                Toastify({
+                    text: "You are not allowed to type in this field!",
+                    className: "toast_warning",
+                }).showToast();
+                ev.preventDefault();
+                break;
             case "date":
                 Toastify({
-                    text: "You are not allowed to type in this field! Change cell value by clicking the calendar icon!",
+                    text: "You are not allowed to type in this field!",
                     className: "toast_warning",
                 }).showToast();
                 ev.preventDefault();
@@ -1022,6 +1075,10 @@ excel.prototype.cellNode = function (col_Object, _index)
     if (col_Object.hyperlink)
     {
         cell.onclick = (ev)=>{
+            if (this.formula.nodeSelector)
+            {
+                return;
+            }
             if (this.ctrlKey)
             {
                 //do somethjng
@@ -1039,9 +1096,9 @@ excel.prototype.cellNode = function (col_Object, _index)
     return cell;
 }
 
-excel.prototype.gotoDoc = function(doc_name, sheet, row)
+excel.prototype.gotoDoc = function(paeg_name, doc_name, sheet, row)
 {
-    window.location.href = "/document/"+doc_name+"?sheet="+sheet+"&row="+row;
+    window.location.href = "/document/"+paeg_name+"/"+doc_name+"?sheet="+sheet+"&row="+row;
 }
 
 excel.prototype.hyperlink_click = function (_id){
@@ -1055,7 +1112,7 @@ excel.prototype.hyperlink_click = function (_id){
             if (data?.success === true)
             {
                 //show confirmation
-                let {sheetId, sheet, row, column, doc_id, doc_name} = data;
+                let {sheetId, sheet, row, column, doc_id, doc_name, pageName} = data;
                 let current_doc_id = document.querySelector("#doc_id").value;
 
                 if (current_doc_id !== doc_id)
@@ -1063,7 +1120,7 @@ excel.prototype.hyperlink_click = function (_id){
                     let cb_submit = {
                         context_submit: this,
                         fn: this.gotoDoc,
-                        params: [doc_name, sheet, row]
+                        params: [pageName, doc_name, sheet, row]
                     };
                     new Confirm("Leave document",document.createTextNode("Are you sure you want to follow this hyperlink? This will get you to another page!"), {}, cb_submit);
 
@@ -1120,7 +1177,6 @@ excel.prototype.format_date = function (date, format)
 
 excel.prototype.loadCellTypeView = function(node, data)
 {
-    console.log(data);
     switch(node.dataset.type)
     {
         case "string":
@@ -1134,7 +1190,29 @@ excel.prototype.loadCellTypeView = function(node, data)
             node.appendChild(date_value);
             node.classList.add("type_date");
         break;
+        case "options":
+            let selected_option = document.createElement("option_value");
+            selected_option.textContent = "Select an option";
+            node.innerText = "";
+            node.appendChild(selected_option);
+            node.appendChild(this.options_selectList());
+
+            node.classList.add("type_options");
+        break;
     }
+}
+
+excel.prototype.options_selectList = function(options){
+    let container = document.createElement('div');
+    container.className = "type_options--container";
+    container.contentEditable = false;
+
+    let list = document.createElement("div");
+    list.className = "type_options--list";
+    list.contentEditable = false;
+    container.appendChild(list);
+
+    return container;
 }
 
 excel.prototype.setCellValue = function(node, value = null, context = null){

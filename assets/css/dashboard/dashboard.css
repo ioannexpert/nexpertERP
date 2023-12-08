@@ -450,16 +450,16 @@ label{
     left: 0px;
     top: 0px;
     /*background: linear-gradient(to right, #FFBD59, #FF914D) no-repeat border-box, radial-gradient(circle at center, red, yellow) no-repeat border-box;*/
-    background: url('/assets/images/ffflux.svg');
+    background: url('/assets/images/ffflux\ \(2\).svg');
     background-size: cover;
     z-index: -1;
 }
 .bubble{
     --size: 40vw;
     position: absolute;
-    background-color: #00C2CB;
+    background-color: var(--light_blue);
     border-radius: 50%;
-    opacity: .4;
+    opacity: .8;
     filter: blur(30px);
 }
 

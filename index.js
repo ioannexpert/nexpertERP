@@ -30,9 +30,7 @@ app.set('views', path.join(__dirname, '/pages'));
 app.use(express.static(path.join(__dirname, 'pages')));
 app.use("/assets",express.static(path.join(__dirname, "assets")));
 
-app.get("/dashboard", checkLogin,(req, res)=>{
-    res.render("dashboard.html",req.user);
-})
+
 
 app.get("/test",(req, res)=>{
     res.render("test.html");

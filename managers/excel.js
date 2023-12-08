@@ -143,9 +143,8 @@ async function fullCellCoordsToGeneral(coords, conn = null)
     }
 }
 
-async function setHyperlink_cell(refCells, textToDisplay, cellCoord = undefined, conditions = []) {
-
-    if (cellCoord !== undefined) {
+async function setHyperlink_cell_coords(refCells, textToDisplay, cellCoord)
+{
         //direct cell coord 
         let connection = await mongo.getConnection();
         if (connection !== null) {
@@ -183,11 +182,15 @@ async function setHyperlink_cell(refCells, textToDisplay, cellCoord = undefined,
         } else {
             return ERRORS.MONGO_DB_CONNECTION;
         }
-    } else {
+    
+}
+
+async function setHyperlink_cell_conditions(refCells, textToDisplay, conditions = [], target_sheet) {
+
         let connection = await mongo.getConnection();
         if (connection !== null) {
             try {
-                let hyperLink_coords = await runHyperlinkConditions(conditions, connection, await dataByGeneral("_id", refCells[0], "cells", connection));
+                let hyperLink_coords = await runHyperlinkConditions(conditions, connection, await dataByGeneral("_id", refCells[0], "cells", connection), target_sheet);
            
                 let query = await connection.db("nextERP").collection("cells").updateMany(
                     {
@@ -220,7 +223,6 @@ async function setHyperlink_cell(refCells, textToDisplay, cellCoord = undefined,
         } else {
             return ERRORS.MONGO_DB_CONNECTION;
         }
-    }
 }
 
 
@@ -242,13 +244,14 @@ function arrange_conditions(headerUUIDS, hyperlink_conditions)
     return result;
 }
 
-async function runHyperlinkConditions(hyperlink_conditions, conn = null, currentSheet = null){
+async function runHyperlinkConditions(hyperlink_conditions, conn = null, currentSheet = null, target_sheet){
     let connection = conn || await mongo.getConnection();
   
     if (connection !== null && currentSheet?.success === true)
     {
         currentSheet = currentSheet.data.sheetId;
         try{    
+
             //convert to ObjectId 
             for (let i = 0;i<hyperlink_conditions.length;i++)
             {
@@ -282,26 +285,27 @@ async function runHyperlinkConditions(hyperlink_conditions, conn = null, current
                     }
                 ]).toArray();
 
-                let sheet; 
-                
                 if (arr.length != 0)
                     {
                         let [uuid1, uuid2] = arr[0].uuids;
                     
-                        sheet = uuid2.sheet;
-
-                        if (frequency[`${uuid1.rowId}-${uuid1.sheetId}`]) frequency[`${uuid1.rowId}-${uuid1.sheetId}`].count++; else frequency[`${uuid1.rowId}-${uuid1.sheetId}`] = {count: 1, sheetId: uuid1.sheetId, row: uuid1.rowId};
-                        if (frequency[`${uuid2.rowId}-${uuid2.sheetId}`]) frequency[`${uuid2.rowId}-${uuid2.sheetId}`].count++; else frequency[`${uuid2.rowId}-${uuid2.sheetId}`] = {count: 1, sheetId: uuid2.sheetId, row: uuid2.rowId};
-
+                        if (uuid1 == target_sheet) 
+                            {
+                                frequency[uuid1.rowId] ? frequency[uuid1.rowId]++ : frequency[uuid1.rowId] = 1;
+                            }
+                        else{
+                            frequency[uuid2.rowId] ? frequency[uuid2.rowId]++ : frequency[uuid2.rowId] = 1;
+                        }
+                        
                     }
             }
 
-            for (let uuid in frequency)
+            for (let rowID in frequency)
             {
-                if (frequency[uuid].count == headerUUIDS.length / 2)
+                if (frequency[rowID] == headerUUIDS.length / 2)
                 {
-                        if (frequency[uuid].sheetId.toString() != currentSheet)
-                        return {success: true, data: `!${frequency[uuid].sheetId.toString()}#${frequency[uuid].row}@`};
+                    console.log("Returned")
+                    return {success: true, data: `!${target_sheet}#${rowID}@`};
                 }
             }
 
@@ -346,7 +350,7 @@ async function getDocumentById(doc_id, user_id)
             
             if (result != null)
             {
-                return {success: true, name: result.name};
+                return {success: true, data: result};
             }else{
                 return {success: false};
             }
@@ -457,7 +461,17 @@ async function hyperlink_details(cell_id)
                     let colData = "";
                     
                         let docData = await getDocumentById(sheetData.data.doc_id, sheetData.data.userId);
-                        return {success: true, sheetId: sheetData.data._id, sheet: sheetData.data.sheetName, row, column: colData?.name || "", doc_id: sheetData.data.doc_id, doc_name: docData.name};
+                        if (docData?.success !== true)
+                        {
+                            return {success: false};
+                        }
+                        let pageData = await pageDate_byId(docData.data.pageId);
+
+                        if (pageData?.success !== true){
+                            return {success: false};
+                        }
+
+                        return {success: true, sheetId: sheetData.data._id, sheet: sheetData.data.sheetName, row, column: colData?.name || "", doc_id: sheetData.data.doc_id, doc_name: docData.data.name, pageName: pageData.data.pageName};
                     
                 }else if (conditions && conditions.length != 0)
                 {
@@ -472,6 +486,27 @@ async function hyperlink_details(cell_id)
         }catch(e){
             console.log(e);
             return ERRORS.MONGO_DB_QUERY
+        }
+    }else{
+        return ERRORS.MONGO_DB_CONNECTION;
+    }
+}
+
+async function pageDate_byId(page_id)
+{
+    let connection = await mongo.getConnection();
+
+    if (connection !== null)
+    {
+        try{
+            let result = await connection.db("nextERP").collection("pages").findOne({_id: new ObjectId(page_id)});
+            if (result){
+                return {success: true, data: result}
+            }else{
+                return {success: false, body: "Page does not exist!"};
+            }
+        }catch(e){
+            return ERRORS.MONGO_DB_QUERY;
         }
     }else{
         return ERRORS.MONGO_DB_CONNECTION;
@@ -568,7 +603,62 @@ async function rename_document(doc_id, user_id, doc_name)
     }
 }
 
+async function get_all_sheets(userId)
+{
+    let connection = await mongo.getConnection();
+
+    if (connection){
+        try{
+            const sheets = await connection.db("nextERP").collection("sheets").aggregate([
+                {
+                  $match: {
+                    userId: userId // Match sheets with the provided userId
+                  }
+                },
+                {
+                  $lookup: {
+                    from: 'documents',
+                    localField: 'doc_id',
+                    foreignField: '_id',
+                    as: 'document'
+                  }
+                },
+                {
+                  $unwind: '$document' // Unwind to access the document fields
+                },
+                {
+                  $lookup: {
+                    from: 'pages',
+                    localField: 'document.pageId',
+                    foreignField: '_id',
+                    as: 'page'
+                  }
+                },
+                {
+                  $unwind: '$page' // Unwind to access the page fields
+                },
+                {
+                  $project: {
+                    sheetName: 1,
+                    _id: 1,
+                    'document.name': 1,
+                    'page.pageName': 1,
+                    'document._id': 1
+                  }
+                }
+              ]).toArray();
+
+              return {success: true, data: sheets};
+          
+        }catch(e){
+            return ERRORS.MONGO_DB_QUERY;
+        }
+    }else{
+        return ERRORS.MONGO_DB_CONNECTION;
+    }
+}
+
 module.exports = {
-    validFullCoords, sheetExists, sheetHasColumn, validColumnCoords, setHyperlink_cell, getDocumentsForUser, getDocument, hyperlink_details, addDocument, getDocumentById, remove_document, remove_sheet, rename_document,
-    fullCellCoordsToGeneral
+    validFullCoords, sheetExists, sheetHasColumn, validColumnCoords, setHyperlink_cell_coords, setHyperlink_cell_conditions, getDocumentsForUser, getDocument, hyperlink_details, addDocument, getDocumentById, remove_document, remove_sheet, rename_document,
+    fullCellCoordsToGeneral, get_all_sheets
 }

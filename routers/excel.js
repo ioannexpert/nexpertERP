@@ -25,12 +25,25 @@ router.post("/get_sheets",async (req, res)=>{
                 let result = await connection.db("nextERP").collection("sheets").find({userId: 1, doc_id: new ObjectId(doc_id)}).toArray();
                 res.send(result);
             }catch(e){
+                console.log(e);
                 res.status(500).send(ERRORS.MONGO_DB_QUERY);
             }
         }
         else{
             res.status(500).send(ERRORS.MONGO_DB_CONNECTION)
         }
+})
+
+router.post("/get_all_sheets", async (req, res)=>{
+    let user = req.user;
+
+    let response = await excel_manager.get_all_sheets(user.userId);
+
+    if (response?.success === true){
+        res.send(response);
+    }else{
+        res.status(500).send(response);
+    }
 })
 
 router.post("/add_sheet",async (req, res)=>{
@@ -161,12 +174,15 @@ router.post("/get_header", async (req, res)=>{
     }
 })
 
-router.get("/get_all_headers", async (req, res)=>{
+router.post("/get_all_headers", async (req, res)=>{
+    const {sheetId} = req.body;
+  
     let connection = await mongo.getConnection();
     if (connection)
     {
         try{
-            let result = await connection.db("nextERP").collection("headers").aggregate([
+
+            let arr = [
                 {
                   $lookup: {
                     from: 'sheets',
@@ -187,10 +203,22 @@ router.get("/get_all_headers", async (req, res)=>{
                     uuid: 1
                   }
                 }
-              ]).toArray();
+            ];
+            
+            if (sheetId !== undefined && sheetId != "")
+            {
+                let match_obj = {
+                    $match: {
+                        "sheetId": new ObjectId(sheetId)
+                    }
+                };
+                arr.unshift(match_obj);
+            }
+            let result = await connection.db("nextERP").collection("headers").aggregate(arr).toArray();
     
               res.send(result);
         }catch(e){
+            console.log(e);
             res.status(500).send(ERRORS.MONGO_DB_QUERY);
         }
 
@@ -413,8 +441,61 @@ router.post("/searchCoords",async (req, res)=>{
     }
 })
 
-router.post("/hyperlink_cell",async (req, res)=>{
-    let {input, refCoords, conditionObject, text} = req.body;
+router.post("/hyperlink_cell_coords", async (req, res)=>{
+    let {input, refCoords, text} = req.body;
+
+    let ok = true;
+    let refCoordsIds = [];
+
+    if (refCoords !== undefined && refCoords.length != 0)
+    {
+        console.log(refCoords);
+        for (let cellCoord of refCoords)
+        {
+            let response = await excel_manager.validFullCoords(cellCoord);
+            if (response?.success !== true)
+            {
+                ok = false;
+                break;
+            }else{
+                refCoordsIds.push(response.data);
+            }
+        }
+    }else{
+        ok = false;
+    }
+
+    if (!ok)
+    {
+        res.sendStatus(500);
+        return ;
+    }
+
+    if (text.trim() == "")
+    {
+        res.status(500).send({"body": "Please set the text to display!"});
+        return;
+    }
+
+    let response = await excel_manager.validFullCoords(input);
+
+    if (response?.success === true)
+    {
+        //we should set the column as the hyperlink 
+        let update_response = await excel_manager.setHyperlink_cell_coords(refCoordsIds, text, input,[]);
+        if (update_response?.success === true)
+        {
+            res.sendStatus(200);
+        }else{
+            res.status(500).send(update_response);
+        }
+    }else{
+        res.status(500).send(response);
+    }
+})
+
+router.post("/hyperlink_cell_conditions",async (req, res)=>{
+    let {target_sheet, refCoords, conditionObject, text} = req.body;
 
     let ok = true;
     let refCoordsIds = [];
@@ -447,35 +528,25 @@ router.post("/hyperlink_cell",async (req, res)=>{
         return;
     }
 
-    console.log(input);
+    let input = undefined;
     if (input !== undefined && input != "")
     {
-        let response = await excel_manager.validFullCoords(input);
-        if (response?.success === true)
-        {
-            //we should set the column as the hyperlink 
-            let update_response = await excel_manager.setHyperlink_cell(refCoordsIds, text, input,[]);
-            if (update_response?.success === true)
-            {
-                res.sendStatus(200);
-            }else{
-                res.status(500).send(update_response);
-            }
-        }else{
-            res.status(500).send(response);
-        }
+      
     }else if (conditionObject !== undefined && conditionObject.length != 0)
     {
         let response = [], ok = true;
         for (let coords of conditionObject)
         {
+            console.log(coords);
             if (coords == null)
                 ok = false;
             response.push({success: coords !== null})
         }
+
         if (ok){
         //now we should just insert first 
-            let update_response = await excel_manager.setHyperlink_cell(refCoordsIds, text, undefined, conditionObject);
+            let update_response = await excel_manager.setHyperlink_cell_conditions(refCoordsIds, text, conditionObject, target_sheet);
+            
             res.sendStatus(200);
         }else
             res.send(response);

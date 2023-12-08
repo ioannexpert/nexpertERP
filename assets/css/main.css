@@ -7,20 +7,20 @@
     --gray: #707070;   
     --light_gray: #F5F5F5;
 
-    --green: #7BA537;
-    --light_green: #A5CC66;
-    --dark_green: #008037;
+    --green: #50A551;
+    --light_green: #75BD76;
+    --dark_green: #3C7C3D;
      
-    --blue: #0453B4;
-    --light_blue: #5FA6FC;
+    --blue: #083D77;
+    --light_blue: #66ABF4;
 
     --cyan: #03989E;
     --light_cyan: #04D5DC;
  
-    --orange: #FF914D;
-    --light_orange: #FFBD59;
+    --orange: #FF8C00;
+    --light_orange: #FFAC47;
 
-    --yellow: #FFDE59;
+    --yellow: #F3CA40;
 
     --red: #FF3333;
     --light_red: #FF5757;
@@ -158,6 +158,16 @@ i.static[data-for='close']
     margin: 10px 0px;
 }
 
+.condition_builder--sheet_span{
+    text-decoration: underline dashed;
+    font-weight: bold;
+    color: var(--orange);
+}
+
+.condition_builder--container.white .condition_builder--list{
+    background-color: white;
+}
+
 .condition_builder--list{
     padding: 10px;
     margin: 10px 0px;
@@ -229,4 +239,94 @@ i.static[data-for='close']
     background-color: var(--bg);
     opacity: var(--op);
     z-index: 1;
+}
+
+label.search{
+    display: inline-flex;
+    column-gap: 10px;
+    align-items: center;
+    padding: calc(var(--pad) / 2);
+    border-radius: var(--bRadius);
+    background-color: var(--light_gray);
+
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    border-bottom: 2px solid var(--gray);
+}
+
+label.search input{
+    background-color: transparent;
+    outline: none;
+    border: 0px;
+}
+
+h2.title{
+    padding: 0px;
+    margin: 0px;
+}
+
+.sheet_list--container{
+    background-color: white;
+    border-radius: var(--bRadius);
+    border: 1px solid var(--gray);
+}
+.sheet_list--container > *{
+    padding: var(--pad) calc(var(--pad) / 2);
+}
+
+.sheet_list--header{
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--gray);
+}
+
+.sheet_list--document_body{
+    min-height: 40px;
+    padding: var(--pad);
+    position: relative;
+
+    display: flex;
+    column-gap: 10px;
+    row-gap: 15px;
+}
+
+.sheet_list--document_body.no_match::before{
+    display: block;
+    content: "No sheets matching the search input!";
+    font-weight: bold;
+    position: absolute;
+    text-align: center;
+    width: 100%;
+}
+
+.sheet_list--document_body::before{
+    content: "No sheets in this document";
+    font-weight: bold;
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    display: none;
+    
+}
+
+.sheet_list--document_body:empty 
+.sheet_list--document_body::before{
+    display: block;
+}
+
+.sheet_list--sheet{
+    padding: calc(var(--pad) / 2);
+    background-color: var(--light_orange);
+    cursor: pointer;
+    border-radius: var(--bRadius);
+
+    transition: all .2s;
+}
+
+.sheet_list--sheet:hover{
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+}
+
+.sheet_list--sheet.active{
+    font-weight: bold;
+    background-color: var(--orange);
 }

@@ -29,6 +29,9 @@ dateFormatChange.initEvent("dateFormat_change", true, true);
 const decimalChange = document.createEvent("HTMLEvents");
 decimalChange.initEvent("decimal_change", true, true);
 
+const editOptions = document.createEvent("HTMLEvents");
+editOptions.initEvent("edit_options", true, true);
+
 function font_changer(elem)
 {
     this.htmlParent = elem;
@@ -163,6 +166,12 @@ font_changer.prototype.init = function (){
                         value: 1
                     }
                 })
+            )
+        })
+
+        this.htmlParent.querySelector("#edit_options").addEventListener("click", ()=>{
+            document.dispatchEvent(
+                new CustomEvent("edit_options")
             )
         })
 }
