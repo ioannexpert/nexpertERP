@@ -25,6 +25,7 @@
         <link rel = "stylesheet" href="/assets/css/modal.css">
         <link rel = "stylesheet" href="/assets/css/view_selector.css">
         <link rel = "stylesheet" href="/assets/css/column_selector.css">
+        <link rel = "stylesheet" href="/assets/css/node_slider.css">
 
                 <!-- Libs  -->
                 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
@@ -36,6 +37,7 @@
                 crossorigin="anonymous" referrerpolicy="no-referrer"></script>
                 
         <!-- Custom js  -->
+        <script src="/assets/js/node_slider.js"></script>
         <script src = '/assets/js/dashboard_menu.js'></script>
         <script src = '/assets/js/view_selector.js'></script>
         <script src = '/assets/js/DynamicNodes.js'></script>
@@ -246,17 +248,26 @@
                         <div class="excel_header--menu_item active">
                             Styling
                         </div>
+
                         <div class="excel_header--menu_item">
-                            Formula
-                        </div>
-                        <div class="excel_header--menu_item">
-                            Document
+                            Data
                         </div>
                     </div>
                 </div>
 
                 <div class="excel_header">
                     <div class="excel_header--page multiple_tabs active" id="fontCustom">
+                        <div class="excel_header--group vertical">
+
+                            <button class="simple xl" title="Save" id="save">
+                                <i class="fa-regular fa-floppy-disk"></i>
+                            </button>
+
+                            <button class="simple xl" title="Save all" id="save_all">
+                                <i class="fa-regular fa-floppy-disks"></i>
+                            </button>
+
+                        </div>
 
                             <div class="excel_header--group font_group">
                             
@@ -300,6 +311,17 @@
                                     <button class="action_button strike">
                                         S
                                     </button>
+
+                                    <label class="color bg_color">
+                                        <i class="fa-regular fa-fill"></i>
+                                        <input type="color"/>    
+                                    </label>
+
+                                    
+                                    <label class="color font_color">
+                                        <i class="fa-regular fa-paintbrush-fine"></i>
+                                        <input type="color"/>    
+                                    </label>
                                 </div>
         
                                 <div class="excel_group--row detail">
@@ -328,6 +350,10 @@
                                         <customOption data-value="options">
                                             <i class="fa-regular fa-list-radio"></i>
                                             Options
+                                        </customOption>
+                                        <customOption data-value="check">
+                                            <i class="fa-regular fa-square-check"></i>
+                                            Checkbox
                                         </customOption>
                                   </div>
                                 </div>
@@ -399,23 +425,17 @@
                                 </div>
                             </div>
 
-                        </div>
-               
+                    </div>
 
-                        <div class="excel_header--page multiple_tabs">
-                            <div class="excel_header--group vertical">
-
-                                <button class="simple xl" title="Save" id="save">
-                                    <i class="fa-regular fa-floppy-disk"></i>
-                                </button>
-
-                                <button class="simple xl" title="Save all" id="save_all">
-                                    <i class="fa-regular fa-floppy-disks"></i>
-                                </button>
-
-                            </div>
+                    <div class="excel_header--page multiple_tabs" id = "dataPage">
+                        <div class="excel_header--group vertical">
+                            <button class="primary_button" id="import_excel"><i class="fa-regular fa-file-excel"></i>Import From excel file</button>
+                            <button class="primary_button" id="import_csv"><i class="fa-regular fa-file-csv"></i>Import From csv file</button>
                         </div>
 
+                   
+                    </div>
+                    
                         <div class="excel_formula--container">
                             <button class="excel_functions">
                                 <i class="fa-regular fa-function"></i>
@@ -496,6 +516,10 @@
                                     <customOption data-value="options">
                                         <i class="fa-regular fa-list-radio"></i>
                                         Options
+                                    </customOption>
+                                    <customOption data-value="check">
+                                        <i class="fa-regular fa-square-check"></i>
+                                        Checkbox
                                     </customOption>
                               </div>
                               

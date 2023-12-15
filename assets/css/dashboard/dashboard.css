@@ -18,7 +18,8 @@
 }
 
 .search_bar{
-    background-color: var(--dark_green);
+    background-color: var(--light_blue);
+    border: 1px solid white;
     border-radius: var(--bRadius);
     padding: calc(var(--pad) / 2);
     cursor: pointer;
@@ -29,6 +30,8 @@
     margin: auto;
 
     color: white;
+
+    transition: background-color .2s;
 }
 
 
@@ -38,6 +41,10 @@
 
 .search_bar.active .cover{
     transform: translateX(calc(50% + 20px));
+}
+
+.search_bar.active{
+    background-color: var(--blue);
 }
 
 .search_bar.active .cover span{
@@ -50,6 +57,7 @@
     border: 0px;
     background-color: transparent;
 
+    color: white;
     position: absolute;
 }
 
@@ -73,7 +81,7 @@
     display: flex;
     column-gap: 10px;
     font-size: 20px;
-    color: var(--dark_green);
+    color: var(--blue);
 }
 
 /* Side Menu */

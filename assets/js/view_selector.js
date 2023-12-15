@@ -1,25 +1,25 @@
-function view_selector(view_names = [], view_nodes = [])
+function view_selector(view_names = [], view_nodes = [], values = [], white = false)
 {
     this.activeIndex = 0;
     this.header = undefined;
     this.body = undefined;
 
-    return this.init(view_names, view_nodes); 
+    return this.init(view_names, view_nodes, values, white); 
 }
 
-view_selector.prototype.init = function(view_names, view_nodes){
+view_selector.prototype.init = function(view_names, view_nodes, values, white){
     if (view_names.length !== view_nodes.length)
     {
         console.error("View selector not ok!");
         return;
     }
     let frame = document.createElement("div");
-    frame.className = "view_selector";
+    frame.className = "view_selector " + (white && "white");
 
     this.header = document.createElement("div");
     this.header.className = "view_selector--header";
 
-    this.header.appendChild(this.addViewNames(view_names));
+    this.header.appendChild(this.addViewNames(view_names, values));
     this.header.appendChild(this.init_selectorNode(view_names.length));
 
     let container = document.createElement("div");
@@ -27,6 +27,8 @@ view_selector.prototype.init = function(view_names, view_nodes){
 
     this.body = document.createElement("div");
     this.body.className = "view_selector--body";
+    this.body.dataset.pickedIndex = 0;
+    this.body.dataset.value = values[0] ? values[0] : "none";
 
     this.body.appendChild(this.init_body(view_nodes));
 
@@ -61,7 +63,7 @@ view_selector.prototype.init_selectorNode = function (elements)
     return node;
 }
 
-view_selector.prototype.addViewNames = function(view_names)
+view_selector.prototype.addViewNames = function(view_names, values)
 {
     let frag = document.createDocumentFragment();
 
@@ -72,6 +74,8 @@ view_selector.prototype.addViewNames = function(view_names)
         node.dataset.index = index;
 
         node.onclick = ()=>{
+            this.body.dataset.pickedIndex = index;
+            this.body.dataset.value = values[index] ? values[index] : "none";
             this.gotoIndex(index);
         }
 

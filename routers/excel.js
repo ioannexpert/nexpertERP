@@ -11,6 +11,21 @@ const { v4: uuidv4 } = require('uuid');
 const constants = require("../constants");
 const { checkLogin } = require("../middlewares");
 const excel_manager = require("../managers/excel");
+const multer = require("multer");
+const ExcelJS = require('exceljs');
+
+
+const file_import = multer({ storage: multer.diskStorage({
+    destination: function (req, file, cb)
+    {
+        cb (null, "./imports");
+    },
+    filename: function (req, file, cb){
+        const name = Date.now() + "-"+Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + name)
+
+    }
+}) })
 
 router.use(checkLogin);
 
@@ -276,7 +291,7 @@ router.post("/saveSheet",async (req, res)=>{
                 let update = {
                     $set:{
                         rowId,
-                        value: data[cellCoords].value,
+                        value: data[cellCoords]?.value || "",
                         uuid: headerId,
                         styles: data[cellCoords].styles,
                         formula: data[cellCoords].formula,
@@ -619,6 +634,62 @@ router.post("/rename_document", async (req, res)=>{
             res.sendStatus(200);
         }else{
             res.sendStatus(500);
+        }
+    }else{
+        res.status(500).send(ERRORS.INCOMPLETE_REQUEST);
+    }
+})
+
+router.post("/import_excel", file_import.single("file"),async (req, res)=>{
+    
+    if (req.file)
+    {
+        let response = [];
+        console.log(req.file);
+        //read the file and process it 
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.readFile(req.file.path);
+
+        workbook.eachSheet((worksheet)=>{
+            let sheet_response = {};
+
+            sheet_response.sheetName = worksheet.name;
+            sheet_response.rows = worksheet.rowCount;
+            sheet_response.data = [];
+
+            for (let row = 1;row<=worksheet.rowCount;row++)
+            {
+                let aux = [];
+                for (let cell = 1; cell<=worksheet.getRow(row).cellCount;cell++)
+                {
+                    aux.push(worksheet.getRow(row).getCell(cell).value);
+                }
+                sheet_response.data.push(aux);
+            }
+            response.push(sheet_response);
+        })
+
+        res.send(response);
+    }else{
+        res.status(500).send({
+            body: "No file uploaded!"
+        })
+    }
+})
+
+router.post("/import_excel_final", file_import.single("file"), async(req, res)=>{
+    let {data, sheetId, doc_id} = req.body;
+
+    if (data !== undefined && sheetId !== undefined && doc_id !== undefined)
+    {   
+        try{
+            data = JSON.parse(data);
+
+            excel_manager.import_excel(data, sheetId, doc_id, req.user.userId, req.file.path);
+            
+            res.sendStatus(200);
+        }catch(e){
+            res.status(500).send(ERRORS.INCOMPLETE_REQUEST);
         }
     }else{
         res.status(500).send(ERRORS.INCOMPLETE_REQUEST);

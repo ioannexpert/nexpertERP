@@ -2,19 +2,49 @@ const REGEX = require("../regex");
 const mongo = require("../managers/mongoDB");
 const ERRORS = require("../errors");
 const {ObjectId} = require("mongodb");
+const ExcelJS = require('exceljs');
+const { v4: uuidv4 } = require('uuid');
 
-async function sheetExists(sheetName, conn = undefined) {
+
+async function sheetExists(sheetName, doc_id = undefined, conn = undefined) {
     let connection = conn || await mongo.getConnection();
 
     if (connection != null) {
         try {
-            let sheetId = await connection.db("nextERP").collection("sheets").findOne({ sheetName: sheetName });
+            let condition_object = {sheetName: sheetName};
+            if (doc_id !== undefined)
+            {
+                condition_object.doc_id = new ObjectId(doc_id);
+            }
+            let sheetId = await connection.db("nextERP").collection("sheets").findOne(condition_object);
             return sheetId === null ? false : sheetId;
         } catch (e) {
             return false;
         }
     } else {
         return false;
+    }
+}
+
+async function sheetExists_id(sheetId, user_id)
+{
+    let connection = await mongo.getConnection();
+
+    if (connection){
+        try{
+            let response = await connection.db("nextERP").collection("sheets").findOne({_id: new ObjectId(sheetId), userId: user_id});
+
+            if (response)
+            {
+                return {success: true, data: response};
+            }else{
+                return {success: false, body: "Sheet does not exist!"};
+            }
+        }catch(e){
+            return ERRORS.MONGO_DB_QUERY;
+        }
+    }else{
+        return ERRORS.MONGO_DB_CONNECTION;
     }
 }
 
@@ -103,7 +133,7 @@ async function validColumnCoords(coords) {
 
         if (connection != null) {
             //cehck sheet 
-            let sheetId = await sheetExists(parts[0]);
+            let sheetId = await sheetExists(parts[0], undefined);
             if (sheetId !== false) {
                 if (await sheetHasColumn(sheetId._id, parts[1], connection)) {
                     return true;
@@ -130,7 +160,7 @@ async function fullCellCoordsToGeneral(coords, conn = null)
     {
         try{
             let [undefined, sheetName, row, column] = new RegExp(REGEX.fullCoords).exec(coords);
-            let sheetId = await sheetExists(sheetName);
+            let sheetId = await sheetExists(sheetName, undefined);
             let colId = await sheetHasColumn(sheetId._id, column, conn);
 
             return {success: true, data: `!${sheetId._id}#${row}@${colId.uuid}`};
@@ -658,7 +688,191 @@ async function get_all_sheets(userId)
     }
 }
 
+async function import_excel(data, sheetId, doc_id, user_id, file_path)
+{
+    let connection = await mongo.getConnection();
+
+    if (connection)
+    {
+        try{
+            //check the document 
+            let doc_data = await getDocumentById(doc_id, user_id);
+
+            if (doc_data?.success === true)
+            {
+                try{
+                    
+                const workbook = new ExcelJS.Workbook();
+                await workbook.xlsx.readFile(file_path);
+                    
+                //workbook object 
+                //start getting the data for each sheet 
+                for (const [index, sheet] of data.sheets.entries())
+                {
+                    console.log(sheet);
+                    //get the worksheet object  
+                    let worksheet = workbook.getWorksheet(index + 1 );
+                        
+                    if (sheet.type == 0)
+                    {
+                        //just skip
+                    }else if (sheet.type == 1)
+                    {
+                        //first create 
+                        try{
+                            let db_sheet = await createSheet(sheet.extraData.sheetName, "", user_id, doc_id);
+                            if (db_sheet?.success === true)
+                            {
+                                console.log("Sheet created");
+                                //create the headers now bro 
+                                //headers means the first row of the sheet 
+                                
+                                //trick to sync the flow 
+                                let header_promises = [];
+
+                                worksheet.getRow(1).eachCell((cell)=>{
+                                    header_promises.push(
+                                        createHeader(sheetId, undefined, cell.value, "", "", "string", user_id)
+                                    )
+                                })
+
+                                const response = await Promise.allSettled(header_promises);
+                                    //check the response
+                                    let ok = true; 
+                                    for (const resp of response)
+                                    {
+                                        if (resp.status !== "fulfilled" || resp.value?.success === false)
+                                        {
+                                            ok = false;
+                                        }
+                                    }
+
+                                    if (ok)
+                                    {
+                                        let colCount = response.length;
+                                        for (let row = 2; row <= worksheet.rowCount; row++)
+                                        {
+                                            //insert now 
+                                            for (let cell = 1;cell <= colCount;cell++)
+                                            {
+                                                //insert the cell 
+                                                console.log(response[cell - 1].value)
+                                            }
+
+                                        }
+                                    }else{
+                                        console.log("Stop ")
+                                    }
+                            }
+                        }catch(e){console.log(e)};
+                    }   
+                }
+
+            }catch(e){
+                console.log(e);
+                    return {success: false, body: "The file could not be processed!"}
+                }
+                
+            }else{
+                return {success: false, body: "You do not have permissions to this document!"};
+            }
+        }catch(e){  
+            return ERRORS.MONGO_DB_QUERY;
+        }
+    }else{
+        return ERRORS.MONGO_DB_CONNECTION;
+    }
+}
+
+async function createSheet(name, notes, user_id, doc_id)
+{
+    let connection = await mongo.getConnection();
+
+    if (connection)
+    {
+        try{
+            if (name.trim() != "" && user_id !== undefined && doc_id !== undefined){
+                let doc_data = await getDocumentById(doc_id, user_id);
+                if (doc_data?.success === true)
+                {
+                    let is_sheet = await sheetExists(name, doc_id);
+                    if (!is_sheet)
+                    {
+                        //just insert now 
+                        let insert = await connection.db("nextERP").collection("sheets").insertOne({
+                            sheetName: name, 
+                            notes: notes, 
+                            userId: user_id,
+                            doc_id: new ObjectId(doc_id)
+                        });
+                        if (insert)
+                        {
+                            return {success: true, data: insert.insertedId};
+                        }else{
+                            return ERRORS.MONGO_DB_QUERY;
+                        }
+                    }else{
+                        return {success: false, body: `Sheet ${name} already exists!`};
+                    }
+                }else{
+                    return {success: false, body: "The document does not exist!"};
+                }
+            }else{
+                return {success: false, body: "Data is not complete!"};
+            }
+        }catch(e){
+            return ERRORS.MONGO_DB_QUERY;
+        }
+
+    }else{
+        return ERRORS.MONGO_DB_CONNECTION;
+    }
+}
+
+async function createHeader(sheetId, uuid = undefined, name, notes, formula, colType, user_id)
+{
+    let connection = await mongo.getConnection();
+
+    if (connection)
+    {
+        try{
+            let sheetData = await sheetExists_id(sheetId, user_id);
+            if (sheetData?.success === true)
+            {
+                if (uuid === undefined){
+                    uuid = uuidv4();
+                }
+                //insert 
+                let insert = await connection.db("nextERP").collection("headers").insertOne({
+                    sheetId: sheetId,
+                    name: name, 
+                    notes: notes, 
+                    uuid: uuid,
+                    formula: formula,
+                    colType: colType
+                });
+
+                if (insert)
+                {
+                    return {success: true, data:{
+                        _id: insert.insertedId,
+                        uuid: uuid
+                    }}
+                }else{
+                    return ERRORS.MONGO_DB_QUERY;
+                }
+            }else{
+                return {success: false, body: "Sheet does not exist!"};
+            }
+        }catch(e){
+            return ERRORS.MONGO_DB_QUERY;
+        }
+    }else{
+        return ERRORS.MONGO_DB_CONNECTION;
+    }
+}
+
 module.exports = {
     validFullCoords, sheetExists, sheetHasColumn, validColumnCoords, setHyperlink_cell_coords, setHyperlink_cell_conditions, getDocumentsForUser, getDocument, hyperlink_details, addDocument, getDocumentById, remove_document, remove_sheet, rename_document,
-    fullCellCoordsToGeneral, get_all_sheets
+    fullCellCoordsToGeneral, get_all_sheets, import_excel, createSheet
 }

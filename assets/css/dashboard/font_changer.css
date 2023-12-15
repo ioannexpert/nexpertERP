@@ -75,9 +75,31 @@
     text-decoration: line-through;
 }
 
+.color{
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: var(--bRadius);
+}
+
+.color input{
+    width: 0px;
+    visibility: hidden;
+    padding: 0px;
+    border: none;
+}
+
+.color i{
+    position: relative;
+    font-size: 18px;
+}
+
 .action_button i{
     position: absolute;
     font-size: 12px;
+    top: 0px;
+    right: 0px;
 }
 
 .action_button:active{

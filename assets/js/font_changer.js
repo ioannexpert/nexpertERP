@@ -29,6 +29,12 @@ dateFormatChange.initEvent("dateFormat_change", true, true);
 const decimalChange = document.createEvent("HTMLEvents");
 decimalChange.initEvent("decimal_change", true, true);
 
+const bgColorChange = document.createEvent("HTMLEvents");
+bgColorChange.initEvent("bg_color", true, true);
+
+const fontColorChange = document.createEvent("HTMLEvents");
+fontColorChange.initEvent("font_color", true, true);
+
 const editOptions = document.createEvent("HTMLEvents");
 editOptions.initEvent("edit_options", true, true);
 
@@ -44,6 +50,8 @@ function font_changer(elem)
     this.italic = false;
     this.underline = false;
     this.strike = false;
+    this.bg_color = "#FFFFFF";
+    this.font_color = "#01295F";
 }
 
 font_changer.prototype.init = function (){
@@ -174,9 +182,64 @@ font_changer.prototype.init = function (){
                 new CustomEvent("edit_options")
             )
         })
+
+        this.htmlParent.querySelector(".bg_color input").addEventListener("change",(ev)=>{
+            this.change_bg_color(ev.target.value);
+        })
+
+        this.htmlParent.querySelector(".font_color input").addEventListener("change",(ev)=>{
+            this.change_font_color(ev.target.value);
+        })
 }
 
+font_changer.prototype.change_bg_color = function (color)
+{
+    this.bg_color = color;
+    let textColor = this.hexToRgb(this.bg_color);         
+            //calibrate the icon color
+            const brightness = Math.round(((parseInt(textColor.r) * 299) +
+                      (parseInt(textColor.g) * 587) +
+                      (parseInt(textColor.b) * 114)) / 1000);
+            this.htmlParent.querySelector(".bg_color i").style.color = (brightness > 125) ? 'black' : 'white';
 
+            this.htmlParent.querySelector('.bg_color').style.backgroundColor = this.bg_color;
+
+    let e = new CustomEvent("bg_color",{
+        detail: {
+            value: this.bg_color
+        }
+    });
+    document.dispatchEvent(e);
+}
+
+font_changer.prototype.change_font_color = function (color)
+{
+    this.font_color = color;
+    let textColor = this.hexToRgb(this.font_color);         
+            //calibrate the icon color
+            const brightness = Math.round(((parseInt(textColor.r) * 299) +
+                      (parseInt(textColor.g) * 587) +
+                      (parseInt(textColor.b) * 114)) / 1000);
+            this.htmlParent.querySelector(".font_color i").style.color = (brightness > 125) ? 'black' : 'white';
+
+            this.htmlParent.querySelector('.font_color').style.backgroundColor = this.font_color;
+
+    let e = new CustomEvent("font_color",{
+        detail: {
+            value: this.font_color
+        }
+    });
+    document.dispatchEvent(e);
+}
+
+font_changer.prototype.hexToRgb = function(hex){
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;
+}
 
 font_changer.prototype.loadCellType = function (cellNode)
 {
@@ -343,6 +406,7 @@ font_changer.prototype.setFontSize = function(fontSize)
 
 font_changer.prototype.loadStyles = function (styles)
 {
+    console.log(styles);
     //load the font size
     if (styles?.fontSize)
     {
@@ -374,6 +438,20 @@ font_changer.prototype.loadStyles = function (styles)
     }
     else{
         this.change_italic(false);
+    }
+
+    if (styles?.backgroundColor)
+    {
+        this.change_bg_color(styles.backgroundColor);
+    }else{
+        this.change_bg_color("#FFFFFF");
+    }
+
+    if (styles?.color)
+    {
+        this.change_font_color(styles.color);
+    }else{
+        this.change_font_color("#01295F");
     }
 
     if (styles?.textDecoration)

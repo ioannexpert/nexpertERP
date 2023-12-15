@@ -12,7 +12,6 @@ async function getConnection()
 {
     if (connection)
     {
-        console.log("reused");
         return connection;
     }    
     else{
