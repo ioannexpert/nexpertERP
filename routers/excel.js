@@ -142,6 +142,7 @@ router.post("/add_column",async (req, res)=>{
 
                     try{
                         let result = await connection.db("nextERP").collection("headers").insertOne(document);
+                
                         if (result.insertedId)
                         {
                             res.send({
@@ -155,6 +156,7 @@ router.post("/add_column",async (req, res)=>{
                     }
                 }
             }else{
+                console.log("aici")
                 res.status(500).send(ERRORS.EXCEL_SHEET_NULL)
             }
         }
@@ -685,11 +687,64 @@ router.post("/import_excel_final", file_import.single("file"), async(req, res)=>
         try{
             data = JSON.parse(data);
 
-            excel_manager.import_excel(data, sheetId, doc_id, req.user.userId, req.file.path);
+            let response = await excel_manager.import_excel(data, sheetId, doc_id, req.user.userId, req.file.path);
             
-            res.sendStatus(200);
+            res.send(response);
         }catch(e){
             res.status(500).send(ERRORS.INCOMPLETE_REQUEST);
+        }
+    }else{
+        res.status(500).send(ERRORS.INCOMPLETE_REQUEST);
+    }
+})
+
+router.post("/remove_column",async (req, res)=>{
+    let {uuid} = req.body;
+
+    if (uuid !== undefined)
+    {
+        let response = await excel_manager.remove_column(uuid);
+
+        if (response?.success === true)
+        {
+            res.sendStatus(200);
+        }else{
+            res.sendStatus(500);
+        }
+    }else{
+        res.status(500).send(ERRORS.INCOMPLETE_REQUEST);
+    }
+})
+
+router.post("/rename_column", async (req, res)=>{
+    let {uuid, input} = req.body;
+
+    if (uuid !== undefined && input !== undefined && input.trim() != "")
+    {
+        let response = await excel_manager.rename_column(uuid, input);
+
+        if (response?.success === true)
+        {
+            res.sendStatus(200);
+        }else{
+            res.sendStatus(500);
+        }
+    }else{
+        res.status(500).send(ERRORS.INCOMPLETE_REQUEST);
+    }
+})
+
+router.post("/update_col_notes", async (req, res)=>{
+    let {uuid, notes} = req.body;
+
+    if (uuid !== undefined && notes !== undefined)
+    {
+        let response = await excel_manager.update_col_notes(uuid, notes);
+
+        if (response?.success === true){
+            res.sendStatus(200);
+        }else{
+            res.sendStatus(500);
         }
     }else{
         res.status(500).send(ERRORS.INCOMPLETE_REQUEST);

@@ -167,7 +167,7 @@ function add_page()
       icon = elem.value;
     }
   })
-  let pageName = document.querySelector("#page_name").value;
+  let pageName = document.querySelector("#page_name_add").value;
 
   $.ajax({
     url: "/document/add_page",
@@ -185,9 +185,9 @@ function add_page()
         temp.querySelector(".page_link").textContent = pageName;
         temp.querySelector(".page_link").href = "/document/"+pageName;
 
-        document.querySelector(".menu").insertBefore(temp, document.querySelector(".add_page--container"));
+        document.querySelector(".menu_container").insertBefore(temp, document.querySelector(".add_page--container"));
         page_icons[1].checked = true;
-        document.querySelector("#page_name").value = "New page";
+        document.querySelector("#page_name_add").value = "New page";
         toggle_add_page();
       }else{
         Toastify({

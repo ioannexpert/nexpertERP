@@ -4,6 +4,7 @@ const path = require("path");
 const mustache = require("mustache-express");
 const cookieParser = require("cookie-parser");
 const { checkLogin } = require("./middlewares");
+const document_manager = require("./managers/documents");
 
 (async ()=>{
     //let con = await mongo.getConnection();
@@ -30,7 +31,18 @@ app.set('views', path.join(__dirname, '/pages'));
 app.use(express.static(path.join(__dirname, 'pages')));
 app.use("/assets",express.static(path.join(__dirname, "assets")));
 
+app.get("/home",checkLogin, async (req, res)=>{
 
+    let menu = await document_manager.getPagesAndDocuments(req.user.userId);
+    let docsForPage = [];
+
+    if (menu?.success === true){
+        res.render("home.html",{pages: menu.result, ...req.user});
+    }else{
+        res.sendStatus(404);
+    }
+
+})
 
 app.get("/test",(req, res)=>{
     res.render("test.html");

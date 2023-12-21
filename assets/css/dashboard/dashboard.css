@@ -124,12 +124,9 @@
     top: 0px;
     padding-inline: var(--pad);
     padding-top: 10px;
-    padding-bottom: 60px;
     overflow-x: visible;
-
+    
     display: flex;
-    flex-direction: column;
-    row-gap: 10px;
 
     background-color: rgba(255,255,255,0.3);
     backdrop-filter: blur(50px);
@@ -138,7 +135,25 @@
     transition: transform .4s, background-color .4s;
 }
 
+.menu_container{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+    padding-left: 2px;
+    padding-right: 5px;
+    overflow: auto;
+    padding-bottom: 20px;
+}
 
+.menu_container::-webkit-scrollbar{
+    width: 5px;;
+}
+
+.menu_container::-webkit-scrollbar-thumb{
+    background-color: black;
+    border-radius: 20px;
+}
 
 .menu_button{
     position: absolute;
@@ -667,6 +682,19 @@ button.primary_button:hover{
 
   .page_icon:has(input:checked) i{
     color: white;
+  }
+
+  .menu_page--link{
+    background-color: rgba(255, 255, 255, .6);
+    outline: none;
+    padding: var(--pad);
+    border-radius: var(--bRadius);
+    display: flex;
+    column-gap: 10px;
+    align-items: center;
+
+    font-weight: bold;
+    text-decoration: none;
   }
 
   .menu_page--documents{

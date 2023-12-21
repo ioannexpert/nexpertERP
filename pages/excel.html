@@ -116,7 +116,8 @@
                 <div class="menu_button" onclick="open_menu()">
                     <i class="fa-regular fa-chevrons-left"></i>
                 </div>
-
+                
+                <div class="menu_container">
                 <div class="menu_user">
                     <div class="menu_user--image_container">
                         <img src = '/assets/images/5484211_2824213.jpg'/>
@@ -125,9 +126,17 @@
                     <span>{{userRole}}</span>
                 </div>
 
-                <input type = 'hidden' id = 'page_name' value = {{pageName}}/>
-                <input type = 'hidden' id = 'doc_id' value = {{doc_id}} />
+                <input type = 'hidden' id = 'page_name' value = '{{pageName}}'/>
+                <input type = 'hidden' id = 'doc_id' value = '{{doc_id}}' />
                 
+                <b>Pages</b>
+                <a class="menu_page--link" href = '/home'>
+                    <span class="icon_holder">
+                        <i class="fa-regular fa-home"></i>
+                    </span>
+                    Acasa
+                </a>
+                <b>Documents</b>
                 {{#pages}}
 
                 <div class="menu_page--documents" data-id = {{_id}}>
@@ -230,7 +239,7 @@
 
                         <label style="margin-top: 10px;">
                             Name
-                            <input class="input_one" placeholder="Page name" value="New page" id="page_name">
+                            <input class="input_one" placeholder="Page name" value="New page" id="page_name_add">
                         </label>
 
                         <button class="submit_button maxW small" onclick="add_page()" style="margin-top: 10px;"><i class="fa-regular fa-check"></i> Submit</button>
@@ -238,7 +247,7 @@
                 </div>
 
                 <button class="primary_button maxW small" onclick="toggle_add_page()" ><i class="fa-solid fa-plus"></i> Create new page</button>
-
+            </div>
             </div>
 
             <div class="page_content">
@@ -332,7 +341,7 @@
                             <div class="excel_header--group content_type">
                             
                                 <div class="excel_group--row">
-                                    <div class="custom_select noMargin" id = 'content_type'>
+                                    <div class="custom_select noMargin" id = 'content_tx`ype'>
                                         <customOption data-value="string">
                                             <i class="fa-regular fa-text"></i>
                                             String
@@ -425,12 +434,33 @@
                                 </div>
                             </div>
 
+                            <div class="excel_header--group">
+                                <div class="excel_group--row">
+                                    <button class="primary_button" id = 'conditional_formatting' style="margin-bottom: 20px;"><i class="fa-regular fa-lambda"></i> Highlight cells if</button>
+                                </div>
+
+                                <div class="excel_group--row detail">
+                                    Conditional formatting
+                                </div>
+                            </div>
+
                     </div>
 
                     <div class="excel_header--page multiple_tabs" id = "dataPage">
                         <div class="excel_header--group vertical">
                             <button class="primary_button" id="import_excel"><i class="fa-regular fa-file-excel"></i>Import From excel file</button>
-                            <button class="primary_button" id="import_csv"><i class="fa-regular fa-file-csv"></i>Import From csv file</button>
+                            <!-- <button class="primary_button" id="import_csv"><i class="fa-regular fa-file-csv"></i>Import From csv file</button> -->
+                            <div class="excel_group--row detail">
+                                Import
+                            </div>
+                        </div>
+
+                        <div class="excel_header--group vertical">
+                            <button class="primary_button" id="export_excel"><i class="fa-regular fa-file-excel"></i>Export to excel</button>
+                         
+                            <div class="excel_group--row detail">
+                                Export
+                            </div>
                         </div>
 
                    
@@ -520,6 +550,10 @@
                                     <customOption data-value="check">
                                         <i class="fa-regular fa-square-check"></i>
                                         Checkbox
+                                    </customOption>
+                                    <customOption data-value="number">
+                                        <i class="fa-regular fa-5"></i>
+                                        Number
                                     </customOption>
                               </div>
                               

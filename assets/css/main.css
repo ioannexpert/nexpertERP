@@ -57,6 +57,10 @@ button{
     column-gap: 5px;
 }
 
+button.small_action.active i{
+  color: var(--orange);
+}
+
 .submit_button
 {
     background-color: var(--light_green);
@@ -535,4 +539,17 @@ label.radio {
           transform: scale(1, 1);
         }
       }
-  
+
+
+.textarea_one{
+  resize: none;
+  outline: none;
+  border: 1px solid var(--blue);
+  width: 100%;
+  padding: calc(var(--pad) / 2);
+  border-radius: var(--bRadius);
+}
+
+.textarea_one:focus{
+  border: 1px solid var(--orange);
+}

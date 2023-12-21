@@ -35,6 +35,17 @@ DynamicNodes.prototype.input = function(label, placeholder = "", value="", id = 
     return node;
 }
 
+DynamicNodes.prototype.textNode_html = function (text, styles = {}){
+    let node = document.createElement("div");
+    node.innerHTML = text;
+
+    Object.keys(styles).forEach((key)=>{
+        node.style[key] = styles[key];
+    })
+
+    return node;
+}
+
 DynamicNodes.prototype.ac_container = function(){
 
     let ac = document.createElement("div");
@@ -566,30 +577,31 @@ DynamicNodes.prototype.file_upload_import = function(types = [], extraData)
                             //get the selected option 
                             let radios = colNode.querySelectorAll("label.radio input");
                             col_aux.selection = null;
-                            
-                            if (radios[0].checked)
-                            {
-                                col_aux.selection = 0;
-                                col_aux.col_name = colNode.querySelector("#new_col_name").value;
-                            }
-                            else if (radios[1].checked)
-                            {
-                                col_aux.selection = 1;
-                                //select the result 
-                                let col_selector = colNode.querySelector(".column_selector");
-                                if (col_selector.dataset.selectedId == undefined)
+                            if (col_aux.checked){
+                                if (radios[0].checked)
                                 {
-                                    //show the error
-                                    col_selector.classList.add("err");
-                                    sheet_response.err = true;
-                                }else{
-                                    col_selector.classList.remove("err");
-
-                                    col_aux.selected_id = col_selector.dataset.selectedId;
-                                    col_aux.displayName = col_selector.querySelector("input").value;
+                                    col_aux.selection = 0;
+                                    col_aux.col_name = colNode.querySelector("#new_col_name").value;
                                 }
-                            }else{
-                                col_aux.checked = false;
+                                else if (radios[1].checked)
+                                {
+                                    col_aux.selection = 1;
+                                    //select the result 
+                                    let col_selector = colNode.querySelector(".column_selector");
+                                    if (col_selector.dataset.selectedId == undefined)
+                                    {
+                                        //show the error
+                                        col_selector.classList.add("err");
+                                        sheet_response.err = true;
+                                    }else{
+                                        col_selector.classList.remove("err");
+
+                                        col_aux.selected_id = col_selector.dataset.selectedId;
+                                        col_aux.displayName = col_selector.querySelector("input").value;
+                                    }
+                                }else{
+                                    col_aux.checked = false;
+                                }
                             }
 
                             cols.push(col_aux);
@@ -715,7 +727,25 @@ DynamicNodes.prototype.file_upload_import = function(types = [], extraData)
                 cache: false,
                 processData: false,
                 success: (response)=>{
-                    console.log(response);
+                    if (response?.success === true)
+                    {
+                        modalLib !== undefined && modalLib.close();
+                        Toastify({
+                            className: "toast_success",
+                            text: `Document ${doc_data.name} was imported!`
+                        }).showToast();
+                        
+                        if (extraData.context)
+                        {
+                            extraData.context.clearSheets();
+                            extraData.context.parseSheets();
+                        }
+                    }else{
+                        Toastify({
+                            className: "toast_error",
+                            text: response?.body || `Document ${doc_data.name} could not be imported!`
+                        }).showToast();
+                    }
                 },error: (err)=>{
                     Toastify({
                         className: "toast_error",
@@ -988,4 +1018,13 @@ DynamicNodes.prototype.radio_input = function (text)
 
     return node;
 
+}
+
+DynamicNodes.prototype.textarea = function (text)
+{
+    let node = document.createElement("textarea");
+    node.value = text;
+    node.className = "textarea_one";
+
+    return node;
 }

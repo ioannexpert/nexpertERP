@@ -19,7 +19,7 @@ router.get("/:page_name/:doc_name", async (req, res)=>{
             let menu = await document_manager.getPagesAndDocuments(req.user.userId);
         
             if (menu?.success === true){
-                res.render("dashboard.html",{pages: menu.result, ...req.user, doc_id: response.data.doc_id, pageName: page_name});
+                res.render("excel.html",{pages: menu.result, ...req.user, doc_id: response.data.doc_id, pageName: page_name});
             }else{
                 res.sendStatus(404);
             }

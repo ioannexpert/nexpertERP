@@ -89,7 +89,7 @@ modal.prototype.createPage = function(node)
 modal.prototype.pushView = function (node, title)
 {
     //push the node, then animte to it 
-    this.node.querySelector(".modal--body").appendChild(node);
+    this.node.querySelector(".modal--body").appendChild(this.createPage(node));
     
     this.history.push({
         title,

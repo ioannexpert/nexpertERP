@@ -27,15 +27,20 @@ async function login_user(user, pass){
                 {
                     const {id, hash, name, role} = results[0];
 
-                        bcrypt.compare(pass, hash).then(()=>{
+                        bcrypt.compare(pass, hash).then((err)=>{
                             //ok
-                            resolve({
-                                id,
-                                user,
-                                name, 
-                                role
-                            })
-                        }).catch(()=>{
+                            if (!err){
+                                resolve({
+                                    id,
+                                    user,
+                                    name, 
+                                    role
+                                })
+                            }else{
+                                reject(ERRORS.AUTH_WRONG_PASS);
+                            }
+                        }).catch((e)=>{
+                            console.log(e);
                             reject(ERRORS.AUTH_WRONG_PASS);
                         })
                     

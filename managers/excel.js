@@ -723,7 +723,7 @@ async function import_excel(data, sheetId, doc_id, user_id, file_path)
                             let db_sheet = await createSheet(sheet.extraData.sheetName, "", user_id, doc_id);
                             if (db_sheet?.success === true)
                             {
-                                console.log("Sheet created");
+                                let newsheetId = db_sheet.data;
                                 //create the headers now bro 
                                 //headers means the first row of the sheet 
                                 
@@ -732,7 +732,7 @@ async function import_excel(data, sheetId, doc_id, user_id, file_path)
 
                                 worksheet.getRow(1).eachCell((cell)=>{
                                     header_promises.push(
-                                        createHeader(sheetId, undefined, cell.value, "", "", "string", user_id)
+                                        createHeader(newsheetId, undefined, cell.value, "", "", "string", user_id)
                                     )
                                 })
 
@@ -746,26 +746,97 @@ async function import_excel(data, sheetId, doc_id, user_id, file_path)
                                             ok = false;
                                         }
                                     }
-
+                                    console.log(ok);
                                     if (ok)
                                     {
-                                        let colCount = response.length;
-                                        for (let row = 2; row <= worksheet.rowCount; row++)
-                                        {
-                                            //insert now 
-                                            for (let cell = 1;cell <= colCount;cell++)
-                                            {
-                                                //insert the cell 
-                                                console.log(response[cell - 1].value)
-                                            }
+                                        let startRow = await getLastRow(newsheetId);
 
+                                        if (startRow?.success === true)
+                                        {
+                                            startRow = startRow.data.rowId;
+                                            let colCount = response.length;
+                                            for (let row = 2; row <= worksheet.rowCount; row++)
+                                            {
+                                                startRow++;
+                                                //insert now 
+                                                for (let cell = 1;cell <= colCount;cell++)
+                                                {
+                                                    //insert the cell 
+                                                    await createCell(startRow, response[cell - 1].value.data.uuid, "", newsheetId, {}, "string", worksheet.getRow(row).getCell(cell).value, false, "", {}, []);
+                                                }
+
+                                            }
                                         }
+                                        return {success: true}
                                     }else{
-                                        console.log("Stop ")
+                                        return {success: false, body: "Some errors occured during import!"};
                                     }
+                            }else{
+                                return {success: false, body: db_sheet?.body || `Sheet called ${sheet.extraData.sheetName} already exists in this document!`};
                             }
-                        }catch(e){console.log(e)};
+                        }catch(e){console.log(e)
+                            return {success: false, body: "Some errors occured during import!"};
+                        };
                     }   
+                    else if (sheet.type == 2)
+                    {
+                        //logic goes here
+                        //first we should get the columns data (id, uuid)
+                        let columns_promises = [];
+                        for (const [colData_index, colData] of sheet.extraData.columnData.entries())
+                        {
+                            if (colData.checked === true)
+                            {
+                                if (colData.selection == 0)
+                                {
+                                    //create 
+                                    columns_promises.push(createHeader(new ObjectId(sheetId), undefined, colData.col_name, "", "", "string", user_id))
+                                }else{
+                                    //just get the column 
+                                    columns_promises.push(dataByGeneral("_id", new ObjectId(colData.selected_id), "headers"));
+                                }
+                            }else{
+                                //fake promise
+                                columns_promises.push(
+                                    (async ()=>{
+                                        return {skip: true}
+                                    })()
+                                )
+                            }
+                        }
+
+                        let response_promises = await Promise.allSettled(columns_promises);
+                        let startRow = await getLastRow(sheetId);
+                        console.log(sheetId);
+                        if (startRow?.success === true){
+                            //foreach worksheet row, now we can insert 
+                            startRow = startRow.data.rowId;
+                            for (let row = 2;row <= worksheet.rowCount; row++)
+                            {
+                                startRow++;
+                                //foreach cell 
+                                for (let cell = 1;cell <= worksheet.getRow(row).cellCount; cell++)
+                                {
+                                    //insert 
+                                    let header_promise = response_promises[cell-1].value;
+                                    console.log(header_promise);
+                                    if (header_promise?.skip === true)
+                                    {
+                                        //do nothing
+                                    }else{
+                                        //create the cell
+                                        await createCell(startRow, header_promise.data.uuid, "", sheetId, {}, "string", worksheet.getRow(row).getCell(cell).value, false, "", {}, []);
+                                    }
+                                }
+                            }
+                            return {success: true};
+                        }else{
+                            return {success: false, body: "Something went wrong!"};
+                        }
+                        
+                    }else{
+                        return {success: false, body: "Something went wrong!"};
+                    }
                 }
 
             }catch(e){
@@ -872,7 +943,150 @@ async function createHeader(sheetId, uuid = undefined, name, notes, formula, col
     }
 }
 
+async function  createCell(rowId, uuid, formula, sheetId, styles = {}, type, value, hyperlink = false, hyperlink_coords = "", typeParams = {}, hyperlink_conditions = [])
+{
+    let connection = await mongo.getConnection();
+
+    if (connection)
+    {
+        try{
+            let obj = {
+                rowId,
+                uuid,
+                formula,
+                sheetId: new ObjectId(sheetId),
+                styles,
+                type, 
+                value,
+                typeParams
+            };
+
+            if (hyperlink)
+            {
+                obj.hyperlink = hyperlink;
+                obj.hyperlink_coords = hyperlink_coords;
+                obj.hyperlink_conditions = hyperlink_conditions;
+            }
+            let insert = await connection.db("nextERP").collection("cells").insertOne(obj);
+
+            if (insert)
+            {
+                return {success: true, data:{_id: insert.insertedId}}
+            }else{
+                return {success: false};
+            }
+
+        }catch(e){
+            return ERRORS.MONGO_DB_QUERY;
+        }
+    }else{
+        return ERRORS.MONGO_DB_CONNECTION;
+    }
+}
+
+async function getLastRow(sheetId)
+{
+    let connection = await mongo.getConnection();
+
+    if (connection){
+        try{    
+            let result = await connection.db("nextERP").collection("cells").find({sheetId: new ObjectId(sheetId)}).sort({rowId: -1}).limit(1).toArray();
+            
+            if (result && result.length >= 1)
+            {
+                return {success: true, data: {rowId: result[0].rowId}}
+            }else{
+                return {success: true, data: {rowId: 0}}
+            }
+        }catch(e){
+            return ERRORS.MONGO_DB_QUERY;
+        }
+    }else{
+        return ERRORS.MONGO_DB_CONNECTION;
+    }
+}
+
+async function remove_column(uuid)
+{
+    let connection = await mongo.getConnection();
+
+    if (connection){
+        //first remove the header 
+        try{
+            let header_response = await connection.db("nextERP").collection("headers").deleteOne({uuid: uuid});
+            if (header_response){
+                let cells_response = await connection.db("nextERP").collection("cells").deleteMany({uuid: uuid});
+
+                if (cells_response){
+                    return {success: true};
+                }else{
+                    return {success: false};
+                }
+            }else{
+                return {success: false}
+            }
+        }catch(e){
+            return ERRORS.MONGO_DB_QUERY;
+        }
+    }else{
+        return ERRORS.MONGO_DB_CONNECTION;
+    }
+}
+
+async function rename_column(uuid, input)
+{
+    let connection = await mongo.getConnection();
+
+    if (connection){
+        //first remove the header 
+        try{
+            let response = await connection.db("nextERP").collection("headers").updateOne(
+                {uuid: uuid},
+                {$set:{
+                    name: input
+                }}
+            );
+
+            if (response){
+                return {success: true};
+            }else{
+                return {success: false};
+            }
+        }catch(e){
+            return ERRORS.MONGO_DB_QUERY;
+        }
+    }else{
+        return ERRORS.MONGO_DB_CONNECTION;
+    }
+}
+
+async function update_col_notes(uuid, notes)
+{
+    let connection = await mongo.getConnection();
+
+    if (connection){
+        try{    
+            let result = await connection.db("nextERP").collection("headers").updateOne(
+                {uuid: uuid},
+                {$set:{
+                    notes: notes
+                }}
+            );
+
+            if (result){
+                return {success: true}
+            }else{
+                return {success: false};
+            }
+        }catch(e){
+            return ERRORS.MONGO_DB_QUERY;
+        }
+    }else{
+        return ERRORS.MONGO_DB_CONNECTION;
+    }
+}
+
 module.exports = {
     validFullCoords, sheetExists, sheetHasColumn, validColumnCoords, setHyperlink_cell_coords, setHyperlink_cell_conditions, getDocumentsForUser, getDocument, hyperlink_details, addDocument, getDocumentById, remove_document, remove_sheet, rename_document,
-    fullCellCoordsToGeneral, get_all_sheets, import_excel, createSheet
+    fullCellCoordsToGeneral, get_all_sheets, import_excel, createSheet, remove_column, rename_column, update_col_notes
 }

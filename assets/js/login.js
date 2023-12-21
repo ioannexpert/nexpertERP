@@ -14,7 +14,7 @@ function login()
         data: JSON.stringify({user, pass}),
         success: function(){
             //goto dashboard 
-            window.location.href = "/dashboard";
+            window.location.href = "/home";
         },error: function(err){
             document.querySelector("#logo").parentNode.querySelector("span").textContent = err?.body || "Wrong credentials";
         }

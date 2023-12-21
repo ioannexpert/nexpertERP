@@ -30,7 +30,6 @@
                 crossorigin="anonymous" referrerpolicy="no-referrer"></script>
                 
         <!-- Custom js  -->
-        <script src="/assets/js/page.js"></script>
         <script src="/assets/js/dashboard_menu.js"></script>
         <script src = '/assets/js/view_selector.js'></script>
         <script src = '/assets/js/DynamicNodes.js'></script>
@@ -113,8 +112,8 @@
                 <span>{{userRole}}</span>
             </div>
 
-            <input type = 'hidden' id = 'page_name' value = {{pageName}}/>
-            <input type = 'hidden' id = 'doc_id' value = {{doc_id}} />
+            <input type = 'hidden' id = 'page_name' value = '{{pageName}}'/>
+            <input type = 'hidden' id = 'doc_id' value = '{{doc_id}}' />
             
             <b>Pages</b>
             <a class="menu_page--link" href = '/home'>
@@ -226,7 +225,7 @@
 
                     <label style="margin-top: 10px;">
                         Name
-                        <input class="input_one" placeholder="Page name" value="New page" id="page_name">
+                        <input class="input_one" placeholder="Page name" value="New page" id="page_name_add">
                     </label>
 
                     <button class="submit_button maxW small" onclick="add_page()" style="margin-top: 10px;"><i class="fa-regular fa-check"></i> Submit</button>
@@ -238,11 +237,8 @@
         </div>
 
         <div class="page_content">
-            <h2>Documents for page {{pageName}}</h2>
+            <h2>This is going to be the home</h2>
 
-            <div class="documents_container">
-          
-            </div>
 
        </div>
 
