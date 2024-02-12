@@ -466,7 +466,6 @@ router.post("/hyperlink_cell_coords", async (req, res)=>{
 
     if (refCoords !== undefined && refCoords.length != 0)
     {
-        console.log(refCoords);
         for (let cellCoord of refCoords)
         {
             let response = await excel_manager.validFullCoords(cellCoord);
@@ -751,4 +750,67 @@ router.post("/update_col_notes", async (req, res)=>{
     }
 })
 
+router.post("/conditionalFormatting_add", async (req, res)=>{
+    let {data, nodes} = req.body;
+
+    if (nodes !== undefined && data !== undefined && nodes.length != 0 && data.length != 0)
+    {   
+        let response = await excel_manager.conditionalFormatting_add(nodes, data);
+
+        res.send(response);
+    }else{
+        res.status(500).send(ERRORS.INCOMPLETE_REQUEST);
+    }
+})
+
+router.post("/conditionalFormatting_remove", async (req, res)=>{
+    let {uuid} = req.body;
+
+    if (uuid !== undefined)
+    {
+        let response = await excel_manager.conditionalFormatting_remove(uuid);
+
+        if (response?.success === true){
+            res.sendStatus(200);
+        }else{
+            res.sendStatus(500);
+        }
+    }else{
+        res.status(500).send(ERRORS.INCOMPLETE_REQUEST);
+    }
+})
+
+router.post("/conditionalFormatting_wipe", async (req, res)=>{
+    let {ids} = req.body;
+
+    if (ids !== undefined){
+        let response = await excel_manager.conditionalFormatting_wipe(ids);
+
+        if (response?.success === true){
+            res.sendStatus(200);
+        }else{
+            res.sendStatus(500);
+        }
+    }else{
+        res.status(500).send(ERRORS.INCOMPLETE_REQUEST);
+    }
+})
+
+router.post("/update_headerWidth", async (req, res)=>{
+    let {uuid, width} = req.body;
+
+    if (uuid !== undefined && width !== undefined){
+        let response = await excel_manager.update_headerWidth(uuid, width);
+
+        if (response?.success === true){
+            res.sendStatus(200);
+        }else{
+            res.sendStatus(500);
+        }
+    }else{
+        res.status(500).send(ERRORS.INCOMPLETE_REQUEST);
+    }
+})
+
 module.exports = router;
+

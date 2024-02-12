@@ -105,7 +105,7 @@ modal.prototype.setView = function (node, title){
 }
 
 modal.prototype.showView = function(){
-    this.node.querySelector(".modal--body").style.transform = `translateX(-${100 * (this.currentIndex - 1) }%)`;
+    this.node.querySelector(".modal--body").style.transform = `translateX(calc(-${100 * (this.currentIndex - 1) }% + ${(this.currentIndex - 1) * 10 * 2}px))`;
     this.update_header(this.history[this.currentIndex - 1].title);
 }
 
@@ -118,7 +118,7 @@ modal.prototype.go_back = function()
     this.currentIndex--;
     this.showView();
     setTimeout(()=>{
-        node.remove();
+        node.parentNode.remove();
     }, 400);   
 }
 

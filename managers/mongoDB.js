@@ -1,6 +1,6 @@
 const url = "mongodb://0.0.0.0:27017";
 const dotenv = require("dotenv").config("process.env");
-const {MongoClient} = require("mongodb");
+const {MongoClient, ObjectId} = require("mongodb");
 
 const client = new MongoClient(url,{
     serverSelectionTimeoutMS: dotenv.parsed.MONGO_TIMEOUT
@@ -35,6 +35,16 @@ function done(connection)
     }
 }
 
+function array_to_objectIds(array){
+    let aux = [];
+    array.forEach((elem)=>{
+        if (elem !== null && elem !== undefined)
+        aux.push(new ObjectId(elem));
+    })
+
+    return aux;
+}
+
 module.exports = {
-    getConnection
+    getConnection, array_to_objectIds
 }

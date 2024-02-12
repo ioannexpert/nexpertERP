@@ -203,3 +203,11 @@ function add_page()
     }
   })
 }
+
+function focus_user(){
+  document.querySelector(".logged_user--container").classList.add("active");
+}
+
+function blur_user(){
+  document.querySelector(".logged_user--container").classList.remove("active");
+}

@@ -1,37 +1,19 @@
+.content_container{
+    min-height: auto;
+    height: calc(100vh - 70px);
+}
+
 .page_content 
 {
     background-color: white;
     padding: var(--pad);
     width: 100%;
     border-radius: var(--bRadius);
+    height: calc(100vh - 70px);
 }
 
-.page_menu
-{
-    background-color: var(--light_orange);
-    display: flex;
-    column-gap: 15px;
-    padding: var(--pad);
-    border-radius: var(--bRadius);
-
-    box-shadow: 0px 25px 20px -20px rgba(0, 0, 0, 0.45);
-}
-
-.page_menu--item
-{   
-    font-weight: 500;
-    padding: calc(var(--pad) / 2);
-    border-radius: calc(var(--bRadius) / 2);
-
-    cursor: pointer;
-}
-
-.page_menu--item:hover{
-    background-color: var(--light_gray);
-}
-
-.page_menu--item.active{
-    background-color: var(--light_gray);
+.menu{
+    height: calc(100vh - 70px);
 }
 
 .excel_hasTitle{
@@ -70,6 +52,8 @@
 }
 
 .excel_header{
+    /* TODO delete display none */
+    display: none;
     background-color: var(--light_gray);
     padding: var(--pad);
     border-radius: 0px 0px var(--bRadius) var(--bRadius);
@@ -99,11 +83,9 @@
     column-gap: 15px;
 }
 
-.excel_header .excel_formula--container{
-    position: absolute;
-    bottom: 5px;
-    width: calc(100% - 20px);
-
+.excel_formula--container{
+    position: relative;
+    margin-top: 5px;
     background-color: white;
     padding: 2px;
     border-radius: 7px;
@@ -113,7 +95,7 @@
     align-items: center;
 }
 
-.excel_header .excel_formula--container.active .excel_formula--list{
+.excel_formula--container.active .excel_formula--list{
     visibility: visible;
     opacity: 1;
     transition: opacity .4s 0s, visibility 0s 0s;
@@ -216,9 +198,9 @@
     width: 100%;
     
     overflow: auto;
-    padding: 20px 0px 10px 70px;
+    padding: 15px 0px 10px 70px;
 
-    min-height: 600px;
+    position: relative;
 }
 
 .excel_table--header{
@@ -232,6 +214,17 @@
     padding-right: 20px;
 
     width: fit-content;
+}
+
+.excel_table--header_drag{
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    height: 100%;
+    width: 10px;
+    background-color: transparent;
+
+    cursor: col-resize;
 }
 
 .excel_table--header_items
@@ -408,6 +401,8 @@
     background-color: white;
     font-size: 12px;
     font-family: Arial;
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .excel_table--body_cell.active::before{
@@ -471,7 +466,6 @@
 .excel_sheets--container
 {
     box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.075);
-    margin: 10px 0px;
     
     background-color: var(--light_orange);
     border-radius: var(--bRadius);
@@ -479,7 +473,11 @@
     display: grid;
     grid-template-columns: 1fr auto;
     align-items: center;
-    position: relative;
+    position: fixed;
+    left: 0px;
+    z-index: 99999;
+
+    transition: all .3s;
 }
 
 .excel_sheets--container .fa-plus{
@@ -1116,4 +1114,257 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
 
 .invis{
     display: none;
+}
+
+/* Excel new menu */
+.excel_menu--container
+{
+    background-color: var(--light_gray);
+    padding: calc(var(--pad) / 2);
+    border-radius: var(--bRadius);
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    z-index: 999999;
+}
+
+.excel_menu--categories{
+    display: flex;
+    flex-direction: row;
+    column-gap: 5px;
+}
+
+.excel_menu--category{
+    padding: calc(var(--pad) / 2) var(--pad);
+    border-radius: var(--bRadius);
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.excel_menu--category:hover{
+    background-color: white;
+}
+
+.excel_menu--category.active{
+    background-color: var(--light_orange);
+}
+
+.excel_menu--actions_container{
+    display: flex;
+    flex-direction: row;
+    column-gap: 5px;
+
+    margin-top: 5px;
+}
+
+.excel_menu--actions_container.hidden{
+    display: none;
+}
+
+.excel_menu--action_group{
+    display: flex;
+    flex-direction: row;
+    column-gap: 5px;
+    border-right: 1px solid var(--blue);
+    padding: 0px calc(var(--pad) / 2);
+
+    align-items: center;
+}
+
+.excel_menu--action_group > * {
+    height: 30px;
+}
+
+.excel_action{
+    width: 30px;
+    height: 30px;
+    border-radius: var(--bRadius);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    transition: all .2s;
+}
+
+
+.excel_action.options{
+    position: relative;
+}
+.excel_action.icon.options i{
+    font-size: 16px;
+}
+.excel_action.options .fa-caret-down{
+    font-size: 14px;
+}
+
+.excel_action--options{
+    position: absolute;
+    background-color: white;
+    left: 0px;
+    top: 100%;
+    border-radius: var(--bRadius);
+    overflow: hidden;
+    display: none;
+    z-index: 999999;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+.excel_action--option{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    column-gap: 5px;
+    font-size: 16px;
+    padding: calc(var(--pad) / 2);
+    
+    transition: backround-color .3s;
+}
+
+.excel_action--option:hover{
+    background-color: var(--light_gray);
+}
+
+.excel_action.options.toggle .excel_action--options{
+    display: block;
+}
+
+.excel_action.icon{
+    font-size: 20px;
+}
+
+.excel_action.icon_text{
+    font-size: 20px;
+    position: relative;
+}
+
+.excel_action.icon_text i {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    font-size: 14px;
+}
+
+.excel_action:hover{
+    background-color: white;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+}
+
+.excel_action.active{
+    background-color: var(--light_orange);
+}
+
+.excel_menu--fake_container{
+    display: flex;
+    column-gap: 5px;
+}
+
+.excel_menu--fake_container > *{
+    height: 30px;
+}
+
+.excel_menu--fake_container.hidden{
+    display: none;
+}
+
+.cond_format--list{
+    margin: 5px 0px;
+
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+}
+
+.cond_format_case--list:empty::before{
+    content: "No cases yet!";
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 10px 0px;
+    font-style: italic;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.cond_format--list:empty::before{
+    content: "No rules yet!";
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 10px 0px;
+    font-style: italic;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.condition--container{
+    display: grid;
+    align-items: center;
+    grid-template-columns: auto ;
+    row-gap: 10px;
+
+    background-color: var(--light_gray);
+    padding: calc(var(--pad) / 2);
+    border-radius: var(--bRadius);
+    column-gap: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+.condition--container .custom_select {
+    height: 100%;
+}
+
+.condition--extras{
+    display: flex;
+    column-gap: 10px;
+}
+
+.cond_format_case--list{
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+    padding: 10px 0px;
+}
+
+.small_text_formatting{
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--gray);
+    border-radius: var(--bRadius);
+    background-color: white;
+    overflow: hidden;
+
+    grid-column: 1/-1;
+}
+
+.small_text_formatting--example{
+    padding: calc(var(--pad) / 2);
+    border-bottom: 1px solid var(--gray);
+    background-color: var(--light_orange);
+}
+
+.small_text_formatting--actions{
+    display: flex;
+    column-gap: 5px;
+    padding: calc(var(--pad) / 2);
+}
+
+.cond_format--rule{
+    text-align: start;
+    background-color: var(--light_gray);
+    border-radius: var(--bRadius);
+    padding: calc(var(--pad) / 2);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    position: relative;
+
+    cursor: pointer;
+    transition: box-shadow .3s;
+}
+
+.cond_format--rule:hover{
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+
+.cond_format--rule button{
+    position: absolute;
+    right: 5px;
+    top: 5px;
 }

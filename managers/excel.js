@@ -8,17 +8,21 @@ const { v4: uuidv4 } = require('uuid');
 
 async function sheetExists(sheetName, doc_id = undefined, conn = undefined) {
     let connection = conn || await mongo.getConnection();
-
+    
     if (connection != null) {
         try {
             let condition_object = {sheetName: sheetName};
+            console.log(sheetName);
+            console.log(doc_id);
             if (doc_id !== undefined)
             {
                 condition_object.doc_id = new ObjectId(doc_id);
             }
+            console.log(condition_object);
             let sheetId = await connection.db("nextERP").collection("sheets").findOne(condition_object);
             return sheetId === null ? false : sheetId;
         } catch (e) {
+            console.log(e);
             return false;
         }
     } else {
@@ -64,7 +68,7 @@ async function validFullCoords(coords) {
     if (new RegExp(REGEX.fullCoords).test(coords)) {
         let matches = new RegExp(REGEX.fullCoords).exec(coords);
 
-        let [undefined, sheet, row, column] = matches;
+        let [_a, sheet, row, column] = matches;
         //now search 
         let connection = await mongo.getConnection();
 
@@ -159,9 +163,11 @@ async function fullCellCoordsToGeneral(coords, conn = null)
     if (connection !== null)
     {
         try{
-            let [undefined, sheetName, row, column] = new RegExp(REGEX.fullCoords).exec(coords);
-            let sheetId = await sheetExists(sheetName, undefined);
+            let [_a, sheetName, row, column] = new RegExp(REGEX.fullCoords).exec(coords);
+
+            let sheetId = await sheetExists(sheetName, undefined, undefined);
             let colId = await sheetHasColumn(sheetId._id, column, conn);
+            console.log(sheetId);
 
             return {success: true, data: `!${sheetId._id}#${row}@${colId.uuid}`};
         }catch(e){
@@ -180,8 +186,10 @@ async function setHyperlink_cell_coords(refCells, textToDisplay, cellCoord)
         if (connection !== null) {
             try {
                 let generalCoords = await fullCellCoordsToGeneral(cellCoord);
+
                 if (generalCoords?.success !== true)
                     return {success: false};
+
                 let query = await connection.db("nextERP").collection("cells").updateMany(
                     {
                         _id: {
@@ -477,8 +485,8 @@ async function hyperlink_details(cell_id)
                 let {hyperlink_coords, conditions} = cell_data;
 
                 if (hyperlink_coords && hyperlink_coords.trim() != ""){
-                    //direct coords 
-                    let [undefined, sheet, row, column] = new RegExp(REGEX.general_fullCoords).exec(hyperlink_coords);
+                    //direct coords
+                    let [_a, sheet, row, column] = new RegExp(REGEX.general_fullCoords).exec(hyperlink_coords);
                     console.log(sheet, row, column);
                     let sheetData = await dataByGeneral("_id", new ObjectId(sheet), "sheets", connection);
                     console.log(sheetData);
@@ -1086,7 +1094,234 @@ async function update_col_notes(uuid, notes)
     }
 }
 
+async function cellCoords_to_id(cellCoords, insert = false){
+    let connection = await mongo.getConnection();
+
+    if (connection !== null)
+    {
+        try{
+            let [_a, sheet, row, column] = new RegExp(REGEX.fullCoords).exec(cellCoords);
+            
+            let cell_response = await connection.db("nextERP").collection("cells").findOne({
+                rowId: parseInt(row),
+                sheetId: new ObjectId(sheet),
+                uuid: column
+            });
+
+            if (cell_response)
+            {
+                return {success: true, data: {
+                    _id: cell_response._id
+                }}
+            }else{
+
+                if (insert)
+                {
+                    let c = await createCell(parseInt(row), column, "", sheet, {}, "string", "", false, "", {}, []);
+                    return c;
+                }
+
+                return {success: false}
+            }
+        }catch(e){
+            return ERRORS.MONGO_DB_QUERY;
+        }
+    }else{
+        return ERRORS.MONGO_DB_CONNECTION;
+    }
+}
+
+async function conditionalFormatting_update(conditions)
+{
+    if (conditions.length != 0)
+    {
+        console.log(conditions);
+        let connection = await mongo.getConnection();
+        
+        if (connection !== null)
+        {   
+            try{
+                conditions.forEach((condition)=>{
+                    connection.db("nextERP").collection("cells").updateMany(
+                        {
+                            "conditional_formatting.uuid": condition.uuid
+                        },
+                        {
+                            $set:{
+                                "conditional_formatting.$": condition
+                            }
+                        }
+                    );
+                })
+            }catch(e){
+                return ERRORS.MONGO_DB_QUERY;
+            }
+        }else{
+            return ERRORS.MONGO_DB_CONNECTION;
+        }
+    }else{
+        return {success: true}
+    }
+}
+
+async function conditionalFormatting_add(cells, data)
+{
+    let update = [], insert = [];
+    //add the uuids 
+    data.forEach((obj)=>{
+        if (obj.uuid == null)
+        {
+            obj.uuid = uuidv4();
+            insert.push(obj);
+        }else{
+            update.push(obj);
+        }   
+    })
+    conditionalFormatting_update(update);
+    //first we should check the nodes coords if they are ok 
+    let cells_promises = [];
+
+    cells.forEach((cell)=>{
+        cells_promises.push(cellCoords_to_id(cell, true))
+    })
+
+    let cells_response = await Promise.allSettled(cells_promises);
+
+    let connection = await mongo.getConnection();
+    if (connection === null){
+        return ERRORS.MONGO_DB_CONNECTION;
+    }
+    
+    let cells_ids = [];
+    cells_response.forEach((cell_response)=>{
+        let value = cell_response.value;
+
+        if (value.success === true)
+        {
+            cells_ids.push(new ObjectId(value.data._id));
+        }
+    })
+    try{
+        let response = await connection.db("nextERP").collection("cells").updateMany(
+            {
+                _id: {
+                    $in: cells_ids
+                }
+            },
+            {
+                $addToSet:{
+                    "conditional_formatting": {
+                        $each: insert
+                    }
+                }
+            },
+            {
+                upsert: true
+            }
+        );
+    
+        if (response){
+            return {success: true, data};
+        }
+    
+        return {success: false};
+    }catch(e){
+        return ERRORS.MONGO_DB_QUERY;
+    }
+}
+
+async function conditionalFormatting_remove(uuid)
+{
+    let connection = await mongo.getConnection();
+
+    if (connection){
+        try{
+            let response = await connection.db("nextERP").collection("cells").updateMany(
+                {
+                    conditional_formatting: {$exists: true}
+                },
+                { $pull: { "conditional_formatting": { uuid: uuid } } }
+            );  
+            console.log(response);
+
+            if (response){
+                return {success: true};
+            }else{
+                return {success: false};
+            }
+        }catch(e){
+            console.log(e);
+            return ERRORS.MONGO_DB_QUERY;
+        }
+    }else{
+        return ERRORS.MONGO_DB_CONNECTION;
+    }
+}
+
+async function conditionalFormatting_wipe(ids){
+
+    let connection = await mongo.getConnection();
+
+    if (connection !== null){
+        let object_ids = [];
+        ids.forEach((id)=>{
+            object_ids.push(new ObjectId(id));
+        })
+
+        try{
+            let response = await connection.db("nextERP").collection("cells").updateMany(
+                {
+                    _id: {
+                        $in: object_ids
+                    }
+                },
+                {
+                    $unset: {
+                        conditional_formatting: ''
+                    }
+                }
+            );
+            if (response){
+                return {success: true};
+            }else{
+                return {success: false}
+            }
+        }catch(e){
+            return ERRORS.MONGO_DB_QUERY;
+        }
+    }else{
+        return ERRORS.MONGO_DB_CONNECTION;
+    }
+}
+
+async function update_headerWidth(uuid, width)
+{
+    //first check thw width 
+    if (parseFloat(width))
+    {
+        let connection = await mongo.getConnection();
+
+        if (connection){
+            try{
+                let response = await connection.db("nextERP").collection("headers").updateOne({uuid: uuid},{$set: {width: parseFloat(width)}});
+                if (response){
+                    return {success: true};
+                }else{
+                    return {success: false}
+                }
+            }catch(e){
+                return ERRORS.MONGO_DB_QUERY;
+            }
+        }else{
+            return ERRORS.MONGO_DB_CONNECTION;
+        }
+    }else{
+        return {success: false}
+    }
+}
+
 module.exports = {
     validFullCoords, sheetExists, sheetHasColumn, validColumnCoords, setHyperlink_cell_coords, setHyperlink_cell_conditions, getDocumentsForUser, getDocument, hyperlink_details, addDocument, getDocumentById, remove_document, remove_sheet, rename_document,
-    fullCellCoordsToGeneral, get_all_sheets, import_excel, createSheet, remove_column, rename_column, update_col_notes
+    fullCellCoordsToGeneral, get_all_sheets, import_excel, createSheet, remove_column, rename_column, update_col_notes, conditionalFormatting_add, conditionalFormatting_remove,
+    conditionalFormatting_wipe, update_headerWidth
 }

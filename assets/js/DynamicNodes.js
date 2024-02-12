@@ -8,14 +8,9 @@ DynamicNodes.prototype.input = function(label, placeholder = "", value="", id = 
         node.style[key] = styles[key];
     })
     
-    console.log(id);
     node.appendChild(document.createTextNode(label));
-    let input = document.createElement("input");
-    input.className = "input_one " + extraClasses;
-    input.placeholder = placeholder;
-    input.id = id;
-    input.name = name;
-    input.value = value;
+    
+    let input = this.input_node(placeholder, value, id, name, extraClasses, "string");
     node.appendChild(input);
 
     if (ac)
@@ -33,6 +28,19 @@ DynamicNodes.prototype.input = function(label, placeholder = "", value="", id = 
     
 
     return node;
+}
+
+DynamicNodes.prototype.input_node = function(placeholder, value, id, name, extraClasses = "", type)
+{
+    let input = document.createElement("input");
+    input.className = "input_one " + extraClasses;
+    input.placeholder = placeholder;
+    input.id = id;
+    input.name = name;
+    input.value = value;
+    input.type = type;
+
+    return input;
 }
 
 DynamicNodes.prototype.textNode_html = function (text, styles = {}){
@@ -1027,4 +1035,519 @@ DynamicNodes.prototype.textarea = function (text)
     node.className = "textarea_one";
 
     return node;
+}
+
+DynamicNodes.prototype.contentList = function(title, container, list, btnNode){
+    let container_node = document.createElement("div");
+    container_node.className = container;
+
+    if (title != "")
+    {
+        container_node.appendChild(this.title(title));
+    }
+    let list_node = document.createElement("div");
+    list_node.className = list;
+
+
+    container_node.appendChild(list_node);
+    container_node.appendChild(btnNode);
+
+    return container_node;
+}
+
+DynamicNodes.prototype.cond_format = function(nodes, existing_condFormat, cols_array, excel_table){
+    let btn_fn = {
+        context: null,
+        fn: ()=>{
+            if (modalLib_panel !== undefined)
+            {
+                modalLib_panel.pushView(this.container(this.cond_format_new(nodes, excel_table)), "Cases");
+            }
+        },
+        args: []
+    };
+
+    let transformed = {};
+    //now we should transform existing_condFormat
+    Object.keys(existing_condFormat).forEach((cell_coordinates)=>{
+        let conditions = existing_condFormat[cell_coordinates];
+
+        conditions?.forEach((condition)=>{
+
+            if (transformed[condition.uuid] === undefined)
+                transformed[condition.uuid] = {cells: [], data: condition};
+
+                transformed[condition.uuid].cells.push(cell_coordinates);
+        })
+    })
+
+    let frag = document.createDocumentFragment();
+
+    let btn = this.button("primary_button maxW", "Create cases", "fa-solid fa-plus", {}, btn_fn)
+    let content = this.contentList("Current cases for selection", "cond_format--container", "cond_format--list", btn);
+
+    Object.keys(transformed).forEach((condition_uuid, _index)=>{
+        let data = transformed[condition_uuid];
+        
+        let container = document.createElement("div");
+        container.className = "cond_format--rule";
+        console.log(condition_uuid);
+        
+        switch(data.data.type){
+            case "smaller":
+                container.appendChild(this.span("", {"font-weight": "bold", "font-size": "16px"}, document.createTextNode(`Smaller than ${data.data.values[0]}`)));
+            break;
+            case "greater":
+                container.appendChild(this.span("", {"font-weight": "bold", "font-size": "16px"}, document.createTextNode(`Greater than ${data.data.values[0]}`)));
+            break;
+        }
+        let remove = this.button("cancel_button small","", "fa-solid fa-trash",{},{});
+        container.appendChild(remove);
+        remove.onclick = (ev)=>{
+            ev.stopPropagation();
+            //request
+            let cb_submit = {
+                context_submit: null, 
+                fn: (confirm)=>{
+                    confirm.open();
+                    $.ajax({
+                        url: "/excel/conditionalFormatting_remove",
+                        contentType: "application/json",
+                        type: "POST",
+                        data: JSON.stringify({uuid: condition_uuid}),
+                        success: ()=>{
+                            excel_table.update_remove_conditionalFormatting(condition_uuid);
+                            Toastify({
+                                className: "toast_success",
+                                text: "The case was deleted"
+                            }).showToast();
+                            container.remove();
+
+                        },error: ()=>{
+                            Toastify({
+                                className: "toast_error",
+                                text: "The case was not deleted"
+                            }).showToast();
+                        }
+                    })
+                },
+                params: []
+            }
+            new Confirm("Delete case",document.createTextNode(`This case will be deleted for all the cells that contain it! Are you sure you want to continue? `), {}, cb_submit);
+
+
+        }   
+        container.onclick = ()=>{
+
+            if (modalLib_panel !== undefined)
+            {
+                let new_content = this.cond_format_new(nodes, excel_table);
+                let new_case = this.cond_format_case(condition_uuid, data.data.type, data.data.values, data.data.styles);
+
+                new_content.querySelector(".cond_format_case--list").appendChild(new_case);
+                new_content.querySelector(".primary_button").remove();
+                modalLib_panel.pushView(this.container(new_content), "Cases");
+            }
+        }
+
+        frag.appendChild(container);    
+    })
+
+    content.querySelector(".cond_format--list").appendChild(frag);
+    return content;
+}
+
+function groupCoordinates(coordinateArray, columnNames) {
+    
+    const buildMatrix = (coordinates, columnNames)=>{
+        // Extracting max row number and number of columns
+  let maxRow = -Infinity;
+  let numCols = columnNames.length;
+
+  coordinates.forEach(coord => {
+    const [rowStr, colName] = coord.split('#');
+    const row = parseInt(rowStr);
+
+    if (row > maxRow) {
+      maxRow = row;
+    }
+  });
+
+  const numRows = maxRow; // Number of rows in the matrix
+
+  // Creating the matrix filled with zeros
+  const matrix = Array.from({ length: numRows }, () => Array(numCols).fill(0));
+
+  // Populating the matrix based on coordinates
+  coordinates.forEach(coord => {
+    const [rowStr, colName] = coord.split('#');
+    const row = parseInt(rowStr);
+    const colIndex = columnNames.indexOf(colName);
+
+    matrix[row - 1][colIndex] = 1; // Adjusting for 0-based indexing
+  });
+
+  return matrix;
+    }
+
+    const maximalRectangleCoordinates = (matrix)=>{
+        if (!matrix || matrix.length === 0 || !matrix[0] || matrix[0].length === 0) {
+            return [];
+          }
+        
+          const rows = matrix.length;
+          const cols = matrix[0].length;
+        
+          const height = new Array(cols).fill(0);
+          const left = new Array(cols).fill(0);
+          const right = new Array(cols).fill(cols);
+          let maxArea = 0;
+          const result = [];
+        
+          for (let i = 0; i < rows; i++) {
+            let curLeft = 0,
+              curRight = cols;
+        
+            // Calculate height
+            for (let j = 0; j < cols; j++) {
+              height[j] = matrix[i][j] === 1 ? height[j] + 1 : 0;
+            }
+        
+            // Calculate left
+            for (let j = 0; j < cols; j++) {
+              left[j] = matrix[i][j] === 1 ? Math.max(left[j], curLeft) : 0;
+              curLeft = matrix[i][j] === 1 ? curLeft : j + 1;
+            }
+        
+            // Calculate right
+            for (let j = cols - 1; j >= 0; j--) {
+              right[j] = matrix[i][j] === 1 ? Math.min(right[j], curRight) : cols;
+              curRight = matrix[i][j] === 1 ? curRight : j;
+            }
+        
+            // Calculate area
+            for (let j = 0; j < cols; j++) {
+              const area = height[j] * (right[j] - left[j]);
+              if (area > maxArea) {
+                maxArea = area;
+                result.splice(0, result.length);
+                result.push([i - height[j] + 1, left[j]], [i, right[j] - 1]);
+              } else if (area === maxArea) {
+                result.push([i - height[j] + 1, left[j]], [i, right[j] - 1]);
+              }
+            }
+          }
+        
+          return result;
+      }
+    
+    const matrixCoords_to_cellCoords = (row, col)=>{
+        return `${row+1}#${columnNames[col]}`;
+    } 
+
+    let matrix = buildMatrix(coordinateArray, columnNames);
+    let coords = maximalRectangleCoordinates(matrix);
+
+    let response = [];
+    //group them 2 by 2
+    for (let i = 0;i<coords.length;i+=2)
+    {
+        let startCoords = coords[i];
+        let endCoords = coords[i+1];
+
+        if (startCoords[0] == endCoords[0] && startCoords[1] == endCoords[1])
+        {
+            response.push(matrixCoords_to_cellCoords(startCoords[0], startCoords[1]));
+        }
+        else{
+            response.push(
+                `${matrixCoords_to_cellCoords(startCoords[0], startCoords[1])}:${matrixCoords_to_cellCoords(endCoords[0], endCoords[1])}`
+            )
+        }
+    }
+
+    return response;
+}
+
+DynamicNodes.prototype.cond_format_new = function(nodes, excel_table){
+
+    let btn_fn = {
+        context: null,
+        fn: ()=>{
+            contentList.querySelector(".cond_format_case--list").appendChild(this.cond_format_case());
+        },
+        args: []
+    };
+
+    let btn = this.button("primary_button maxW", "Add case", "fa-solid fa-plus", {}, btn_fn);
+    let contentList = this.contentList("Cases for current rule", "cond_format_case--container", "cond_format_case--list", btn);
+    return this.frag(contentList, this.button("submit_button maxW", "Submit", "fa-solid fa-check", {"margin-top": "10px"}, {
+        context: null,
+        fn: ()=>{
+            //create the object to send 
+            let data = [];
+
+            //get cases 
+            Array.from(contentList.querySelectorAll(".condition--container")).forEach((caseNode)=>{
+                let inputs = caseNode.querySelectorAll(".condition--extras input");
+                let style_btns = caseNode.querySelectorAll(".small_text_formatting--actions button");
+                let style_inputs = caseNode.querySelectorAll(".small_text_formatting--actions input");
+
+                data.push(
+                    {
+                        "uuid": caseNode.dataset?.uuid || null,
+                        "type": caseNode.querySelector(".custom_select--option.checked").dataset.value,
+                        "values": inputs.length == 1 ? [inputs[0].value] : [inputs[0].value, inputs[1].value],
+                        "styles": {
+                            "fontWeight": style_btns[0].classList.contains("active") ? "bold" : null,
+                            "fontStyle": style_btns[1].classList.contains("active") ? "italic" : null,
+                            "textDecoration": style_btns[2].classList.contains("active") ? "underline" : (style_btns[3].classList.contains("active") ? "line-through" : null),
+                            "color": style_inputs[0].value,
+                            "backgroundColor": style_inputs[1].value
+                        }
+                    }
+                );
+
+            })
+            $.ajax({
+                url: "/excel/conditionalFormatting_add",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({data, nodes}),
+                success: (response)=>{
+                    if (response?.success === true){
+                        Toastify({
+                            className: "toast_success",
+                            text: "Cases were set successfully!"
+                        }).showToast();
+    
+                        excel_table.update_conditionalFormatting(nodes, response.data);
+                    }else{
+                        Toastify({
+                            className: "toast_error",
+                            text: "There was an error!"
+                        }).showToast(); 
+                    }
+ 
+                },error: ()=>{
+                    Toastify({
+                        className: "toast_error",
+                        text: "There was an error!"
+                    }).showToast();
+                }
+            })
+        },  
+        args: []
+    }));
+}
+
+DynamicNodes.prototype.cond_format_case = function(uuid = null, default_option = null, values = [], styles = {}){
+    let options = [
+        {
+            default: default_option !== null ? default_option === "greater" : true, 
+            icon: "fa-solid fa-greater-than",
+            text: "greater than",
+            value: "greater"
+        },
+        {
+            default: default_option !== null ? default_option === "smaller" : false, 
+            icon: "fa-solid fa-less-than",
+            text: "smaller than",
+            value: "smaller"
+        },
+        {
+            default: default_option !== null ? default_option === "between" : false, 
+            icon: "fa-solid fa-greater-than",
+            text: "between",
+            value: "between"
+        }
+    ];
+
+
+    let node = document.createElement("div");
+    node.className = "condition--container";
+    if (uuid !== null){
+        node.dataset.uuid = uuid;
+    }
+
+    node.appendChild(document.createTextNode("If cell value is"));
+
+    let select = this.custom_select("white noMargin", options);
+    node.appendChild(select);
+
+    let body = this.div("condition--extras",{});
+
+    switch(default_option)
+    {
+        case "greater":
+            body.appendChild(this.input_node("Value", values.length == 0 ? "" : values[0], "", "", "", "number"));
+        break;
+        case "smaller":
+            body.appendChild(this.input_node("Value", values.length == 0 ? "" : values[0], "", "", "", "number"));
+        break;
+        case "between":
+            body.appendChild(this.input_node("Value", values.length == 0 ? "" : values[0], "", "", "", "number"));
+            body.appendChild(this.span("", {}, document.createTextNode("and")));
+            body.appendChild(this.input_node("Value", values.length == 0 ? "" : values[1], "", "", "", "number"));
+        break;
+        default:
+            body.appendChild(this.input_node("Value", "", "", "", "", "number"));
+            break;  
+    }
+
+    node.appendChild(body);
+    
+
+    select.addEventListener("customSelect_changed",(ev)=>{
+        let {value} = ev.detail;
+
+            switch (value){
+                case "greater":
+                        Array.from(body.children).forEach((node)=>node.remove());
+                        body.appendChild(this.input_node("Value", "", "", "", "", "number"));
+                    break;
+                case "smaller":
+                    Array.from(body.children).forEach((node)=>node.remove());
+                    body.appendChild(this.input_node("Value", "", "", "", "", "number"));
+                break;
+                case "between":
+                    Array.from(body.children).forEach((node)=>node.remove());
+                    body.appendChild(this.input_node("Value", "", "", "", "", "number"));
+                    body.appendChild(this.span("", {}, document.createTextNode("and")));
+                    body.appendChild(this.input_node("Value", "", "", "", "", "number"));
+                break;
+                default:
+                    Array.from(body.children).forEach((node)=>node.remove());
+                break;
+            }
+    })
+
+    node.appendChild(this.smallFontEditor(styles));
+
+    return node;
+}
+
+DynamicNodes.prototype.custom_select = function (className, options)
+{
+    let node = document.createElement("div");
+    node.className = `custom_select ${className !== undefined ? className : ""}`;
+    
+    options.forEach((option)=>{
+        let opt_node = document.createElement("customOption");
+        opt_node.dataset.value = option.value;
+        
+        if (option.default)
+            opt_node.dataset.default = true;
+
+        opt_node.appendChild(this.icon(option.icon));
+        opt_node.appendChild(document.createTextNode(option.text))
+        
+        node.appendChild(opt_node);
+    })
+    if (customSelect === undefined)
+        customSelect = new customSelect();
+
+    customSelect.init(node);
+    return node;
+}
+
+DynamicNodes.prototype.smallFontEditor = function({fontWeight = null, fontStyle = null, textDecoration = null, color = "#01295f", backgroundColor = "#FFAC47"}){
+    
+    let temp = `        <div class="small_text_formatting">
+    <div class="small_text_formatting--example">Exemplu</div>
+    <div class="small_text_formatting--actions">
+        <button class="excel_action icon data_info" data-info="Bold">
+            <i class="fa-regular fa-bold"></i>
+        </button>
+        
+        <button class="excel_action icon data_info" data-info="Italic">
+            <i class="fa-regular fa-italic"></i>
+        </button>
+
+        <button class="excel_action icon data_info" data-info="Underline">
+            <i class="fa-regular fa-underline"></i>
+        </button>
+
+        <button class="excel_action icon data_info" data-info="Strike">
+            <i class="fa-regular fa-strikethrough"></i>
+        </button>
+
+        <label class="color font_color data_info" data-info="Font color" style="background-color: ${color};">
+            <i class="fa-regular fa-paintbrush-fine" style="color: white"></i>
+            <input type="color" value = '${color}'/>    
+        </label>
+
+        <label class="color bg_color data_info" data-info="Background color" style="background-color: ${backgroundColor}">
+            <i class="fa-regular fa-fill"></i>
+            <input type="color" value = '${backgroundColor}'/>    
+        </label>
+    </div>
+</div>`;    
+
+    let node = document.createRange().createContextualFragment(temp).children[0];
+    let example = node.querySelector(".small_text_formatting--example");
+    //set the listeners 
+    let btns = node.querySelectorAll("button"), inputs = node.querySelectorAll("input");
+
+    //bold
+    btns[0].onclick = ()=>{btns[0].classList.toggle("active"); btns[0].classList.contains("active") ? example.style.fontWeight = "bold" : example.style.fontWeight = "normal"};
+
+    //italic 
+    btns[1].onclick = ()=>{btns[1].classList.toggle("active"); btns[1].classList.contains("active") ? example.style.fontStyle = "italic" : example.style.fontStyle = "normal"};
+
+    //underline
+    btns[2].onclick = ()=>{btns[2].classList.toggle("active"); if (btns[2].classList.contains("active")) btns[3].classList.remove("active");  btns[2].classList.contains("active") ? example.style.textDecoration = "underline" : example.style.textDecoration = "unset"};
+
+    //strike
+    btns[3].onclick = ()=>{btns[3].classList.toggle("active"); if (btns[3].classList.contains("active")) btns[2].classList.remove("active"); btns[3].classList.contains("active") ? example.style.textDecoration = "line-through" : example.style.textDecoration = "unset"};
+
+    //font color
+    inputs[0].onchange = ()=>{
+
+        let font_color = inputs[0].value;
+        example.style.color = font_color;
+        let textColor = this.hexToRgb(font_color);         
+            //calibrate the icon color
+            const brightness = Math.round(((parseInt(textColor.r) * 299) +
+                      (parseInt(textColor.g) * 587) +
+                      (parseInt(textColor.b) * 114)) / 1000);
+            inputs[0].parentNode.querySelector("i").style.color = (brightness > 125) ? 'black' : 'white';
+
+            inputs[0].parentNode.style.backgroundColor = font_color;
+
+    }
+
+    inputs[1].onchange = ()=>{
+
+        let font_color = inputs[1].value;
+        example.style.backgroundColor = font_color;
+        let textColor = this.hexToRgb(font_color);         
+            //calibrate the icon color
+            const brightness = Math.round(((parseInt(textColor.r) * 299) +
+                      (parseInt(textColor.g) * 587) +
+                      (parseInt(textColor.b) * 114)) / 1000);
+            inputs[1].parentNode.querySelector("i").style.color = (brightness > 125) ? 'black' : 'white';
+
+            inputs[1].parentNode.style.backgroundColor = font_color;
+
+    }
+
+    fontWeight === "bold" ? btns[0].click() : "";
+    fontStyle === "italic" ? btns[1].click() : "";
+    textDecoration === "underline" ? btns[2].click() : "";
+    textDecoration === "line-through" ? btns[3].click() : "";
+
+    inputs[0].dispatchEvent(new Event("change"));
+    inputs[1].dispatchEvent(new Event("change"));
+
+    return node;
+}
+
+DynamicNodes.prototype.hexToRgb = function(hex){
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;
 }

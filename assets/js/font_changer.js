@@ -1,6 +1,6 @@
 
 const fonts = ["Arial","Calibri","Times"];
-const startFontSize = 12, maxFontSize = 38;
+const startFontSize = 12, maxFontSize = 40;
 // Events
 const boldEvent = document.createEvent("HTMLEvents");
 boldEvent.initEvent("bold_change", true, true);
@@ -38,14 +38,23 @@ fontColorChange.initEvent("font_color", true, true);
 const editOptions = document.createEvent("HTMLEvents");
 editOptions.initEvent("edit_options", true, true);
 
-function font_changer(elem)
+const align = document.createEvent("HTMLEvents");
+align.initEvent("align", true, true);
+
+const halign = document.createEvent("HTMLEvents");
+halign.initEvent("halign", true, true);
+
+
+function font_changer(elem, fontSelector)
 {
     this.htmlParent = elem;
-    this.fontFamilyChanger = this.htmlParent.querySelector(".font_changer");
-    this.fontSizeSelect = this.htmlParent.querySelector("#fontSize");
+    this.fontFamilyChanger = fontSelector;
+    this.fontSizeSelect = document.querySelector("#fontSize");
     this.currentFont = "";
     this.currentFontSize = startFontSize;
 
+    this.align = "left";
+    this.halign = "start";
     this.bold = false;
     this.italic = false;
     this.underline = false;
@@ -68,68 +77,104 @@ font_changer.prototype.init = function (){
         this.addOptionFontSize(i);
     }
     
-    this.change_font(fonts[0]);
+    this.change_font(fonts[0], false);
 
-    this.htmlParent.querySelector(".action_button.up").onclick = ()=>{
+    this.htmlParent.querySelector("#increase_fontSize").onclick = ()=>{
         this.changeSize(1);
     }
 
-    this.htmlParent.querySelector(".action_button.down").onclick = ()=>{
+    this.htmlParent.querySelector("#decrease_fontSize").onclick = ()=>{
         this.changeSize(-1);
     }
 
-    this.fontFamilyChanger.querySelector(".font_changer--header i").onclick = ()=>{
+    this.fontFamilyChanger.querySelector(".font_change--selector_header").onclick = ()=>{
         this.toggle();
     }
 
     this.fontSizeSelect.onchange = (event)=>{
-        this.currentFontSize = this.fontSizeSelect.options[this.fontSizeSelect.selectedIndex].value;
-        
+        this.currentFontSize = this.fontSizeSelect.querySelector("input").value;
+        this.fontSizeSelect.classList.remove("active");
+        if (event.detail.trigger)
         document.dispatchEvent(fontSizeEvent);
     }
 
-    this.htmlParent.querySelector(".action_button.bold").onclick = ()=>{
+    
+    this.fontSizeSelect.querySelector("input").addEventListener("focus",()=>{
+        this.fontSizeSelect.classList.add("active");
+    })
+
+    this.htmlParent.querySelector("#bold").onclick = ()=>{
         this.change_bold();
     }
     document.addEventListener("bold_change",(e)=>{
         if (this.bold)
-            this.htmlParent.querySelector(".action_button.bold").classList.add("active");
+            this.htmlParent.querySelector("#bold").classList.add("active");
         else 
-            this.htmlParent.querySelector(".action_button.bold").classList.remove("active");
+            this.htmlParent.querySelector("#bold").classList.remove("active");
     })
 
     // italic
-    this.htmlParent.querySelector(".action_button.italic").onclick = ()=>{
+    this.htmlParent.querySelector("#italic").onclick = ()=>{
         this.change_italic();
     }
     document.addEventListener("italic_change",(e)=>{
         if (this.italic)
-            this.htmlParent.querySelector(".action_button.italic").classList.add("active");
+            this.htmlParent.querySelector("#italic").classList.add("active");
         else 
-            this.htmlParent.querySelector(".action_button.italic").classList.remove("active");
+            this.htmlParent.querySelector("#italic").classList.remove("active");
     })
     
         // underline
-        this.htmlParent.querySelector(".action_button.underline").onclick = ()=>{
+        this.htmlParent.querySelector("#underline").onclick = ()=>{
             this.change_underline();
         }
         document.addEventListener("underline_change",(e)=>{
             if (this.underline)
-                this.htmlParent.querySelector(".action_button.underline").classList.add("active");
+                this.htmlParent.querySelector("#underline").classList.add("active");
             else 
-                this.htmlParent.querySelector(".action_button.underline").classList.remove("active");
+                this.htmlParent.querySelector("#underline").classList.remove("active");
         })
 
         // strike
-        this.htmlParent.querySelector(".action_button.strike").onclick = ()=>{
+        this.htmlParent.querySelector("#strike").onclick = ()=>{
             this.change_strike();
         }
         document.addEventListener("strike_change",(e)=>{
             if (this.strike)
-                this.htmlParent.querySelector(".action_button.strike").classList.add("active");
+                this.htmlParent.querySelector("#strike").classList.add("active");
             else 
-                this.htmlParent.querySelector(".action_button.strike").classList.remove("active");
+                this.htmlParent.querySelector("#strike").classList.remove("active");
         })
+
+        // align center 
+        this.htmlParent.querySelector("#align_center").onclick = ()=>{
+            this.change_align("center");
+        }
+
+        // align left 
+        this.htmlParent.querySelector("#align_left").onclick = ()=>{
+            this.change_align("left");
+        }
+
+        // align right 
+        this.htmlParent.querySelector("#align_right").onclick = ()=>{
+            this.change_align("right");
+        }
+
+        // halign start 
+        this.htmlParent.querySelector("#halign_start").onclick = ()=>{
+            this.change_halign("start");
+        }
+
+        // halign center 
+        this.htmlParent.querySelector("#halign_center").onclick = ()=>{
+            this.change_halign("center");
+        }
+
+        // halign end 
+        this.htmlParent.querySelector("#halign_end").onclick = ()=>{
+            this.change_halign("end");
+        }
 
         //data_type
         this.htmlParent.querySelector("#content_type").addEventListener("customSelect_changed",(ev)=>{
@@ -149,7 +194,7 @@ font_changer.prototype.init = function (){
 
         this.htmlParent.querySelector("#date_format").addEventListener("customSelect_changed",(ev)=>{
             let val = ev.detail.value;
-
+            console.log(val);
             document.dispatchEvent(new CustomEvent("dateFormat_change",{
                 detail: {
                     value: val
@@ -256,10 +301,10 @@ font_changer.prototype.loadCellType = function (cellNode)
 font_changer.prototype.changeCellType = function(type)
 {
     //hide all rows for now 
-    Array.from(this.htmlParent.querySelector(".content_type").querySelectorAll(".excel_group--row[data-for]")).forEach((elem)=>{elem.classList.add("hidden")});
+    Array.from(this.htmlParent.querySelector("#content_type_container").querySelectorAll(".excel_menu--fake_container[data-for]")).forEach((elem)=>{elem.classList.add("hidden")});
 
     //first we should show the sub-menu for this type 
-    this.htmlParent.querySelector(`.content_type .excel_group--row[data-for='${type}']`)?.classList.remove("hidden");
+    this.htmlParent.querySelector(`#content_type_container .excel_menu--fake_container[data-for='${type}']`)?.classList.remove("hidden");
 }
 
 font_changer.prototype.checkCellType = function(type, node){
@@ -282,7 +327,7 @@ font_changer.prototype.checkCellType = function(type, node){
     return ok;
 }
 
-font_changer.prototype.change_bold = function (value = null){
+font_changer.prototype.change_bold = function (value = null, trigger_event = true){
     if (value === null)
     {
         this.bold = !this.bold;
@@ -291,7 +336,50 @@ font_changer.prototype.change_bold = function (value = null){
         this.bold = value;
     }
 
+    if (trigger_event)
     document.dispatchEvent(boldEvent);
+}
+
+font_changer.prototype.change_align = function (type)
+{
+    this.align = type;
+
+    let btns = this.htmlParent.querySelectorAll(".align_btn");
+    Array.from(btns).forEach((node)=>{
+        if (node.id === `align_${type}`)
+        {
+            node.classList.add("active");
+        }else{
+            node.classList.remove("active");
+        }
+    })
+
+    document.dispatchEvent(new CustomEvent("align",{
+        detail: {
+            value: type
+        }
+    }))
+}
+
+font_changer.prototype.change_halign = function (type)
+{
+    this.halign = type;
+
+    let btns = this.htmlParent.querySelectorAll(".halign_btn");
+    Array.from(btns).forEach((node)=>{
+        if (node.id === `halign_${type}`)
+        {
+            node.classList.add("active");
+        }else{
+            node.classList.remove("active");
+        }
+    })
+
+    document.dispatchEvent(new CustomEvent("halign",{
+        detail: {
+            value: type
+        }
+    }))
 }
 
 font_changer.prototype.change_italic = function (value = null){
@@ -341,8 +429,7 @@ font_changer.prototype.change_strike = function (value = null){
 }
 
 font_changer.prototype.addOptionFont = function(font_name) {
-    let option = document.createElement("div");
-    option.className = "font_changer--font";
+    let option = document.createElement("span");
     option.textContent = font_name;
 
     option.style.fontFamily = `${font_name}`;
@@ -351,19 +438,21 @@ font_changer.prototype.addOptionFont = function(font_name) {
         this.change_font(font_name);
     }
 
-    this.fontFamilyChanger.querySelector(".font_changer--content").appendChild(option);
+    this.fontFamilyChanger.querySelector(".font_change--selector_list").appendChild(option);
 }
 
-font_changer.prototype.change_font = function(font_name, toggle = true){
+font_changer.prototype.change_font = function(font_name, toggle = true, trigger_event = true){
     if (fonts.indexOf(font_name) === -1)
        {
-        this.change_font("Arial");
+        this.change_font("Arial", toggle, trigger_event);
         return ;
        }
 
     this.currentFont = font_name;
-    this.fontFamilyChanger.querySelector("input").value = font_name;
+    this.fontFamilyChanger.querySelector(".font_change--selector_header span").textContent = font_name;
     toggle && this.toggle();
+
+    if (trigger_event)
     document.dispatchEvent(fontFamEvent);
 }
 
@@ -372,64 +461,64 @@ font_changer.prototype.toggle = function(){
 }
 
 font_changer.prototype.addOptionFontSize = function(size){
-    let option = document.createElement("option");
-    option.value = size;
+    let option = document.createElement("span");
     option.textContent = size;
 
-    this.fontSizeSelect.appendChild(option);
+    option.addEventListener("click",(ev)=>{
+        this.fontSizeSelect.querySelector("input").value = parseInt(size);
+        this.fontSizeSelect.dispatchEvent(new CustomEvent("change",{detail: {trigger: true}}));
+    })
+
+    this.fontSizeSelect.querySelector(".font_size--list").appendChild(option);
 }
 
-font_changer.prototype.changeSize = function(increment){
+font_changer.prototype.changeSize = function(increment, trigger_event = true){
 
-    let curr_index = this.fontSizeSelect.selectedIndex;
+    let curr_value = this.fontSizeSelect.querySelector("input").value;
 
-    if (this.fontSizeSelect.options[curr_index + increment])
-    {
-        this.fontSizeSelect.selectedIndex = curr_index + increment;
-        this.fontSizeSelect.dispatchEvent(new Event("change"))
-    }
+    this.fontSizeSelect.querySelector("input").value = parseInt(curr_value) + increment;
 
+    //build the event 
+    this.fontSizeSelect.dispatchEvent(new CustomEvent("change",{detail: {trigger: trigger_event}}));
 }
 
-font_changer.prototype.setFontSize = function(fontSize)
+font_changer.prototype.setFontSize = function(fontSize, trigger_event = true)
 {
     if (fontSize >= startFontSize && fontSize <= maxFontSize)
     {
-        console.log("here");
         //valid
-        this.changeSize(fontSize - this.currentFontSize);
+        this.changeSize(fontSize - this.currentFontSize, trigger_event);
     }
     else{
-        this.setFontSize(12);
+        this.setFontSize(12, trigger_event);
     }
 }
 
 font_changer.prototype.loadStyles = function (styles)
 {
-    console.log(styles);
     //load the font size
     if (styles?.fontSize)
     {
-        this.setFontSize(parseInt(styles.fontSize));
+        this.setFontSize(parseInt(styles.fontSize), false);
     }
     else{
-        this.setFontSize(12);
+        this.setFontSize(12, false);
     }
 
     if (styles?.fontFamily)
     {
-        this.change_font(styles.fontFamily, false);
+        this.change_font(styles.fontFamily, false, false);
     }
     else{
-        this.change_font("Arial", false);
+        this.change_font("Arial", false, false);
     }
 
     if (styles?.fontWeight && styles.fontWeight === "bold")
     {
-        this.change_bold(true);
+        this.change_bold(true, false);
     }
     else{
-        this.change_bold(false);
+        this.change_bold(false, false);
     }
 
     if (styles?.fontStyle && styles.fontStyle === "italic")
@@ -473,5 +562,21 @@ font_changer.prototype.loadStyles = function (styles)
     else{
         this.change_underline(false);
         this.change_strike(false);
+    }
+
+    if (styles?.align)
+    {
+        this.change_align(styles.align);
+    }
+    else{
+        this.change_align("left");
+    }
+
+    if (styles?.halign)
+    {
+        this.change_halign(styles.halign);
+    }
+    else{
+        this.change_halign("start");
     }
 }

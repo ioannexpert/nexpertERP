@@ -16,11 +16,16 @@
         <link rel = 'stylesheet' href="/assets/css/main.css">
         <link rel = 'stylesheet' href="/assets/css//dashboard/dashboard.css">
         <link rel="stylesheet" href="/assets/css/dashboard/page.css">
-        <link rel = 'stylesheet' href="/assets/css/custom_select.css">
         <link rel  = 'stylesheet' href="/assets/css/confirm.css">
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+        <link rel = 'stylesheet' type = 'text/css' href = '/assets/css/dashboard/reporting.css'>
+        <link rel = 'stylesheet' type = 'text/css' href = '/assets/css/data_info.css'>
+        <link rel = 'stylesheet' type = 'text/css' href = '/assets/css/modal.css'>
+        <link rel = 'stylesheet' type = 'text/css' href = '/assets/css/custom_select.css'>
 
                 <!-- Libs  -->
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script src="https://unpkg.com/konva@9/konva.min.js"></script>
                 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/css/selectize.default.min.css"
                 integrity="sha512-pTaEn+6gF1IeWv3W1+7X7eM60TFu/agjgoHmYhAfLEU8Phuf6JKiiE8YmsNC0aCgQv4192s4Vai8YZ6VNM6vyQ=="
@@ -30,16 +35,17 @@
                 crossorigin="anonymous" referrerpolicy="no-referrer"></script>
                 
         <!-- Custom js  -->
-        <script src="/assets/js/dashboard_menu.js"></script>
-        <script src = '/assets/js/view_selector.js'></script>
+        <script src = '/assets/js/custom_select.js'></script>
         <script src = '/assets/js/DynamicNodes.js'></script>
-        <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/customParseFormat.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+        <script src = '/assets/js/dash_index.js'></script>
+        <script src="/assets/js/dashboard_menu.js"></script>
         <script src = '/assets/js/confirm.js'></script>
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-        <script src="/assets/js/modal.js"></script>
-        <script src="/assets/js/column_selector.js"></script>
+        <script src = '/assets/js/reporting.js'></script>
+        <script src = '/assets/js/data_info.js'></script>
+        <script src = '/assets/js/modal.js'></script>
 
+    
     </head>
     <body>
         <input type = 'hidden' id = 'page_id' value='{{pageId}}'/>
@@ -108,7 +114,7 @@
             </div>
         </div>
 
-       <div class="content_container menu_on">
+       <div class="content_container">
         <div class="menu">
             <div class="menu_button" onclick="open_menu()">
                 <i class="fa-regular fa-chevrons-left"></i>
@@ -240,8 +246,284 @@
         </div>
 
         <div class="page_content">
-            <h2>This is going to be the home</h2>
+            
+            <div class="reporting--steps_container">
+                
+                <div class="reporting--step active" id = 'step_designer' onclick="switch_to_view('designer')">
+                    <div class="round_number">1</div>
+                    <span>Designer</span>
+                </div>
 
+                <div class="reporting--step" id = 'step_report'>
+                    <div class="round_number">2</div>
+                    <span>Report</span>
+                </div>
+
+            </div>
+            <div class="reporting_page hidden" id = 'designer'>
+                <div class="sheets--container">
+                    <div class="sheets--container_header">
+                        <span>Available sheets</span>
+                        <label class="search">
+                            <i class="fa-regular fa-search"></i>
+                            <input type="text" placeholder="Search sheet">
+                        </label>
+                    </div>
+
+                    <div class="sheets--container_body">
+                        
+                    </div>
+
+                </div>
+
+                <div class="konva_container">
+                    <div id = 'konva'>
+
+                    </div>
+                    <div class="konva_menu">
+                        <div class="konva_menu--title">Menu</div>
+                        <div class="konva_menu--header">
+                            <button class="primary_button data_info" data-info="Zoom out" onclick="zoom_konva_out()"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                            <input type = 'number' value="100" id = 'zoom_value'/>
+                            <button class="primary_button data_info" data-info="Zoom in" onclick="zoom_konva_in()"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                            <button class="submit_button data_info" data-info="Save diagram" onclick="save_button()"><i class="fa-solid fa-floppy-disk"></i></button>
+                            <button class="primary_button data_info" data-info="Load diagram" onclick="show_diagrams()"><i class="fa-solid fa-upload"></i></button>
+                        </div>
+
+                        <div class="konva_menu--body_container">
+                            <div class="konva_menu--body_page" id = 'general'>
+                                Sheets included in this report: 
+                                <ul></ul>
+                            </div>
+
+                            <div class="konva_menu--body_page hidden" id = 'relation'>
+                                Relation info: 
+                                <span>
+
+                                </span>
+
+                                <div class="custom_select " style="min-width: auto;">
+                                    <customOption data-value = '2'>
+                                        one to many
+                                    </customOption>
+                                    <customOption data-value='3'>
+                                        many to one
+                                    </customOption>
+                                    <customOption data-value='4'>
+                                        many to many
+                                    </customOption>
+                                    <customOption data-value='1'>
+                                        one to one
+                                    </customOption>
+                                </div>
+                            </div>
+
+                            <div class="konva_menu--body_page hidden" id = 'sheet_menu'>
+                                Sheet columns:
+                                <ul></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="submit_button" style="margin-top: 10px;" onclick="generate_report()"><i class="fa-solid fa-gear"></i> Generate the report</button>
+            </div>
+
+            <div class="reporting_page" id = 'report'>
+                <div class = "reporting_grid">
+
+                    <div class="reporting_card type_one">
+                        <div class="info">
+                            <i class="fa-solid fa-circle-info"></i> This card will show charts for each column of the sheet selected
+                        </div>
+
+                        <div class="reporting_header">
+                            <span>Column based reporting</span>
+                            <div class="custom_select noMargin white">
+                               
+                          </div>
+                        </div>
+
+                        <div class="reporting_body">
+                            <div class="reporting--column_tray_container">
+                                <button class="primary_button"><i class="fa-solid fa-chevron-left"></i></button>
+                                <div class="reporting--column_tray">
+                               
+                                </div>
+                                <button class="primary_button"><i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+
+                            <div class="reporting_chart"></div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="reporting_card type_two">
+                        <div class="info">
+                            <i class="fa-solid fa-circle-info"></i> This card shows charts based on relations
+                        </div>
+
+                        <div class="reporting_header">
+                            <span>Relation based reporting</span>
+                            <div class="custom_select white noMargin" id = 'relations_select'>
+                                
+                            </div>
+                        </div>
+
+                        <div class = "reporting_body">
+                            <div class="reporting_body--table_container">
+                                <div class="custom_select white" id = "table_select">
+                                  
+                                </div>
+
+                                <table class="special_table">
+                                    <tr>
+                                        <th>id</th>
+                                        <th>id</th>
+                                        <th>id</th>
+                                        <th>id</th>
+                                        <th>id</th>
+                                        <th>id</th>
+                                        <th>id</th>
+                                        <th>id</th>
+                                        <th>idfsdfsdfsdffsdsdf</th>
+                                        <th>fdsfdfsdfsdfsdfsdfsdfsdfdsfdfsdfsdfdsid</th>
+                                    </tr>
+                                    <tr>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>idfsdfsdfsdffsdsdf</td>
+                                        <td>fdsfdfsdfsdfsdfsdfsdfsdfdsfdfsdfsdfdsid</td>
+                                    </tr>
+                                    <tr>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>idfsdfsdfsdffsdsdf</td>
+                                        <td>fdsfdfsdfsdfsdfsdfsdfsdfdsfdfsdfsdfdsid</td>
+                                    </tr>
+                                    <tr>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>idfsdfsdfsdffsdsdf</td>
+                                        <td>fdsfdfsdfsdfsdfsdfsdfsdfdsfdfsdfsdfdsid</td>
+                                    </tr>
+                                    <tr>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>idfsdfsdfsdffsdsdf</td>
+                                        <td>fdsfdfsdfsdfsdfsdfsdfsdfdsfdfsdfsdfdsid</td>
+                                    </tr>
+                                    <tr>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>idfsdfsdfsdffsdsdf</td>
+                                        <td>fdsfdfsdfsdfsdfsdfsdfsdfdsfdfsdfsdfdsid</td>
+                                    </tr>
+                                    <tr>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>idfsdfsdfsdffsdsdf</td>
+                                        <td>fdsfdfsdfsdfsdfsdfsdfsdfdsfdfsdfsdfdsid</td>
+                                    </tr>
+                                    <tr>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>idfsdfsdfsdffsdsdf</td>
+                                        <td>fdsfdfsdfsdfsdfsdfsdfsdfdsfdfsdfsdfdsid</td>
+                                    </tr>
+                                    <tr>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>idfsdfsdfsdffsdsdf</td>
+                                        <td>fdsfdfsdfsdfsdfsdfsdfsdfdsfdfsdfsdfdsid</td>
+                                    </tr>
+                                    <tr>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>idfsdfsdfsdffsdsdf</td>
+                                        <td>fdsfdfsdfsdfsdfsdfsdfsdfdsfdfsdfsdfdsid</td>
+                                    </tr>
+                                    <tr>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>idfsdfsdfsdffsdsdf</td>
+                                        <td>fdsfdfsdfsdfsdfsdfsdfsdfdsfdfsdfsdfdsid</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="reporting_body--extras">
+                                <h3>Relational data view</h3>
+                                <div class="reporting_body--extras_content">
+                                    <div class="reporting_body--extras_table">
+                                        <span>Related data from <sheet_name>orders</sheet_name> </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
 
        </div>
 
@@ -319,18 +601,25 @@
         </div>
     </template>
 
-    <template id = 'document'>
-        <div class="document">
-            <a class="document--header" href="/document/ceva/ce">
-                <i class="fa-solid fa-folder-open"></i>
-                <span></span>
-            </a>
-            Sheets:
-            <div class="document--sheets">
-               
+    <template id = 'diagram_node'>
+        
+        <div class="diagram_container">
+            <div class = "diagram_container--title">
+                <diagram_name></diagram_name> <span></span>
             </div>
+            <div class="diagram_container--body">
+
+                <div class = "diagram_container--list">
+                <span>Sheets included: </span>
+                    
+                </div>
+
+                <img src=""/>
+            </div>
+            <button class="submit_button maxW" style = "margin-top: 10px;"><i class="fa-solid fa-check"></i> Load diagram</button>
         </div>
     </template>
+
 
         <script>
             function main()
@@ -357,5 +646,7 @@
                 content_container.classList.toggle("menu_on");
             }
         </script>
+        <script src = '/assets/js/konva_report.js'></script>
+
     </body>
 </html>

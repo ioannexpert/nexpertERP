@@ -5,178 +5,83 @@
 
         <link rel = 'stylesheet' href="/assets/fontawesome-pro-6.3.0-web (2)/fontawesome-pro-6.3.0-web/css/all.css">
         <link rel = 'stylesheet' href="/assets/fontawesome-pro-6.3.0-web (2)/fontawesome-pro-6.3.0-web/css/fontawesome.css">
-      <script src="/assets/js/column_selector.js"></script>
-        <link rel = 'stylesheet' href = '/assets/css/node_slider.css'>
+        <link rel = 'stylesheet' href="/assets/css/dashboard/index.css">
+        <link rel = 'stylesheet' href="/assets/css/dashboard/dashboard.css">
 
-        <script src = '/assets/js/node_slider.js'></script>
+        <link rel = 'stylesheet' href="/assets/css/modal_panel.css">
+
+      <script src="/assets/js/column_selector.js"></script>
+        <link rel = 'stylesheet' href = '/assets/css/data_info.css'>
+
+        <script src = '/assets/js/modal_panel.js'></script>
         <script src = '/assets/js/DynamicNodes.js'></script>
 
+        <link rel = 'stylesheet' href="/assets/css/custom_select.css">
+        <script src = '/assets/js/custom_select.js'></script>
+        
         <style>
             body{
+                background-color: var(--orange);
                 padding: 20px;
-            }       
-            .import_verification--document{
+            }
+
+            .diagram_container{
+                width: 900px;
                 background-color: var(--light_gray);
-                padding: calc(var(--pad) / 2);
                 border-radius: var(--bRadius);
-                box-shadow: 0 1px 1px rgba(0,0,0,0.12), 0 2px 2px rgba(0,0,0,0.12);
-            }
-
-            .import_verification--document > span{
-                color: var(--blue);
-                font-weight: bold;
-            }
-
-            .import_verification--sheet{
-                background-color: white;
                 padding: var(--pad);
-                border-radius: var(--bRadius);
-                margin-top: 10px;
-                border: 1px solid var(--gray);
             }
 
-            .import_verification--sheet > span{
+            .diagram_container--title{
+                font-size: 18px;
                 font-weight: bold;
             }
 
-            .import_verification--sheet_info{
-                margin-top: 10px;
-
-                display: flex;
-                flex-direction: column;
-                row-gap: 10px;
+            .diagram_container--title span{
+                font-size: 14px;
+                font-style: italic;
             }
 
-            .import_verification--sheet_column{
-                background-color: var(--light_gray);
+            .diagram_container--body{
+                margin-top: 15px;
 
                 display: grid;
-                grid-template-columns: 1fr auto 1fr;
-                align-items: center;
+                grid-template-columns: 1fr 300px;
+                column-gap: 10px;
+            }
+
+            .diagram_container--list{
+                display: flex;
+                flex-direction: column;
+                row-gap: 5px;
+            }
+
+            .diagram_container--sheet{
+                background-color: white;
+                padding: calc(var(--pad) / 2);
                 border-radius: var(--bRadius);
-                box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-                overflow: hidden;
             }
 
-            .import_verification--sheet_column > span{
-                padding: 0px 5px;
-            }
-
-            .import_verification--sheet_column > span:nth-of-type(2){
-                padding: 0px 0px 0px 30px;
-                margin-left: -15px;
-                height: 100%;
-                display: flex;
-                align-items: center;
-                z-index: 1;
-            }
-
-
-            .import_verification--column_arrow{
-                border-radius: 50%;
-                width: 30px;
-                height: 30px;
-
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                z-index: 2;
-                border: 2px solid var(--light_gray);
-            }
-
-            .import_verification--sheet_column.skip .import_verification--column_arrow{
-                background-color: var(--red);
-                color: white;
-            }
-
-            .import_verification--sheet_column.skip > span:nth-of-type(2){
-                background-color: var(--light_red);
-                color: var(--light_gray);
-                font-weight: bold;
-            }
-
-            .import_verification--sheet_column.new .import_verification--column_arrow{
-                background-color: var(--orange);
-                color: white;
-            }
-
-            .import_verification--sheet_column.new > span:nth-of-type(2){
-                background-color: var(--light_orange);
-                color: var(--blue);
-                font-weight: bold;
-            }
-
-            .import_verification--sheet_column.into .import_verification--column_arrow{
-                background-color: var(--blue);
-                color: white;
-            }
-
-            .import_verification--sheet_column.into > span:nth-of-type(2){
-                background-color: var(--light_blue);
-                color: var(--light_gray);
-                font-weight: bold;
-            }
         </style>
     </head>
     <body>
 
-        <div class="import_verification--document">
-            <span>Pentru documentul: test.xslx: </span>
-            <div class="import_verification--sheet">
-                <span>Sheet: Sheet1</span>
-                <div class="import_verification--sheet_info">
-                    
-                </div>
+        <div class="diagram_container">
+            <div class = "diagram_container--title">
+                Diagram 1 <span>created by Vasii Dan Emanuel</span>
             </div>
+            <div class="diagram_container--body">
 
-            <div class="import_verification--sheet">
-                <span>Sheet: Sheet2</span>
-                <div class="import_verification--sheet_info" id = 'test2'>
-                    
-                </div>
-            </div>
-
-            <div class="import_verification--sheet">
-                <span>Sheet: Sheet2</span>
-                <div class="import_verification--sheet_info" >
-                    <div class="import_verification--sheet_column skip">
-                        <span>
-                            Nume
-                        </span>
-                        <div class="import_verification--column_arrow">
-                            <i class="fa-regular fa-chevron-right"></i>
-                        </div>
-                        <span> will be skipped</span>
-                    </div>
-
-                    <div class="import_verification--sheet_column new">
-                        <span>
-                            Nume
-                        </span>
-                        <div class="import_verification--column_arrow">
-                            <i class="fa-regular fa-chevron-right"></i>
-                        </div>
-                        <span> new column called DANUT</span>
-                    </div>
-
-                    <div class="import_verification--sheet_column into">
-                        <span>
-                            Nume
-                        </span>
-                        <div class="import_verification--column_arrow">
-                            <i class="fa-regular fa-chevron-right"></i>
-                        </div>
-                        <span> into column fsd</span>
+                <div class = "diagram_container--list">
+                <span>Sheets included: </span>
+                    <div class = "diagram_container--sheet">
+                        test
                     </div>
                 </div>
+
+                <img src="/assets/images/profile.png"/>
             </div>
         </div>
-        
-        <script>
-            let dn = new DynamicNodes();
-            
-            document.querySelector(".import_verification--sheet_info").appendChild(dn.helpCard("This sheet will be skipped from the import process!", "info"));
-            document.querySelector("#test2").appendChild(dn.helpCard("This sheet will be imported into a new sheet called test!", "info"))
-        </script>
+       
     </body>
 </html>

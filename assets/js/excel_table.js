@@ -26,21 +26,9 @@ const header_cell_template = `
     </button>  
 
 </div>
+
+<div class = 'excel_table--header_drag'></div>
 <header_name></header_name>
-
-<!-- 
-        <div class="custom_select">
-        <customOption>
-            <i class="fa-regular fa-text"></i>
-            String
-        </customOption>
-
-        <customOption>
-            <i class="fa-regular fa-calendar"></i>
-            Date
-        </customOption>
-        </div>
- -->
 </div>`;
 
 const sheet_template = `<div class="excel_sheet">
@@ -54,6 +42,10 @@ cellSelectEvent.initEvent("cellSelected", true, true);
 
 function excel(elem, font_changer, formula, sheet = undefined, row = undefined)
 {
+    this.resize_timeout = null;
+    this.resize_header = null;
+    this.resize_offset = 0;
+    this.resize_init = 0;
     //hyperlink related 
     this.rowToSelect = row || -1;
     this.sheetToSelect = sheet || "";
@@ -89,7 +81,24 @@ excel.prototype.init = function()
     //this.init_body();
     //run formula from columns
     //this.renderFormulas();
+    this.calculateSize();
     this.init_listeners();
+}
+
+excel.prototype.calculateSize = function(){
+        //calculate excel_table hwight 
+        let table_rect = this.htmlParent.getBoundingClientRect();
+
+        this.htmlParent.style.height = `${document.body.clientHeight - table_rect.y}px`
+
+        let sheets_container = this.htmlParent.querySelector(".excel_sheets--container");
+        sheets_container.style.top = `${table_rect.y + this.htmlParent.clientHeight - sheets_container.clientHeight}px`;
+        sheets_container.style.left = `${table_rect.x + 72}px`;
+        sheets_container.style.width = `${this.htmlParent.clientWidth - 70 - 7}px`;
+}
+
+excel.prototype.BodyhasScroll = function(){
+    return this.htmlParent.querySelector(".excel_table--body").scrollWidth > this.htmlParent.clientWidth;
 }
 
 excel.prototype.addInitRows = function(){
@@ -290,7 +299,35 @@ excel.prototype.addSheet = function (sheetName){
 }
 
 excel.prototype.init_listeners = function(){
+    
+    let rO = new ResizeObserver(entries => {
+            if (this.resize_timeout !== null)
+            {
+                clearTimeout(this.resize_timeout);
+            }
+    
+            this.resize_timeout = setTimeout(()=>{
+                this.calculateSize();
+            },300);
+      });
 
+    rO.observe(document.querySelector(".page_content"));
+
+    document.addEventListener("mousemove",(ev)=>{
+        if (this.resize_header !== null){
+            let difference = ev.offsetX - this.resize_offset;
+
+            let index = Array.from(this.resize_header.parentNode.children).indexOf(this.resize_header);
+
+            let templateCols = this.htmlParent.querySelector(".excel_table--header_items").style.gridTemplateColumns;
+            let splits = templateCols.split(" ");
+            
+            let target = parseInt(splits[index]) + difference;
+
+            this.htmlParent.querySelector(".excel_table--header_items").style.gridTemplateColumns = `${splits.slice(0, index).join(" ")} ${target}px ${splits.slice(index+1,).join(" ")}`;
+        }
+    })
+      
     document.addEventListener("dateFormat_change",(ev)=>{
         let value = ev.detail.value;
 
@@ -298,8 +335,22 @@ excel.prototype.init_listeners = function(){
         {
             this.getNodesFromSelection().forEach((cellNode)=>{
                 if (cellNode.dataset.type == "date"){
+                    let cellCoords = this.cellNode_toCoords(cellNode);
+
+                    console.log(this.data[this.getActiveSheet()][cellCoords[0]][cellNode.dataset.colUuid]);
+
+                    if (this.data[this.getActiveSheet()][cellCoords[0]][cellNode.dataset.colUuid] !== undefined)
+                    {
+                        if (this.data[this.getActiveSheet()][cellCoords[0]][cellNode.dataset.colUuid].typeParams === undefined)
+                        {
+                            this.data[this.getActiveSheet()][cellCoords[0]][cellNode.dataset.colUuid].typeParams = {};
+                        }
+
+                        this.data[this.getActiveSheet()][cellCoords[0]][cellNode.dataset.colUuid].typeParams.format = value;
+                    }
                     cellNode.dataset.format = value;
-                    this.setCellValue(cellNode, null, null);
+                    this.setCellValue(cellNode, "", null);
+
                 }
             })
         }
@@ -339,18 +390,25 @@ excel.prototype.init_listeners = function(){
         }
     })
 
-    document.querySelector(".excel_header--menu").addEventListener("click", (ev)=>{
-        console.log(ev);
-        if (ev.target.className.startsWith("excel_header--menu_item"))
+    //Stylig navigation
+
+    document.querySelector(".excel_menu--categories").addEventListener("click", (ev)=>{
+        if (ev.target.className.startsWith("excel_menu--category"))
         {
-          document.querySelector(".excel_header--menu_item.active")?.classList.remove("active");
+          document.querySelector(".excel_menu--category.active")?.classList.remove("active");
           ev.target.classList.add("active");
           //ok
-          let index = Array.from(document.querySelector(".excel_header--menu_container").children).indexOf(ev.target);
-          //show that index 
-          let tabToShow = Array.from(document.querySelectorAll(".excel_header--page"))[index];
-          document.querySelector(".excel_header--page.active").classList.remove("active");
-          tabToShow.classList.add("active");
+          let index = Array.from(document.querySelector(".excel_menu--categories").children).indexOf(ev.target);
+          //hide all 
+          Array.from(document.querySelector(".excel_menu--containers").children).forEach((node, _index)=>{
+            if (_index != index)
+            {
+                //hide
+                node.classList.add("hidden");
+            }else{
+                node.classList.remove("hidden")
+            }
+          })
         }
       })
 
@@ -368,32 +426,13 @@ excel.prototype.init_listeners = function(){
         }   
     })
 
-    document.querySelector("#conditional_formatting").addEventListener("click",()=>{
-        //open the modal
-        if (modalLib !== undefined)
-        {
-            if (window.dn === undefined)
-            {
-                window.dn = new DynamicNodes();
-            }
-
-            modalLib.setView(window.dn.frag(
-                window.dn.title(`Formatting cells: ${this.node_to_simpleCoords(this.selectStart)}->${this.node_to_simpleCoords(this.selectEnd)}`)
-            ), "Conditional formatting")
-            modalLib.open();
-        }
-    })
 
     document.querySelector("#save").addEventListener("click",()=>{
         this.save_current_sheet();
     })
 
-    document.querySelector("#save_all").addEventListener("click",()=>{
-        alert("Not yet implemented!");
-    })
-
     document.querySelector(".excel_sheets--container .fa-plus").addEventListener("click",(ev)=>{
-        document.querySelector(".excel_sheets--menu").style.top = `${ev.target.offsetTop + ev.target.clientHeight + 5}px`;
+        document.querySelector(".excel_sheets--menu").style.top = `calc(-100% - 55px)`;
         document.querySelector(".excel_sheets--menu").classList.toggle("active");
     })
 
@@ -444,7 +483,7 @@ excel.prototype.init_listeners = function(){
             }
         })
 
-        document.querySelector(".excel_add_row .excel_table--col_plus").addEventListener("click",()=>{
+        document.querySelector("#add_row").addEventListener("click",()=>{
             this.addRow();
         })
 
@@ -515,6 +554,28 @@ excel.prototype.init_listeners = function(){
 
                 this.repositionCellSelector();
             }
+        });
+
+        document.addEventListener("align", (ev)=>{
+            if (this.selectStart !== null)
+            {
+                let type = ev.detail.value;
+                this.getNodesFromSelection().forEach((cellNode)=>{
+                    cellNode.style.justifyContent = type;
+                    this.loadNodeCellStyles({"styles": {"align": type}}, cellNode)
+                })
+            }
+        })
+
+        document.addEventListener("halign", (ev)=>{
+            if (this.selectStart !== null)
+            {
+                let type = ev.detail.value;
+                this.getNodesFromSelection().forEach((cellNode)=>{
+                    cellNode.style.alignContent = type;
+                    this.loadNodeCellStyles({"styles": {"halign": type}}, cellNode)
+                })
+            }
         })
 
         document.addEventListener("italic_change",(ev)=>{
@@ -526,8 +587,48 @@ excel.prototype.init_listeners = function(){
                     colNode.style.fontStyle = this.font.italic ? "italic" : "normal";
                     this.loadNodeCellStyles({"styles":{"fontStyle": this.font.italic ? "italic" : "normal"}}, colNode)
                 })
+            }
+        })
 
-                this.repositionCellSelector();
+        document.querySelector("#cond_format").onclick = ()=>{
+            document.querySelector("#cond_format").classList.toggle("toggle");
+        }
+        document.querySelector("#cond_format--manage").addEventListener("click",()=>{
+            //first check the selection 
+            if (this.getNodesFromSelection().length !== 0)
+            {
+                if (modalLib_panel !== undefined)
+                {
+                    if (window.dn === undefined)
+                    {
+                        window.dn = new DynamicNodes();
+                    }
+
+                    modalLib_panel.setView(window.dn.cond_format(this.getCellCoordsFromSelections(), this.getConditionalFormatting(), this.get_cols_array(), this), "Conditional formatting");
+                    modalLib_panel.open();
+                }
+            }else{
+                Toastify({
+                    className: "toast_error",
+                    text: "Please select some cells!"
+                }).showToast();
+            }
+        })
+
+        document.querySelector("#cond_format--clear").addEventListener("click",()=>{
+            if (this.getNodesFromSelection().length == 0){
+                Toastify({
+                    className: "toast_error",
+                    text: "Please select some cells"
+                }).showToast();
+            }else{
+                let cb_submit = {
+                    context_submit: this,
+                    fn: this.wipe_conditionalFormatting,
+                    params: []
+                };
+                new Confirm("Wipe formatting",document.createTextNode(`Are you sure you want to delete the conditional formatting for selected calls?`), {}, cb_submit);
+
             }
         })
 
@@ -541,8 +642,6 @@ excel.prototype.init_listeners = function(){
                     colNode.style.textDecoration = this.font.underline ? "underline" : (this.font.strike ? "line-through" : "unset");
                     this.loadNodeCellStyles({"styles":{"textDecoration": this.font.underline ? "underline" : (this.font.strike ? "line-through" : "unset")}}, colNode)
                 })
-
-                this.repositionCellSelector();
             }
         })
         // AUX IF : this.font.strike ? "line-through" : (this.font.underline ? "underline" : "unset");
@@ -556,7 +655,6 @@ excel.prototype.init_listeners = function(){
                     this.loadNodeCellStyles({"styles":{"textDecoration": this.font.strike ? "line-through" : (this.font.underline ? "underline" : "unset")}}, colNode)
                 })
 
-                this.repositionCellSelector();
             }
         })
 
@@ -615,6 +713,107 @@ excel.prototype.init_listeners = function(){
                 node.style.color = color;
             })
         })
+}
+
+excel.prototype.wipe_conditionalFormatting = function(confirm){
+    let ids = [];
+    let nodes = this.getNodesFromSelection();
+    confirm.open();
+    nodes.forEach((node)=>{
+        if (node.dataset._id)
+        {
+            ids.push(node.dataset._id)
+        }
+    })
+
+    $.ajax({
+        url: "/excel/conditionalFormatting_wipe",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({ids}),
+        success: ()=>{
+            //start wiping 
+            Toastify({
+                className: "toast_success",
+                text: "Conditional formatting was deleted!"
+            }).showToast();
+
+            nodes.forEach((node)=>{
+                let data = this.getDataObjectForCell(node);
+                delete data.conditional_formatting;
+                this.loadNodeCellStyles(data, node);
+            })
+        },error:()=>{
+            Toastify({
+                className: "toast_error",
+                text: "There was an error!"
+            }).showToast();
+        }
+    })
+}
+
+excel.prototype.update_conditionalFormatting = function(nodes, conditions)
+{
+    nodes.forEach((nodeCoordinate)=>{
+        let sanitized_coordinates = nodeCoordinate.split("#")[1];
+
+        let [row, col] = sanitized_coordinates.split("@");
+        console.log(this.data[this.getActiveSheet()][row][col].conditional_formatting);
+        console.log(conditions);
+        this.data[this.getActiveSheet()][row][col].conditional_formatting = conditions;
+        console.log(this.data[this.getActiveSheet()][row][col].conditional_formatting);
+        //we should load the new styles now hehe
+        let node = this.getNodeByCoords(`${row}@${col}`);
+
+        //WORKING 
+        conditions.forEach((condition)=>{
+            this.formatNodeByConditions(node, condition);
+        })
+    })
+}
+
+excel.prototype.update_remove_conditionalFormatting = function(uuid)
+{
+    console.log(uuid);
+    Object.keys(this.data[this.getActiveSheet()]).forEach((row)=>{
+        Object.keys(this.data[this.getActiveSheet()][row]).forEach((col_uuid)=>{
+            if (this.data[this.getActiveSheet()][row][col_uuid].conditional_formatting)
+            {
+                this.data[this.getActiveSheet()][row][col_uuid].conditional_formatting = this.data[this.getActiveSheet()][row][col_uuid].conditional_formatting.filter((elem)=>{elem.uuid != uuid})
+                //for this node, reapply the conditions 
+                let node = this.getNodeByCoords(`${row}@${col_uuid}`);
+                if (this.data[this.getActiveSheet()][row][col_uuid].conditional_formatting.length!=0)
+                    this.data[this.getActiveSheet()][row][col_uuid].conditional_formatting.forEach((condition)=>{
+                        this.formatNodeByConditions(node, condition);
+                    })
+                else
+                {
+                    this.loadNodeCellStyles({styles: this.data[this.getActiveSheet()][row][col_uuid].styles}, node)
+                }
+            }
+        })
+    })
+}
+
+excel.prototype.get_cols_array = function(){
+    let response = [];
+
+    this.header[this.getActiveSheet()].forEach((head)=>{
+        response.push(head.name);
+    })
+
+    return response;
+}
+
+excel.prototype.getConditionalFormatting = function(){
+    let response = {};
+    this.getNodesFromSelection().forEach((node)=>{
+        try{
+            response[`${this.getRowId(node)}#${this.getColNameByUuid(node.dataset.colUuid)}`] = this.data[this.getActiveSheet()][this.getRowId(node)][node.dataset.colUuid].conditional_formatting;
+        }catch(e){}
+    })
+
+    return response;
 }
 
 excel.prototype.countDecimals = function(value) {
@@ -790,7 +989,7 @@ excel.prototype.autoSize = function(){
     let templateCols = '';
     for (_index in this.header[this.getActiveSheet()])
     {
-        let header_node_width = headerNodes[_index].clientWidth < 150 ? 150 : headerNodes[_index].clientWidth;
+        let header_node_width =  this.header[this.getActiveSheet()][_index].width !== undefined ? this.header[this.getActiveSheet()][_index].width : (headerNodes[_index].clientWidth < 150 ? 150 : headerNodes[_index].clientWidth);
 
         rows.forEach((row)=>{
             
@@ -809,6 +1008,14 @@ excel.prototype.autoSize = function(){
 
     Array.from(this.htmlParent.querySelectorAll(".excel_table--body_row")).forEach((row)=>{
         row.style.gridTemplateColumns = rowTemp;
+    })
+}
+
+excel.prototype.autoSizeRows_byHeader = function(){
+    let templateCols = this.htmlParent.querySelector(".excel_table--header_items").style.gridTemplateColumns;
+
+    Array.from(this.htmlParent.querySelectorAll(".excel_table--body_row ")).forEach((rowNode)=>{
+        rowNode.style.gridTemplateColumns = templateCols;
     })
 }
 
@@ -872,7 +1079,8 @@ excel.prototype.appendData = function(data, init = false){
             "value": cell?.value || "",
             "type": cell?.type || "string",
             "typeParams": cell?.typeParams,
-            "hyperlink": cell?.hyperlink || false
+            "hyperlink": cell?.hyperlink || false,
+            "conditional_formatting": cell?.conditional_formatting || null
         }
         prevCell = cell;
     })
@@ -885,11 +1093,19 @@ excel.prototype.cellNode_toCoords = function(node)
 }
 
 excel.prototype.getDataObjectForCell = function (node){
+    let typeParams = {};
+    switch(node.dataset.type)
+    {
+        case 'date':
+        typeParams.format = node.dataset.format;
+        break;
+    }
+
     try{
         let cellCoords = this.cellNode_toCoords(node);
 
         if (this.data[this.getActiveSheet()][cellCoords[0]][node.dataset.colUuid] === undefined)
-        this.data[this.getActiveSheet()][cellCoords[0]][node.dataset.colUuid] = {typeParams: {}};
+        this.data[this.getActiveSheet()][cellCoords[0]][node.dataset.colUuid] = {typeParams}
 
         return this.data[this.getActiveSheet()][cellCoords[0]][node.dataset.colUuid];
     }catch(e){
@@ -897,14 +1113,16 @@ excel.prototype.getDataObjectForCell = function (node){
         {
             this.data[this.getActiveSheet()] = {};
         }
+
         if (this.data[this.getActiveSheet()][this.getRowId(node)] === undefined){
             this.data[this.getActiveSheet()][this.getRowId(node)] = {};
         }
-        this.data[this.getActiveSheet()][this.getRowId(node)][node.dataset.colUuid] = {typeParams: {}};
+        this.data[this.getActiveSheet()][this.getRowId(node)][node.dataset.colUuid] = {typeParams};
         
         return this.data[this.getActiveSheet()][this.getRowId(node)][node.dataset.colUuid];
     }
 }
+
 
 excel.prototype.parseData = function(){
     $.ajax({
@@ -917,6 +1135,7 @@ excel.prototype.parseData = function(){
             this.appendData(data, true);
             this.load_cells();
             this.runFormulas();
+            this.calculateSize();
             //this.addInitRows();
         },error: function(){
             alert("eroare la parsare");
@@ -934,7 +1153,7 @@ excel.prototype.load_header = function()
 {
     let frag = document.createDocumentFragment();
     
-    this.header[this.getActiveSheet()].map((header)=>{
+    this.header[this.getActiveSheet()].map((header, _index)=>{
             frag.appendChild(this.header_node(header));
     })
 
@@ -945,11 +1164,45 @@ excel.prototype.header_node = function (header_object)
 {
     let temp = document.createRange().createContextualFragment(header_cell_template);
     let container = temp.children[0];
+
+    let resize = container.querySelector(".excel_table--header_drag");
+
     temp.querySelector("div").dataset.uuid = header_object.uuid;
+    if (header_object?.width){
+        container.dataset.width = header_object.width;
+    }
     temp.querySelector("header_name").textContent = header_object.name;
     
     //TODO -> button listeners 
     let action_buttons = temp.querySelectorAll("button");
+
+    resize.addEventListener("mousedown",(ev)=>{
+        this.resize_header = container;
+        this.resize_offset = ev.offsetX;
+        this.resize_init = Math.ceil(container.getBoundingClientRect().width);
+    })
+
+    resize.addEventListener("mouseup",()=>{
+        if (this.resize_header !== null){
+            this.resize_header = null;
+            this.resize_offset = 0;
+            this.resize_init = 0;
+
+            this.update_headerWidth(header_object.uuid, container.getBoundingClientRect().width);
+            this.autoSizeRows_byHeader();
+        }
+    })
+
+    resize.addEventListener("mouseout",()=>{
+        if (this.resize_header !== null){
+            this.resize_header = null;
+            this.resize_offset = 0;
+            this.resize_init = 0;
+
+            this.update_headerWidth(header_object.uuid, container.getBoundingClientRect().width);
+            this.autoSizeRows_byHeader();
+        }
+    })
 
     //delete button 
     action_buttons[2].addEventListener("click",()=>{
@@ -965,6 +1218,18 @@ excel.prototype.header_node = function (header_object)
     action_buttons[3].addEventListener("click",()=>{
         action_buttons[3].classList.toggle("active");
         container.classList.toggle("selected");
+
+        if (!container.classList.contains("selected"))
+            return;
+        let rows = document.querySelector(".excel_table--body").children;
+        
+        //here we select everything 
+        this.selectStart = rows[1].querySelector(`.excel_table--body_cell[data-col-uuid='${header_object.uuid}']`);
+        this.selectEnd = rows[rows.length-1].querySelector(`.excel_table--body_cell[data-col-uuid='${header_object.uuid}']`);
+
+        //position the cellSelector
+        this.positionCellSelector(this.calculateSelectWidth(), this.calculateSelectHeight());
+
     })
 
     action_buttons[4].addEventListener("click",()=>{
@@ -1016,6 +1281,26 @@ excel.prototype.header_node = function (header_object)
     })
 
     return temp;
+}
+
+excel.prototype.update_headerWidth = function (header_uuid, width){
+    $.ajax({
+        url: "/excel/update_headerWidth",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({uuid: header_uuid, width}),
+        success: ()=>{
+            Toastify({
+                className: "toast_success",
+                text: "Document was synced"
+            }).showToast();
+        },error: ()=>{
+            Toastify({
+                className: "toast_error",
+                text: "Document could not be synced"
+            }).showToast();
+        }
+    })
 }
 
 excel.prototype.update_notes = function (uuid, notes_input)
@@ -1157,6 +1442,14 @@ excel.prototype.dataRow_node = function(data_Object, _index, id)
 
     rowDetails.onclick = ()=>{
         row.classList.toggle("selected");
+        //here the magic happends 
+        let cells = row.querySelectorAll(".excel_table--body_cell");
+
+        this.selectStart = cells[0];
+        this.selectEnd = cells[cells.length - 1];
+
+        //position the cellSelector
+        this.positionCellSelector(this.calculateSelectWidth(), this.calculateSelectHeight());
     }
 
     row.appendChild(rowDetails);
@@ -1233,7 +1526,7 @@ excel.prototype.save_current_sheet = function(){
 
     this.changesCoords[this.getActiveSheet()]?.forEach((cellCoords)=>{
         let node = this.getNodeByCoords(cellCoords);
-        console.log(this.buildStylesObject(node));
+        console.log(this.getDataObjectForCell(node));
         if (node != null)
             data[cellCoords] = {
                 "styles": this.buildStylesObject(node),
@@ -1272,6 +1565,24 @@ excel.prototype.save_current_sheet = function(){
     }
 }
 
+excel.prototype.formatNodeByConditions = function(node, condition)
+{
+            switch(condition.type){
+                case "greater":
+                    if (parseInt(node.dataset.value) > parseInt(condition.values[0]))
+                    {
+                        this.loadNodeCellStyles(condition, node)
+                    }
+                    break;
+                    case "smaller":
+                        if (parseInt(node.dataset.value) < parseInt(condition.values[0]))
+                        {
+                            this.loadNodeCellStyles(condition, node)
+                        }
+                    break;
+            }
+}
+
 excel.prototype.cellNode = function (col_Object, _index)
 {
     let cell = document.createElement("div");
@@ -1303,6 +1614,12 @@ excel.prototype.cellNode = function (col_Object, _index)
     }
     this.loadNodeCellStyles(col_Object, cell);
     this.loadCellTypeView(cell, col_Object?.typeParams);
+
+    if (col_Object.conditional_formatting !== null && col_Object.conditional_formatting !== undefined){
+        col_Object.conditional_formatting.forEach((condition)=>{
+            this.formatNodeByConditions(cell, condition);
+        })
+    }
 
     cell.onclick = (ev)=>{
         this.select_cell(col_Object, cell, ev);
@@ -1357,7 +1674,7 @@ excel.prototype.cellNode = function (col_Object, _index)
                 this.cell_changed(cell.parentElement.dataset.rowNum, col_Object.uuid);            
             break;
             case "number": 
-                if (ev.key >= '0' && ev.key <= '9')
+                if ((ev.key >= '0' && ev.key <= '9') || ev.ctrlKey || ev.shiftKey || ev.key === "Enter" || ev.altKey || ev.key === "Backspace" || ev.key === "Delete") 
                     this.cell_changed(cell.parentElement.dataset.rowNum, col_Object.uuid);
                 else
                 {
@@ -1376,11 +1693,16 @@ excel.prototype.cellNode = function (col_Object, _index)
                 ev.preventDefault();
                 break;
             case "date":
-                Toastify({
-                    text: "You are not allowed to type in this field!",
-                    className: "toast_warning",
-                }).showToast();
-                ev.preventDefault();
+                if (ev.ctrlKey || ev.shiftKey || ev.key === "Enter" || ev.altKey)
+                {
+                    //do nothing
+                }else{
+                    Toastify({
+                        text: "You are not allowed to type in this field!",
+                        className: "toast_warning",
+                    }).showToast();
+                    ev.preventDefault();
+                }
             break;
         }
     }
@@ -1492,7 +1814,6 @@ excel.prototype.hyperlink_click = function (_id){
 
 excel.prototype.format_date = function (date, format)
 {
-    console.log('%c' + format, 'color: orange');
     if (format === undefined)
     {
         format = "DD.MM.YYYY";
@@ -1613,8 +1934,7 @@ excel.prototype.options_selectList = function(options){
 
 excel.prototype.setCellValue = function(node, value = "", context = null){
     let type = node.dataset?.type || "string";
-    console.log("Changed value for");
-    console.log(node);
+    
     (context != null ? context : this).cell_changed(node.parentElement.dataset.rowNum, node.dataset.colUuid);
 
     switch(type){
@@ -1625,7 +1945,6 @@ excel.prototype.setCellValue = function(node, value = "", context = null){
             node.dataset.value = value || node.innerText;
         break;
         case "date":
-            console.log("Se apeleaza aci");
             if (value !== "")
             {
                 node.dataset.value = dayjs(value).format("DD.MM.YYYY");
@@ -1644,11 +1963,17 @@ excel.prototype.loadNodeCellStyles = function (col_Object, node){
     if (col_Object.styles)
     {
         Object.keys(col_Object.styles).forEach((key)=>{
-            if (key !== "fontSize")
-                node.style[key] = col_Object.styles[key];
-            else{
+            if (key === "fontSize")
+            {
                 node.style[key] = `${col_Object.styles[key]}px`;
+            }else if(key === "align"){
+                node.style["justifyContent"] = col_Object.styles[key];
+            }else if(key === "halign"){
+                node.style["alignContent"] = col_Object.styles[key];
+            }else{
+                node.style[key] = col_Object.styles[key];
             }
+
             node.dataset[`styles__${key}`] = col_Object.styles[key];
         })
     }
@@ -1667,6 +1992,7 @@ excel.prototype.select_cell = function (col_Object, node, event)
             this.font.loadCellType(node);
         }
 
+        console.log("position");
         //position the cellSelector
         this.positionCellSelector(this.calculateSelectWidth(), this.calculateSelectHeight());
     }
@@ -1684,8 +2010,6 @@ excel.prototype.select_cell = function (col_Object, node, event)
 
 excel.prototype.getRowId = function (node)
 {
-    console.log(node.parentNode.dataset?.uuid || node.parentNode.dataset.rowNum);
-
     return node.parentNode.dataset?.uuid || node.parentNode.dataset.rowNum;
 }
 
@@ -1725,7 +2049,7 @@ excel.prototype.positionCellSelector = function(width, height)
     cellSelector.style.top = `${this.selectStart.parentNode.offsetTop}px`;
 
     cellSelector.style.width = `${width + parseInt(this.selectEnd.dataset.cellIndex) - parseInt(this.selectStart.dataset.cellIndex) + 1}px`;
-    cellSelector.style.height = `${height + parseInt(this.selectEnd.parentNode.dataset.rowNum) - parseInt(this.selectStart.parentNode.dataset.rowNum) + 1}px`;
+    cellSelector.style.height = `${height + (parseInt(this.selectEnd.parentNode.dataset.rowNum) - parseInt(this.selectStart.parentNode.dataset.rowNum)) + 1}px`;
 
 }
 
@@ -1734,9 +2058,9 @@ excel.prototype.calculateSelectWidth = function()
     let indexStart = this.selectStart.dataset.cellIndex, indexEnd = this.selectEnd.dataset.cellIndex,width = 0;
 
     //calculate the widths 
-    for (let indexCell = indexStart; indexCell <= indexEnd; indexCell++)
+    for (let indexCell = parseInt(indexStart); indexCell <= parseInt(indexEnd); indexCell++)
     {
-        width += document.querySelector(`.excel_table--body_cell[data-cell-index='${indexCell}']`).clientWidth;
+        width += document.querySelector(`.excel_table--body_cell[data-cell-index='${indexCell}']`).getBoundingClientRect().width;
     }
 
     return width;
@@ -1746,11 +2070,12 @@ excel.prototype.calculateSelectHeight = function()
 {
     let startRowIndex = this.selectStart.parentNode.dataset.rowNum, endRowIndex = this.selectEnd.parentNode.dataset.rowNum, height = 0;
 
-    for (let indexRow = startRowIndex; indexRow <= endRowIndex; indexRow++)
+    for (let indexRow = parseInt(startRowIndex); indexRow <= parseInt(endRowIndex); indexRow++)
     {
-        height += document.querySelector(`.excel_table--body_row[data-row-num='${indexRow}']`).clientHeight;
+        height += document.querySelector(`.excel_table--body_row[data-row-num='${indexRow}']`).getBoundingClientRect().height;
     }
 
+    console.log(height);
     return height;
 }
 
@@ -1778,7 +2103,17 @@ excel.prototype.getNodesFromSelection = function()
     }catch(e){
         return [];
     }
+}
 
+excel.prototype.getCellCoordsFromSelections = function(){
+    let response = [];
+    this.getNodesFromSelection().forEach((node)=>{
+        response.push(
+            `!${this.getActiveSheet()}#${this.getRowId(node)}@${node.dataset.colUuid}`
+        )
+    })
+
+    return response;
 }
 
 excel.prototype.getNodeByCoords = function(cellCoords){
