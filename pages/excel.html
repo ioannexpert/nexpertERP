@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Rubik:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+        
+        <!-- Icons -->
+        <link rel = 'stylesheet' href="/assets/fontawesome-pro-6.3.0-web (2)/fontawesome-pro-6.3.0-web/css/all.css">
+        <link rel = 'stylesheet' href="/assets/fontawesome-pro-6.3.0-web (2)/fontawesome-pro-6.3.0-web/css/fontawesome.css">
+
+        <!-- Custom css -->
+        <link rel = 'stylesheet' href="/assets/css/main.css">
+        <link rel = 'stylesheet' href="/assets/css//dashboard/dashboard.css">
+        <link rel="stylesheet" href="/assets/css/dashboard/index.css">
+        <link rel="stylesheet" href="/assets/css/dashboard/font_changer.css">
+        <link rel="stylesheet" href="/assets/css/dashboard/excel_formula.css">
+        <link rel = 'stylesheet' href="/assets/css/custom_select.css">
+        <link rel  = 'stylesheet' href="/assets/css/confirm.css">
+        <link rel = 'stylesheet' href="/assets/css/calendar.css">
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+        <link rel = "stylesheet" href="/assets/css/modal.css">
+        <link rel = "stylesheet" href="/assets/css/modal_panel.css">
+        <link rel = "stylesheet" href="/assets/css/view_selector.css">
+        <link rel = "stylesheet" href="/assets/css/column_selector.css">
+        <link rel = "stylesheet" href="/assets/css/node_slider.css">
+        <link rel = "stylesheet" href="/assets/css/data_info.css">
+
+                <!-- Libs  -->
+                <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/css/selectize.default.min.css"
+                integrity="sha512-pTaEn+6gF1IeWv3W1+7X7eM60TFu/agjgoHmYhAfLEU8Phuf6JKiiE8YmsNC0aCgQv4192s4Vai8YZ6VNM6vyQ=="
+                crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js"
+                integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ=="
+                crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+                
+        <!-- Custom js  -->
+        <script src="/assets/js/data_info.js"></script>
+        <script src="/assets/js/node_slider.js"></script>
+        <script src = '/assets/js/dashboard_menu.js'></script>
+        <script src = '/assets/js/view_selector.js'></script>
+        <script src = '/assets/js/DynamicNodes.js'></script>
+        <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/customParseFormat.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+        <script src = '/assets/js/custom_select.js'></script>
+        <script src = '/assets/js/dash_index.js'></script>
+        <script src = '/assets/js/font_changer.js'></script>
+        <script src = '/assets/js/excel_formula.js'></script>
+        <script src = '/assets/js/excel_table.js'></script>
+        <script src = '/assets/js/confirm.js'></script>
+        <script src = '/assets/js/calendar.js'></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+        <script src="/assets/js/modal.js"></script>
+        <script src="/assets/js/modal_panel.js"></script>
+        <script src="/assets/js/column_selector.js"></script>
+
+    </head>
+    <body>
+
+        <div class="body--wrapper">
+            <div class="bubble one small"></div>
+        </div>
+        
+        <div class="topbar">
+            <div class="left_side">
+                <img src = '/assets/images/shutterstock_1846527508 [Converted].png' height="40px" alt="Logo" /> 
+                <div class="farm_selector">
+                    
+                    <div class="farm_selector--header">
+                        <div class="farm_selector--image_holder">
+                            <img src="/assets/images/farmer-working-outdoors-harvesting-wheat-sunset-generated-by-ai.jpg">
+                        </div>
+                        <span>Nume companie</span>
+                        <i class="fa-regular fa-chevron-down"></i>
+                    </div>
+
+                    <div class="farm_selector--container">
+                        <div class="farm_selector--farms">
+                        <div class="farm_selector--farm">
+                            <label>
+                                <img src = '/assets/images/Group 252.png'>
+                                <span>Nume companie </span>
+                                <input type = 'radio' name="farm" value="1" class="hidden"/>
+                            </label>
+                        </div>
+
+                        <div class="farm_selector--farm">
+                            <label>
+                                <img src = '/assets/images/Group 252.png'>
+                                <span>Nume companie </span>
+                                <input type = 'radio' name="farm" value="2" class="hidden"/>
+                            </label>
+                        </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="search_bar not_active" onclick="main()">
+                <input type = 'text' placeholder="Search"/>
+                <div class="cover">
+                    <i class="fa-solid fa-search"></i>
+                    <span>nexpert</span>
+                </div>
+            </div>
+            <div class="icons">
+                <i class="fa-light fa-bell"></i>
+                <i class="fa-light fa-message"></i>
+            </div>
+
+            <div class="logged_user--container" tabindex="2" onfocus="focus_user()" onblur="blur_user()">
+                Hello, <b>{{userFullName}}</b>
+
+                <div class="logged_user--info_container">
+                    <div class="logged_user--info">
+                        <span>Logged in as {{userRole}}</span>
+                        <a href = ''><i class="fa-solid fa-gear"></i> Manage account</a>
+                        <a href = ''><i class="fa-solid fa-gear"></i> Manage account</a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+       <div class="content_container">
+            <div class="menu">
+                <div class="menu_button" onclick="open_menu()">
+                    <i class="fa-regular fa-chevrons-left"></i>
+                </div>
+                
+                <div class="menu_container">
+           \
+                <input type = 'hidden' id = 'page_name' value = '{{pageName}}'/>
+                <input type = 'hidden' id = 'doc_id' value = '{{doc_id}}' />
+                
+                <b>Pages</b>
+                <a class="menu_page--link" href = '/home'>
+                    <span class="icon_holder">
+                        <i class="fa-regular fa-home"></i>
+                    </span>
+                    Acasa
+                </a>
+
+                <a class="menu_page--link" href = '/reporting'>
+                    <span class="icon_holder">
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </span>
+                    Reporting
+                </a>
+                
+                <b>Documents</b>
+                {{#pages}}
+
+                <div class="menu_page--documents" data-id = {{_id}}>
+                    <div class="menu_page--header">
+                        <span class="icon_holder">
+                            <i class='{{icon}}'></i>
+                        </span>
+
+                        <a href="/document/{{pageName}}" class="page_link">{{pageName}}</a> 
+
+                        <span class="icon_holder round" onclick="show_page(this)">
+                            <i class="fa-regular fa-chevron-down"></i>
+                        </span>
+                    </div>
+                    <div class="menu_page--content_container">
+                        <div class="menu_page--content">
+
+                            <button class="primary_button maxW small" onclick="toggle_doc_form(this)"><i class="fa-regular fa-plus"></i> Create document</button>
+    
+                            <div class="add_doc--form_container">
+                                <div class="add_doc--form">
+                                    <div class="add_doc--form_row">
+                                        <input type = 'radio' class="radio_color" name="doc_color" style="--color: var(--red)" value = "#FF3333"/>
+                                        <input type = 'radio' class="radio_color" name="doc_color" style="--color: var(--orange)" value="#FF914D"/>
+                                        <input type = 'radio' class="radio_color" name="doc_color" style="--color: var(--green)" value = "#7BA537"/>
+                                        <input type = 'radio' class="radio_color" name="doc_color" style="--color: var(--light_orange)" value = "#FFBD59"/>
+                                        <input type = 'radio' class="radio_color" name="doc_color" style="--color: #45C2A0" value = "#45C2A0"/>
+                                        <input type = 'radio' class="radio_color" name="doc_color" style="--color: #7ED957" value = "#7ED957"/>
+                                        
+                                    </div>
+                                    <div class="add_doc--form_row">
+                                        <label>
+                                            Name
+                                            <input class="input_one" placeholder="Document name" value="New document" id="doc_name"/>
+                                        </label>
+                                    </div>
+            
+                                    <button class="submit_button maxW small" onclick="submit_add_doc(this)"><i class="fa-regular fa-check"></i> Submit</button>
+                                </div>
+                            </div>
+
+                            
+                    <div class="menu_group--list">
+
+                        {{#documents}}
+                            {{#.}}
+                        <div class="menu_group--item">
+
+                            <a class="menu_header" href="/document/{{pageName}}/{{name}}">
+                                <i class="fa-solid fa-folder-open" style="color: {{color}}"></i>
+                                <span>
+                                    {{name}}
+                                </span>
+                                <button class="icon_button" onclick="toggle_actions(this, event)"><i class="fa-regular fa-gears"></i></button>
+                            </a>
+
+                            <div class="actions_container">
+                                <div class="actions_list" data-id = {{_id}}>
+                                    <div class="action danger" onclick="delete_doc('{{_id}}', '{{name}}')">
+                                        <i class="fa-regular fa-trash"></i> Delete
+                                    </div>
+                                    <div class="action primary" onclick="rename_doc('{{_id}}', '{{name}}')">
+                                        <i class="fa-regular fa-edit"></i> Rename
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{/.}}
+                        {{/documents}}
+                        
+                    </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                {{/pages}}
+
+                <div class="add_page--container">
+                    <div class="add_page--form">
+                        <label class="page_icon">
+                            <i class="fa-solid fa-dollar-sign"></i>
+                            <input type = 'radio' name="page_icon" value="fa-solid fa-dollar-sign"/>
+                        </label>
+
+                        <label class="page_icon">
+                            <i class="fa-solid fa-gear"></i>
+                            <input type = 'radio' name="page_icon" value="fa-solid fa-gear" checked/>
+                        </label>
+
+                        <label class="page_icon">
+                            <i class="fa-solid fa-microchip-ai"></i>
+                            <input type = 'radio' name="page_icon" value="fa-solid fa-microchip-ai"/>
+                        </label>
+
+                        <label class="page_icon">
+                            <i class="fa-solid fa-truck"></i>
+                            <input type = 'radio' name="page_icon" value="fa-solid fa-truck"/>
+                        </label>
+
+                        <label style="margin-top: 10px;">
+                            Name
+                            <input class="input_one" placeholder="Page name" value="New page" id="page_name_add">
+                        </label>
+
+                        <button class="submit_button maxW small" onclick="add_page()" style="margin-top: 10px;"><i class="fa-regular fa-check"></i> Submit</button>
+                    </div>
+                </div>
+
+                <button class="primary_button maxW small" onclick="toggle_add_page()" ><i class="fa-solid fa-plus"></i> Create new page</button>
+            </div>
+            </div>
+
+            <div class="page_content">
+
+
+                <div class="excel_menu--container" id = 'excel_menu'>
+                    <div class="excel_menu--categories">
+
+                        <div class = "excel_menu--category active">
+                            Home
+                        </div>
+
+                        <div class = "excel_menu--category">
+                            Data
+                        </div>
+
+                    </div>
+
+                    <div class="excel_menu--containers">
+                        <div class="excel_menu--actions_container">
+
+                            <div class="excel_menu--action_group">
+                                <button class="excel_action icon data_info" data-info="Save" id = 'save'>
+                                    <i class="fa-regular fa-save"></i>
+                                </button>
+                                
+                                <button class="excel_action icon data_info" data-info="Print">
+                                    <i class="fa-regular fa-print"></i>
+                                </button>
+                            </div>
+
+                            <div class="excel_menu--action_group">
+
+                                <div class="font_change--selector_container">
+
+                                    <div class="font_change--selector_header">
+                                        <span></span> <i class="fa-solid fa-caret-down"></i>
+                                    </div>
+
+                                    <div class="font_change--selector_list_container scrollbar">
+                                        <div class="font_change--selector_list">
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+                                <button class="excel_action icon data_info" data-info="Bold" id = 'bold'>
+                                    <i class="fa-regular fa-bold"></i>
+                                </button>
+                                
+                                <button class="excel_action icon data_info" data-info="Italic" id = 'italic'>
+                                    <i class="fa-regular fa-italic"></i>
+                                </button>
+
+                                <button class="excel_action icon data_info" data-info="Underline" id = 'underline'>
+                                    <i class="fa-regular fa-underline"></i>
+                                </button>
+
+                                <button class="excel_action icon data_info" data-info="Strike" id = "strike">
+                                    <i class="fa-regular fa-strikethrough"></i>
+                                </button>
+
+                                <label class="color font_color data_info" data-info="Font color">
+                                    <i class="fa-regular fa-paintbrush-fine"></i>
+                                    <input type="color"/>    
+                                </label>
+
+                            </div>  
+
+                            <div class="excel_menu--action_group">
+                                <button class="excel_action icon data_info" data-info="Decrease font size" id = 'decrease_fontSize'>
+                                    <i class="fa-regular fa-minus"></i>
+                                </button>
+
+                                <div class="font_size--container" id = 'fontSize'>
+                                    <input type = 'number' value="12" />
+                                    <div class="font_size--list_container">
+                                        <div class="font_size--list scrollbar">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button class="excel_action icon data_info" data-info="Increase font size" id = 'increase_fontSize'>
+                                    <i class="fa-regular fa-plus"></i>
+                                </button>
+                            </div>
+
+                            <div class="excel_menu--action_group">
+                                <label class="color bg_color data_info" data-info="Background color">
+                                    <i class="fa-regular fa-fill"></i>
+                                    <input type="color"/>    
+                                </label>
+                            </div>
+
+                            <div class="excel_menu--action_group" id="content_type_container">
+
+                                <div class="custom_select noMargin white" id = 'content_type' data-default="Cell type">
+                                    <customOption data-value="string">
+                                        <i class="fa-regular fa-text"></i>
+                                        String
+                                    </customOption>
+
+                                    <customOption data-value="number">
+                                        <i class="fa-regular fa-5"></i>
+                                        Number
+                                    </customOption>
+
+                                    <customOption data-value="date">
+                                        <i class="fa-regular fa-calendar"></i>
+                                        Date
+                                    </customOption>
+                                    <customOption data-value="options">
+                                        <i class="fa-regular fa-list-radio"></i>
+                                        Options
+                                    </customOption>
+                                    <customOption data-value="check">
+                                        <i class="fa-regular fa-square-check"></i>
+                                        Checkbox
+                                    </customOption>
+                            </div>
+
+                            <div class="excel_menu--fake_container hidden" data-for="options">
+                                <button class="primary_button maxW small" id = 'edit_options'><i class="fa-regular fa-edit"></i> Edit options</button>
+                            </div>
+
+                            <div class="excel_menu--fake_container hidden" data-for="number">
+                                        
+                                <div class="custom_select icons_select white noMargin" style="display: inline-block;" id="vault_type">
+                                    <customOption data-value="none" data-default="true">
+                                        <i class="fa-regular fa-coins"></i>
+                                        
+                                    </customOption>
+
+                                    <customOption data-value="euro">
+                                        <i class="fa-regular fa-euro"></i>
+                                        
+                                    </customOption>
+
+                                    <customOption data-value="dollars">
+                                        <i class="fa-regular fa-dollar"></i>
+                                        
+                                    </customOption>
+
+                                    <customOption data-value="ron">
+                                        RON
+                                    </customOption>
+
+                                    <customOption data-value="pounds">
+                                        <i class="fa-regular fa-sterling-sign"></i>
+
+                                    </customOption>
+
+                                </div>
+                                
+                                <button class="excel_action icon data_info" id="percentage" data-info="Percentage">
+                                    %
+                                </button>
+                                <button class="excel_action icon_text data_info" id="float_left" data-info="Move decimal to left">
+                                    <i class="fa-regular fa-chevron-left"></i>
+                                    .00
+                                </button>
+
+                                <button class="excel_action icon_text data_info" id="float_right" data-info="Move decimal to right">
+                                    <i class="fa-regular fa-chevron-right"></i>
+                                    .00
+                                </button>
+                            </div>
+                            
+                            <div class="excel_menu--fake_container hidden" data-for="date">
+                                <div class="custom_select  noMargin white"  id="date_format">
+                                    <customOption data-value="DD.MM.YYYY" data-default="true">
+                                        <i class="fa-regular fa-calendar"></i>
+                                        dd.mm.yyyy
+                                    </customOption>
+
+                                    <customOption data-value="MM.DD.YYYY">
+                                        <i class="fa-regular fa-calendar"></i>
+                                        mm.dd.yyyy
+                                    </customOption>
+
+                                </div>
+                                </div>
+
+                            </div>
+
+                            <div class="excel_menu--action_group">
+
+                                <button class="excel_action icon data_info align_btn" data-info="Align left" id = 'align_left'>
+                                    <i class="fa-solid fa-align-left"></i>
+                                </button>
+
+                                <button class="excel_action icon data_info align_btn" data-info="Align center" id = 'align_center'>
+                                    <i class="fa-solid fa-align-center"></i>
+                                </button>
+
+                                <button class="excel_action icon data_info align_btn" data-info="Align right" id = 'align_right'>
+                                    <i class="fa-solid fa-align-right"></i>
+                                </button>
+                            </div>
+
+                            <div class="excel_menu--action_group">
+
+                                <button class="excel_action icon data_info halign_btn" data-info="Align top" id = 'halign_start'>
+                                    <i class="fa-solid fa-arrow-up-to-line"></i>
+                                </button>
+
+                                <button class="excel_action icon data_info halign_btn" data-info="Align middle" id = 'halign_center'>
+                                    <i class="fa-solid fa-arrows-to-line"></i>
+                                </button>
+
+                                <button class="excel_action icon data_info halign_btn" data-info="Align bottom" id = 'halign_end'>
+                                    <i class="fa-solid fa-arrow-down-to-line"></i>
+                                </button>
+                            </div>
+
+                            <div class="excel_menu--action_group">
+                                <button class="excel_action icon options data_info" data-info="Conditional formatting" id = 'cond_format'>
+                                    <i class="fa-solid fa-brush"></i>
+                                    <i class="fa-solid fa-caret-down"></i>
+                        
+                                    <div class="excel_action--options">
+                                        <div class="excel_action--option" id = 'cond_format--manage'><i class="fa-solid fa-gear"></i> Manage</div>
+                                        <div class="excel_action--option" id = 'cond_format--clear'><i class="fa-solid fa-trash"></i> Clear</div>
+                        
+                                    </div>
+                                </button>   
+                            </div>
+
+                        </div>
+
+                        <div class="excel_menu--actions_container hidden">
+                            <div class="excel_menu--action_group">
+                                <button class="primary_button" id="import_excel"><i class="fa-regular fa-file-excel"></i>Import</button>
+                            </div>
+                        </div>
+                     </div>
+                     <div class="excel_formula--container">
+                        <button class="excel_functions">
+                            <i class="fa-regular fa-function"></i>
+                        </button>
+                        <div class="excel_formula_input empty" contenteditable="true" >
+                        </div>
+                        <button class="formula_apply" contenteditable="false">Enter</button>
+    
+                        <div class="excel_formula--searchList">
+                
+                        </div>
+    
+                        <div class="excel_formula--list">
+            
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="excel_table scrollbar">
+                    <div class="excel_sheets--container">
+                        <div class = 'excel_sheet--menu excel--context_menu' data-for="context_menu">
+                            
+                            <div class="excel--context_item danger" data-for="delete">
+                                <i class="fa-regular fa-trash"></i> Delete
+                            </div>
+    
+                            <div class="excel--context_item normal" data-for="rename">
+                                <i class="fa-regular fa-pen-to-square"></i> Rename
+                            </div>
+    
+                        </div>
+                        <div class="excel_sheets">
+         
+                        </div>
+                        <i class="fa-regular fa-plus"></i>
+    
+                        <div class = "excel_sheets--menu">
+                            <label>
+                                Sheet name
+                                <input class="input_one" placeholder="" value="New sheet" id="sheet_name"/>
+                            </label>
+    
+                            <button class="submit_button maxW small" id="add_sheet">Submit</button>
+                        </div>
+                    </div>
+
+                    <div class="excel_table--header">
+                        
+                        <div class="excel_table--header_items">
+          
+                        </div>
+
+                        <div class="excel_table--col_plus" data-for="context_menu">
+                            <i class="fa-regular fa-plus"></i> Add column
+
+                            <div class="excel_table--add_col_menu" data-for="context_menu">
+
+                                <i class="fa-regular fa-square-x" data-for="close"></i>
+
+                              <label>
+                                Field name
+                                <input class="input_one" placeholder="" value="New field" id="col_name"/>
+                              </label>
+
+                              <div class="custom_select">
+                                    <customOption data-value="string">
+                                        <i class="fa-regular fa-text"></i>
+                                        String
+                                    </customOption>
+
+                                    <customOption data-value="date">
+                                        <i class="fa-regular fa-calendar"></i>
+                                        Date
+                                    </customOption>
+                                    <customOption data-value="options">
+                                        <i class="fa-regular fa-list-radio"></i>
+                                        Options
+                                    </customOption>
+                                    <customOption data-value="check">
+                                        <i class="fa-regular fa-square-check"></i>
+                                        Checkbox
+                                    </customOption>
+                                    <customOption data-value="number">
+                                        <i class="fa-regular fa-5"></i>
+                                        Number
+                                    </customOption>
+                              </div>
+                              
+                              <div class="column_forms">
+                                <div class="column_form" id = 'option'>
+
+                                </div>
+                              </div>
+
+                              <button class="submit_button maxW small" id = 'add_col'>Submit</button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="excel_table--body">
+                        <div class="cell_selector"></div>
+                 
+                    </div>
+                    <button class="primary_button" style="width: 50px;height: 42px; position: relative; left: -50px; top: 10px;" id="add_row"><i class="fa-regular fa-plus"></i></button>
+
+
+                </div>
+            </div>
+
+
+       </div>
+
+       <div class="calendar">
+        <div class="calendar__opts">
+          <select name="calendar__month" id="calendar__month">
+            
+          </select>
+      
+          <select name="calendar__year" id="calendar__year">
+ 
+          </select>
+        </div>
+      
+        <div class="calendar__body">
+          <div class="calendar__days">
+            <div>M</div>
+            <div>T</div>
+            <div>W</div>
+            <div>T</div>
+            <div>F</div>
+            <div>S</div>
+            <div>S</div>
+          </div>
+      
+          <div class="calendar__dates">
+      
+          </div>
+        </div>
+      
+        <div class="calendar__buttons">
+          <button class="calendar__button cancel_button">Cancel</button>
+      
+          <button class="calendar__button submit_button">Apply</button>
+        </div>
+      </div>
+
+      <template id = 'hyperlink_view'>
+        <div class="hyperlink_window">
+
+            <div class="hyperlink_methods">
+                <div class="hyperlink_method active">
+                    Link catre pagina web
+                </div>
+                <div class="hyperlink_method">
+                    Link catre celula
+                </div>
+            </div>
+            <div class="hyperlink_body">
+                <div class="hyperlink_page">
+                    pagina catre web
+                </div>
+                <div class="hyperlink_page">
+                pagina catre celula 
+                </div>
+            </div>
+
+        </div>
+    </template>
+    <template id = 'sheetMenu'>
+        <div class="menu_group--item">
+
+            <a class="menu_header" >
+                <i class="fa-solid fa-folder-open" ></i>
+                <span>
+                    
+                </span>
+                <button class="icon_button" onclick="toggle_actions(this, event)"><i class="fa-regular fa-gears"></i></button>
+            </a>
+
+            <div class="actions_container">
+                <div class="actions_list">
+                    <div class="action danger">
+                        <i class="fa-regular fa-trash"></i> Delete
+                    </div>
+                    <div class="action primary">
+                        <i class="fa-regular fa-edit"></i> Rename
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id = 'page_container'>
+        <div class="menu_page--documents">
+            <div class="menu_page--header">
+                <span class="icon_holder">
+                    <i class=''></i>
+                </span>
+
+                <a class="page_link" href=""></a> 
+                
+                <span class="icon_holder round" onclick="show_page(this)">
+                    <i class="fa-regular fa-chevron-down"></i>
+                </span>
+            </div>
+            <div class="menu_page--content_container">
+                <div class="menu_page--content">
+                    <button class="primary_button maxW small" onclick="toggle_doc_form(this)"><i class="fa-regular fa-plus"></i> Create document</button>
+
+                    <div class="add_doc--form_container">
+                        <div class="add_doc--form">
+                            <div class="add_doc--form_row">
+                                <input type = 'radio' class="radio_color" name="doc_color" style="--color: var(--red)" value = "#FF3333"/>
+                                <input type = 'radio' class="radio_color" name="doc_color" style="--color: var(--orange)" value="#FF914D"/>
+                                <input type = 'radio' class="radio_color" name="doc_color" style="--color: var(--green)" value = "#7BA537"/>
+                                <input type = 'radio' class="radio_color" name="doc_color" style="--color: var(--light_orange)" value = "#FFBD59"/>
+                                <input type = 'radio' class="radio_color" name="doc_color" style="--color: #45C2A0" value = "#45C2A0"/>
+                                <input type = 'radio' class="radio_color" name="doc_color" style="--color: #7ED957" value = "#7ED957"/>
+                                
+                            </div>
+                            <div class="add_doc--form_row">
+                                <label>
+                                    Name
+                                    <input class="input_one" placeholder="Document name" value="New document" id="doc_name"/>
+                                </label>
+                            </div>
+    
+                            <button class="submit_button maxW small" onclick="submit_add_doc(this)"><i class="fa-regular fa-check"></i> Submit</button>
+                        </div>
+                    </div>
+
+                    
+            <div class="menu_group--list">
+
+                
+            </div>
+                </div>
+            </div>
+
+        </div>
+    </template>
+        <script>
+            function main()
+            {
+                let search_bar = document.querySelector(".search_bar");
+
+                if (search_bar.classList.contains("not_active"))
+                {
+                    search_bar.classList.remove("not_active");
+                    search_bar.classList.add("active");
+
+                    search_bar.querySelector("input").focus();
+                }
+                else{
+                    search_bar.classList.remove("active");
+                    search_bar.classList.add("not_active");
+                }
+            }
+
+            function open_menu()
+            {
+                let content_container = document.querySelector(".content_container");
+
+                content_container.classList.toggle("menu_on");
+            }
+        </script>
+    </body>
+</html>

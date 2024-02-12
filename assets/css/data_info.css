@@ -1,0 +1,19 @@
+.data_info--info{
+    font-size: 12px;
+    background-color: var(--text_color);
+    position: absolute;
+    color: white;
+    font-weight: 500;
+    padding: 5px;
+    border-radius: var(--bRadius);
+    max-width: 120px;
+    opacity: 0;
+    visibility: none;
+    transition: opacity .2s, visibility 0s .2s;
+}
+
+.data_info--info.vis{
+    opacity: 1;
+    visibility: visible;
+    transition: opacity .2s;
+}

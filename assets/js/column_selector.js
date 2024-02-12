@@ -13,25 +13,31 @@ const template = `
 </div>
 `;
 
-function column_selector(){
+function column_selector(sheetId = undefined){
     this.node = undefined;
     this.selectedId = undefined;
 
-    this.initNode();
-    this.parseSheets();
+    this.initNode(sheetId);
+    this.parseSheets(sheetId);
 }
 
-column_selector.prototype.parseSheets = function(){
+column_selector.prototype.parseSheets = function(sheetId){
     $.ajax({
         url: "/excel/get_all_headers",
-        type: "GET",
+        type: "POST",
+        data: JSON.stringify({"sheetId": sheetId === undefined ? "" : sheetId}),
         contentType: "application/json",
         success: (data)=>{
+            this.clearData();
             this.populateData(data);
         },error: ()=>{
             
         }
     })
+}
+
+column_selector.prototype.clearData = function(){
+    Array.from(this.node.querySelector(".column_selector--list").children).forEach((node)=>node.remove());
 }
 
 column_selector.prototype.populateData = function (data){
@@ -75,6 +81,7 @@ column_selector.prototype.initItem = function(row)
 
     item.onclick = ()=>{
         this.selectedId = row._id;
+        this.node.dataset.selectedId = row._id;
         this.node.querySelector(".column_selector--header input").value = `${row.sheetName}!${row.name}`;
         this.node.classList.remove("open");
     }
@@ -86,9 +93,9 @@ column_selector.prototype.getNode = function(){
     return this.node;
 }
 
-column_selector.prototype.initNode = function(){
+column_selector.prototype.initNode = function(sheetId){
     this.node = document.createRange().createContextualFragment(template).children[0];
-
+    this.node.dataset.sheet_id = sheetId;
     this.node.querySelector(".column_selector--header input").onkeyup = ()=>{
         this.input();
     };
@@ -96,6 +103,26 @@ column_selector.prototype.initNode = function(){
         this.node.classList.toggle("open");
         this.node.querySelector(".column_selector--header input").focus();
     }
+
+    const config = { attributes: true, attributeFilter: ['data-sheet_id'] };
+
+    // Callback function to execute when a mutation is observed
+    const callback = (mutationsList, observer)=> {
+    mutationsList.forEach(mutation => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'data-sheet_id') {
+        console.log('data-sheet_id has changed:', mutation.target.dataset.sheet_id);
+        // Perform actions or handle the change here
+        this.parseSheets(mutation.target.dataset.sheet_id);
+        }
+    });
+    };
+
+    // Create a MutationObserver instance with the callback function
+    const observer = new MutationObserver(callback);
+
+    // Start observing the target node for specified mutations
+    observer.observe(this.node, config);
+
 
     document.addEventListener("click", (ev)=>{
         if (!this.node.contains(ev.target))

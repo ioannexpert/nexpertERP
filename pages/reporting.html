@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Rubik:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+        
+        <!-- Icons -->
+        <link rel = 'stylesheet' href="/assets/fontawesome-pro-6.3.0-web (2)/fontawesome-pro-6.3.0-web/css/all.css">
+        <link rel = 'stylesheet' href="/assets/fontawesome-pro-6.3.0-web (2)/fontawesome-pro-6.3.0-web/css/fontawesome.css">
+
+        <!-- Custom css -->
+        <link rel = 'stylesheet' href="/assets/css/main.css">
+        <link rel = 'stylesheet' href="/assets/css//dashboard/dashboard.css">
+        <link rel="stylesheet" href="/assets/css/dashboard/page.css">
+        <link rel  = 'stylesheet' href="/assets/css/confirm.css">
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+        <link rel = 'stylesheet' type = 'text/css' href = '/assets/css/dashboard/reporting.css'>
+        <link rel = 'stylesheet' type = 'text/css' href = '/assets/css/data_info.css'>
+        <link rel = 'stylesheet' type = 'text/css' href = '/assets/css/modal.css'>
+        <link rel = 'stylesheet' type = 'text/css' href = '/assets/css/custom_select.css'>
+
+                <!-- Libs  -->
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script src="https://unpkg.com/konva@9/konva.min.js"></script>
+                <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/css/selectize.default.min.css"
+                integrity="sha512-pTaEn+6gF1IeWv3W1+7X7eM60TFu/agjgoHmYhAfLEU8Phuf6JKiiE8YmsNC0aCgQv4192s4Vai8YZ6VNM6vyQ=="
+                crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js"
+                integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ=="
+                crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+                
+        <!-- Custom js  -->
+        <script src = '/assets/js/custom_select.js'></script>
+        <script src = '/assets/js/DynamicNodes.js'></script>
+        <script src = '/assets/js/dash_index.js'></script>
+        <script src="/assets/js/dashboard_menu.js"></script>
+        <script src = '/assets/js/confirm.js'></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+        <script src = '/assets/js/reporting.js'></script>
+        <script src = '/assets/js/data_info.js'></script>
+        <script src = '/assets/js/modal.js'></script>
+
+    
+    </head>
+    <body>
+        <input type = 'hidden' id = 'page_id' value='{{pageId}}'/>
+        <div class="body--wrapper">
+            <div class="bubble one small"></div>
+        </div>
+        
+        <div class="topbar">
+            <div class="left_side">
+                <img src = '/assets/images/shutterstock_1846527508 [Converted].png' height="40px" alt="Logo" /> 
+                <div class="farm_selector">
+                    
+                    <div class="farm_selector--header">
+                        <div class="farm_selector--image_holder">
+                            <img src="/assets/images/farmer-working-outdoors-harvesting-wheat-sunset-generated-by-ai.jpg">
+                        </div>
+                        <span>Nume ferma</span>
+                        <i class="fa-regular fa-chevron-down"></i>
+                    </div>
+
+                    <div class="farm_selector--container">
+                        <div class="farm_selector--farms">
+                        <div class="farm_selector--farm">
+                            <label>
+                                <img src = '/assets/images/Group 252.png'>
+                                <span>Nume ferma </span>
+                                <input type = 'radio' name="farm" value="1" class="hidden"/>
+                            </label>
+                        </div>
+
+                        <div class="farm_selector--farm">
+                            <label>
+                                <img src = '/assets/images/Group 252.png'>
+                                <span>Nume ferma </span>
+                                <input type = 'radio' name="farm" value="2" class="hidden"/>
+                            </label>
+                        </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="search_bar not_active" onclick="main()">
+                <input type = 'text' placeholder="Search"/>
+                <div class="cover">
+                    <i class="fa-solid fa-search"></i>
+                    <span>nexpert</span>
+                </div>
+            </div>
+            <div class="icons">
+                <i class="fa-light fa-bell"></i>
+                <i class="fa-light fa-message"></i>
+            </div>
+
+            <div class="logged_user--container" tabindex="2" onfocus="focus_user()" onblur="blur_user()">
+                Hello, <b>{{userFullName}}</b>
+
+                <div class="logged_user--info_container">
+                    <div class="logged_user--info">
+                        <span>Logged in as {{userRole}}</span>
+                        <a href = ''><i class="fa-solid fa-gear"></i> Manage account</a>
+                        <a href = ''><i class="fa-solid fa-gear"></i> Manage account</a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+       <div class="content_container">
+        <div class="menu">
+            <div class="menu_button" onclick="open_menu()">
+                <i class="fa-regular fa-chevrons-left"></i>
+            </div>
+            
+            <div class="menu_container">
+            <input type = 'hidden' id = 'page_name' value = '{{pageName}}'/>
+            <input type = 'hidden' id = 'doc_id' value = '{{doc_id}}' />
+            
+            <b>Pages</b>
+            <a class="menu_page--link" href = '/home'>
+                <span class="icon_holder">
+                    <i class="fa-regular fa-home"></i>
+                </span>
+                Acasa
+            </a>
+            <b>Documents</b>
+            {{#pages}}
+
+            <div class="menu_page--documents" data-id = {{_id}}>
+                <div class="menu_page--header">
+                    <span class="icon_holder">
+                        <i class='{{icon}}'></i>
+                    </span>
+
+                    <a href="/document/{{pageName}}" class="page_link">{{pageName}}</a> 
+
+                    <span class="icon_holder round" onclick="show_page(this)">
+                        <i class="fa-regular fa-chevron-down"></i>
+                    </span>
+                </div>
+                <div class="menu_page--content_container">
+                    <div class="menu_page--content">
+
+                        <button class="primary_button maxW small" onclick="toggle_doc_form(this)"><i class="fa-regular fa-plus"></i> Create document</button>
+
+                        <div class="add_doc--form_container">
+                            <div class="add_doc--form">
+                                <div class="add_doc--form_row">
+                                    <input type = 'radio' class="radio_color" name="doc_color" style="--color: var(--red)" value = "#FF3333"/>
+                                    <input type = 'radio' class="radio_color" name="doc_color" style="--color: var(--orange)" value="#FF914D"/>
+                                    <input type = 'radio' class="radio_color" name="doc_color" style="--color: var(--green)" value = "#7BA537"/>
+                                    <input type = 'radio' class="radio_color" name="doc_color" style="--color: var(--light_orange)" value = "#FFBD59"/>
+                                    <input type = 'radio' class="radio_color" name="doc_color" style="--color: #45C2A0" value = "#45C2A0"/>
+                                    <input type = 'radio' class="radio_color" name="doc_color" style="--color: #7ED957" value = "#7ED957"/>
+                                    
+                                </div>
+                                <div class="add_doc--form_row">
+                                    <label>
+                                        Name
+                                        <input class="input_one" placeholder="Document name" value="New document" id="doc_name"/>
+                                    </label>
+                                </div>
+        
+                                <button class="submit_button maxW small" onclick="submit_add_doc(this)"><i class="fa-regular fa-check"></i> Submit</button>
+                            </div>
+                        </div>
+
+                        
+                <div class="menu_group--list">
+
+                    {{#documents}}
+                        {{#.}}
+                    <div class="menu_group--item">
+
+                        <a class="menu_header" href="/document/{{pageName}}/{{name}}">
+                            <i class="fa-solid fa-folder-open" style="color: {{color}}"></i>
+                            <span>
+                                {{name}}
+                            </span>
+                            <button class="icon_button" onclick="toggle_actions(this, event)"><i class="fa-regular fa-gears"></i></button>
+                        </a>
+
+                        <div class="actions_container">
+                            <div class="actions_list" data-id = {{_id}}>
+                                <div class="action danger" onclick="delete_doc('{{_id}}', '{{name}}')">
+                                    <i class="fa-regular fa-trash"></i> Delete
+                                </div>
+                                <div class="action primary" onclick="rename_doc('{{_id}}', '{{name}}')">
+                                    <i class="fa-regular fa-edit"></i> Rename
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{/.}}
+                    {{/documents}}
+                    
+                </div>
+                    </div>
+                </div>
+
+            </div>
+
+            {{/pages}}
+
+            <div class="add_page--container">
+                <div class="add_page--form">
+                    <label class="page_icon">
+                        <i class="fa-solid fa-dollar-sign"></i>
+                        <input type = 'radio' name="page_icon" value="fa-solid fa-dollar-sign"/>
+                    </label>
+
+                    <label class="page_icon">
+                        <i class="fa-solid fa-gear"></i>
+                        <input type = 'radio' name="page_icon" value="fa-solid fa-gear" checked/>
+                    </label>
+
+                    <label class="page_icon">
+                        <i class="fa-solid fa-microchip-ai"></i>
+                        <input type = 'radio' name="page_icon" value="fa-solid fa-microchip-ai"/>
+                    </label>
+
+                    <label class="page_icon">
+                        <i class="fa-solid fa-truck"></i>
+                        <input type = 'radio' name="page_icon" value="fa-solid fa-truck"/>
+                    </label>
+
+                    <label style="margin-top: 10px;">
+                        Name
+                        <input class="input_one" placeholder="Page name" value="New page" id="page_name_add">
+                    </label>
+
+                    <button class="submit_button maxW small" onclick="add_page()" style="margin-top: 10px;"><i class="fa-regular fa-check"></i> Submit</button>
+                </div>
+            </div>
+
+            <button class="primary_button maxW small" onclick="toggle_add_page()" ><i class="fa-solid fa-plus"></i> Create new page</button>
+        </div>
+        </div>
+
+        <div class="page_content">
+            
+            <div class="reporting--steps_container">
+                
+                <div class="reporting--step active" id = 'step_designer' onclick="switch_to_view('designer')">
+                    <div class="round_number">1</div>
+                    <span>Designer</span>
+                </div>
+
+                <div class="reporting--step" id = 'step_report'>
+                    <div class="round_number">2</div>
+                    <span>Report</span>
+                </div>
+
+            </div>
+            <div class="reporting_page hidden" id = 'designer'>
+                <div class="sheets--container">
+                    <div class="sheets--container_header">
+                        <span>Available sheets</span>
+                        <label class="search">
+                            <i class="fa-regular fa-search"></i>
+                            <input type="text" placeholder="Search sheet">
+                        </label>
+                    </div>
+
+                    <div class="sheets--container_body">
+                        
+                    </div>
+
+                </div>
+
+                <div class="konva_container">
+                    <div id = 'konva'>
+
+                    </div>
+                    <div class="konva_menu">
+                        <div class="konva_menu--title">Menu</div>
+                        <div class="konva_menu--header">
+                            <button class="primary_button data_info" data-info="Zoom out" onclick="zoom_konva_out()"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                            <input type = 'number' value="100" id = 'zoom_value'/>
+                            <button class="primary_button data_info" data-info="Zoom in" onclick="zoom_konva_in()"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                            <button class="submit_button data_info" data-info="Save diagram" onclick="save_button()"><i class="fa-solid fa-floppy-disk"></i></button>
+                            <button class="primary_button data_info" data-info="Load diagram" onclick="show_diagrams()"><i class="fa-solid fa-upload"></i></button>
+                        </div>
+
+                        <div class="konva_menu--body_container">
+                            <div class="konva_menu--body_page" id = 'general'>
+                                Sheets included in this report: 
+                                <ul></ul>
+                            </div>
+
+                            <div class="konva_menu--body_page hidden" id = 'relation'>
+                                Relation info: 
+                                <span>
+
+                                </span>
+
+                                <div class="custom_select " style="min-width: auto;">
+                                    <customOption data-value = '2'>
+                                        one to many
+                                    </customOption>
+                                    <customOption data-value='3'>
+                                        many to one
+                                    </customOption>
+                                    <customOption data-value='4'>
+                                        many to many
+                                    </customOption>
+                                    <customOption data-value='1'>
+                                        one to one
+                                    </customOption>
+                                </div>
+                            </div>
+
+                            <div class="konva_menu--body_page hidden" id = 'sheet_menu'>
+                                Sheet columns:
+                                <ul></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="submit_button" style="margin-top: 10px;" onclick="generate_report()"><i class="fa-solid fa-gear"></i> Generate the report</button>
+            </div>
+
+            <div class="reporting_page" id = 'report'>
+                <div class = "reporting_grid">
+
+                    <div class="reporting_card type_one">
+                        <div class="info">
+                            <i class="fa-solid fa-circle-info"></i> This card will show charts for each column of the sheet selected
+                        </div>
+
+                        <div class="reporting_header">
+                            <span>Column based reporting</span>
+                            <div class="custom_select noMargin white">
+                               
+                          </div>
+                        </div>
+
+                        <div class="reporting_body">
+                            <div class="reporting--column_tray_container">
+                                <button class="primary_button"><i class="fa-solid fa-chevron-left"></i></button>
+                                <div class="reporting--column_tray">
+                               
+                                </div>
+                                <button class="primary_button"><i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+
+                            <div class="reporting_chart"></div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="reporting_card type_two">
+                        <div class="info">
+                            <i class="fa-solid fa-circle-info"></i> This card shows charts based on relations
+                        </div>
+
+                        <div class="reporting_header">
+                            <span>Relation based reporting</span>
+                            <div class="custom_select white noMargin" id = 'relations_select'>
+                                
+                            </div>
+                        </div>
+
+                        <div class = "reporting_body">
+                            <div class="reporting_body--table_container">
+                                <div class="custom_select white" id = "table_select">
+                                  
+                                </div>
+
+                                <table class="special_table">
+                                    <tr>
+                                        <th>id</th>
+                                        <th>id</th>
+                                        <th>id</th>
+                                        <th>id</th>
+                                        <th>id</th>
+                                        <th>id</th>
+                                        <th>id</th>
+                                        <th>id</th>
+                                        <th>idfsdfsdfsdffsdsdf</th>
+                                        <th>fdsfdfsdfsdfsdfsdfsdfsdfdsfdfsdfsdfdsid</th>
+                                    </tr>
+                                    <tr>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>idfsdfsdfsdffsdsdf</td>
+                                        <td>fdsfdfsdfsdfsdfsdfsdfsdfdsfdfsdfsdfdsid</td>
+                                    </tr>
+                                    <tr>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>idfsdfsdfsdffsdsdf</td>
+                                        <td>fdsfdfsdfsdfsdfsdfsdfsdfdsfdfsdfsdfdsid</td>
+                                    </tr>
+                                    <tr>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>idfsdfsdfsdffsdsdf</td>
+                                        <td>fdsfdfsdfsdfsdfsdfsdfsdfdsfdfsdfsdfdsid</td>
+                                    </tr>
+                                    <tr>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>idfsdfsdfsdffsdsdf</td>
+                                        <td>fdsfdfsdfsdfsdfsdfsdfsdfdsfdfsdfsdfdsid</td>
+                                    </tr>
+                                    <tr>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>idfsdfsdfsdffsdsdf</td>
+                                        <td>fdsfdfsdfsdfsdfsdfsdfsdfdsfdfsdfsdfdsid</td>
+                                    </tr>
+                                    <tr>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>idfsdfsdfsdffsdsdf</td>
+                                        <td>fdsfdfsdfsdfsdfsdfsdfsdfdsfdfsdfsdfdsid</td>
+                                    </tr>
+                                    <tr>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>idfsdfsdfsdffsdsdf</td>
+                                        <td>fdsfdfsdfsdfsdfsdfsdfsdfdsfdfsdfsdfdsid</td>
+                                    </tr>
+                                    <tr>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>idfsdfsdfsdffsdsdf</td>
+                                        <td>fdsfdfsdfsdfsdfsdfsdfsdfdsfdfsdfsdfdsid</td>
+                                    </tr>
+                                    <tr>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>idfsdfsdfsdffsdsdf</td>
+                                        <td>fdsfdfsdfsdfsdfsdfsdfsdfdsfdfsdfsdfdsid</td>
+                                    </tr>
+                                    <tr>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>id</td>
+                                        <td>idfsdfsdfsdffsdsdf</td>
+                                        <td>fdsfdfsdfsdfsdfsdfsdfsdfdsfdfsdfsdfdsid</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="reporting_body--extras">
+                                <h3>Relational data view</h3>
+                                <div class="reporting_body--extras_content">
+                                    <div class="reporting_body--extras_table">
+                                        <span>Related data from <sheet_name>orders</sheet_name> </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+       </div>
+
+    <template id = 'sheetMenu'>
+        <div class="menu_group--item">
+
+            <a class="menu_header" >
+                <i class="fa-solid fa-folder-open" ></i>
+                <span>
+                    
+                </span>
+                <button class="icon_button" onclick="toggle_actions(this, event)"><i class="fa-regular fa-gears"></i></button>
+            </a>
+
+            <div class="actions_container">
+                <div class="actions_list">
+                    <div class="action danger">
+                        <i class="fa-regular fa-trash"></i> Delete
+                    </div>
+                    <div class="action primary">
+                        <i class="fa-regular fa-edit"></i> Rename
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id = 'page_container'>
+        <div class="menu_page--documents">
+            <div class="menu_page--header">
+                <span class="icon_holder">
+                    <i class=''></i>
+                </span>
+
+                <a href="/document/{{pageName}}" class="page_link">{{pageName}}</a> 
+                
+                <span class="icon_holder round" onclick="show_page(this)">
+                    <i class="fa-regular fa-chevron-down"></i>
+                </span>
+            </div>
+            <div class="menu_page--content_container">
+                <div class="menu_page--content">
+                    <button class="primary_button maxW small" onclick="toggle_doc_form(this)"><i class="fa-regular fa-plus"></i> Create document</button>
+
+                    <div class="add_doc--form_container">
+                        <div class="add_doc--form">
+                            <div class="add_doc--form_row">
+                                <input type = 'radio' class="radio_color" name="doc_color" style="--color: var(--red)" value = "#FF3333"/>
+                                <input type = 'radio' class="radio_color" name="doc_color" style="--color: var(--orange)" value="#FF914D"/>
+                                <input type = 'radio' class="radio_color" name="doc_color" style="--color: var(--green)" value = "#7BA537"/>
+                                <input type = 'radio' class="radio_color" name="doc_color" style="--color: var(--light_orange)" value = "#FFBD59"/>
+                                <input type = 'radio' class="radio_color" name="doc_color" style="--color: #45C2A0" value = "#45C2A0"/>
+                                <input type = 'radio' class="radio_color" name="doc_color" style="--color: #7ED957" value = "#7ED957"/>
+                                
+                            </div>
+                            <div class="add_doc--form_row">
+                                <label>
+                                    Name
+                                    <input class="input_one" placeholder="Document name" value="New document" id="doc_name"/>
+                                </label>
+                            </div>
+    
+                            <button class="submit_button maxW small" onclick="submit_add_doc(this)"><i class="fa-regular fa-check"></i> Submit</button>
+                        </div>
+                    </div>
+
+                    
+            <div class="menu_group--list">
+
+                
+            </div>
+                </div>
+            </div>
+
+        </div>
+    </template>
+
+    <template id = 'diagram_node'>
+        
+        <div class="diagram_container">
+            <div class = "diagram_container--title">
+                <diagram_name></diagram_name> <span></span>
+            </div>
+            <div class="diagram_container--body">
+
+                <div class = "diagram_container--list">
+                <span>Sheets included: </span>
+                    
+                </div>
+
+                <img src=""/>
+            </div>
+            <button class="submit_button maxW" style = "margin-top: 10px;"><i class="fa-solid fa-check"></i> Load diagram</button>
+        </div>
+    </template>
+
+
+        <script>
+            function main()
+            {
+                let search_bar = document.querySelector(".search_bar");
+
+                if (search_bar.classList.contains("not_active"))
+                {
+                    search_bar.classList.remove("not_active");
+                    search_bar.classList.add("active");
+
+                    search_bar.querySelector("input").focus();
+                }
+                else{
+                    search_bar.classList.remove("active");
+                    search_bar.classList.add("not_active");
+                }
+            }
+
+            function open_menu()
+            {
+                let content_container = document.querySelector(".content_container");
+
+                content_container.classList.toggle("menu_on");
+            }
+        </script>
+        <script src = '/assets/js/konva_report.js'></script>
+
+    </body>
+</html>

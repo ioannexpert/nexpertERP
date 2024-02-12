@@ -19,12 +19,15 @@ function customSelect()
 
 }
 
-customSelect.prototype.init = function(node)
+customSelect.prototype.init = function(node, extraClassesHeader = [], label = undefined)
 {
     //generate the uuid 
     let uuid = window.crypto.randomUUID();
     node.dataset.uuid = uuid;
     this.nodes[uuid] = {"node": node};
+
+    if (label !== undefined)
+        node.dataset.label = label;
 
     //first select the options
     let options = node.querySelectorAll("customOption");
@@ -33,6 +36,12 @@ customSelect.prototype.init = function(node)
     Array.from(node.children).forEach(child=>child.remove());
 
     let headerTemp = document.createRange().createContextualFragment(selectHeader);
+
+    extraClassesHeader.forEach((c)=>{
+        headerTemp.children[0].classList.add(c);
+    })
+    
+    headerTemp.querySelector(".custom_select--title").textContent = node.dataset?.default || "Select an option";
     node.appendChild(headerTemp);
 
     let optionParent = document.createElement("div");

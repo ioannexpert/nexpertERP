@@ -110,9 +110,12 @@ const data = [
   ]
   ;
 
-var customSelect, cal, modalLib;
+var customSelect, cal, modalLib, modalLib_panel;
 $(function(){
+
+  window.data_info_instance = new data_info();
   modalLib = new modal();
+  modalLib_panel = new modal_panel();
 
   dayjs.extend(window.dayjs_plugin_customParseFormat);
   cal = new calendar(document.querySelector(".calendar"));
@@ -130,11 +133,13 @@ $(function(){
   formula = new formula_maker(document.querySelector(".excel_formula_input"), document.querySelector(".excel_formula--list"));
   formula.init_fns();
 
-  font = new font_changer(document.querySelector("#fontCustom"));
+  font = new font_changer(document.querySelector("#excel_menu"), document.querySelector(".font_change--selector_container"));
   font.init();
 
-  excel_table = new excel(document.querySelector(".excel_table"), font, formula);
+  const urlParams = new URLSearchParams(window.location.search);
+
+  excel_table = new excel(document.querySelector(".excel_table"), font, formula, urlParams.get("sheet"), urlParams.get("row"));
   excel_table.init();
 
-  formula.hyperlinkClick(formula);
+  
 })

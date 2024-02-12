@@ -5,32 +5,83 @@
 
         <link rel = 'stylesheet' href="/assets/fontawesome-pro-6.3.0-web (2)/fontawesome-pro-6.3.0-web/css/all.css">
         <link rel = 'stylesheet' href="/assets/fontawesome-pro-6.3.0-web (2)/fontawesome-pro-6.3.0-web/css/fontawesome.css">
+        <link rel = 'stylesheet' href="/assets/css/dashboard/index.css">
+        <link rel = 'stylesheet' href="/assets/css/dashboard/dashboard.css">
+
+        <link rel = 'stylesheet' href="/assets/css/modal_panel.css">
+
       <script src="/assets/js/column_selector.js"></script>
-        <link rel = 'stylesheet' href = '/assets/css/column_selector.css'>
+        <link rel = 'stylesheet' href = '/assets/css/data_info.css'>
+
+        <script src = '/assets/js/modal_panel.js'></script>
+        <script src = '/assets/js/DynamicNodes.js'></script>
+
+        <link rel = 'stylesheet' href="/assets/css/custom_select.css">
+        <script src = '/assets/js/custom_select.js'></script>
+        
+        <style>
+            body{
+                background-color: var(--orange);
+                padding: 20px;
+            }
+
+            .diagram_container{
+                width: 900px;
+                background-color: var(--light_gray);
+                border-radius: var(--bRadius);
+                padding: var(--pad);
+            }
+
+            .diagram_container--title{
+                font-size: 18px;
+                font-weight: bold;
+            }
+
+            .diagram_container--title span{
+                font-size: 14px;
+                font-style: italic;
+            }
+
+            .diagram_container--body{
+                margin-top: 15px;
+
+                display: grid;
+                grid-template-columns: 1fr 300px;
+                column-gap: 10px;
+            }
+
+            .diagram_container--list{
+                display: flex;
+                flex-direction: column;
+                row-gap: 5px;
+            }
+
+            .diagram_container--sheet{
+                background-color: white;
+                padding: calc(var(--pad) / 2);
+                border-radius: var(--bRadius);
+            }
+
+        </style>
     </head>
     <body>
 
-        <!-- <div class="column_selector">
-            <div class="column_selector--header">
-                <input type = 'text' placeholder="Select column" />
-                <i class="fa-regular fa-chevron-down"></i>
+        <div class="diagram_container">
+            <div class = "diagram_container--title">
+                Diagram 1 <span>created by Vasii Dan Emanuel</span>
             </div>
+            <div class="diagram_container--body">
 
-            <div class="column_selector--container">
-                <div class="column_selector--list">
-                    <div class="column_selector--group">
-                        <span>Sheet 2</span>
-                        <div class="column_selector--item">ProductId</div>
+                <div class = "diagram_container--list">
+                <span>Sheets included: </span>
+                    <div class = "diagram_container--sheet">
+                        test
                     </div>
                 </div>
-            </div>
-        </div> -->
 
-        <script>
-            var test = new column_selector();
-            document.querySelector("body").appendChild(test.getNode());
-            
-            
-        </script>
+                <img src="/assets/images/profile.png"/>
+            </div>
+        </div>
+       
     </body>
 </html>

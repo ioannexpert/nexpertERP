@@ -1,0 +1,21 @@
+.node_slider--container{
+    width: 100%;
+    overflow: hidden;
+    padding: 0px !important;
+}
+
+.node_slider--nodes{
+
+    display: flex;
+    flex-direction: row;
+
+    transform: translateX(0%);
+
+    transition: transform .3s linear;
+}
+
+.node_slider--node{
+    flex-shrink: 0;
+    flex-basis: 100%;
+    padding: 1px;
+}

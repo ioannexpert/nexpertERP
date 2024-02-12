@@ -1,3 +1,11 @@
+.view_selector.white .view_selector--header{
+    background-color: white;
+}
+
+.view_selector.white .view_selector--body_page{
+    background-color: white;
+}
+
 .view_selector--header{
     
     background-color: var(--light_gray);
@@ -41,6 +49,7 @@
 {
     display: flex;
     flex-direction: row;
+    white-space: normal;
 }
 
 .view_selector--body > * {

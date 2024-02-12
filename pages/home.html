@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Rubik:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+        
+        <!-- Icons -->
+        <link rel = 'stylesheet' href="/assets/fontawesome-pro-6.3.0-web (2)/fontawesome-pro-6.3.0-web/css/all.css">
+        <link rel = 'stylesheet' href="/assets/fontawesome-pro-6.3.0-web (2)/fontawesome-pro-6.3.0-web/css/fontawesome.css">
+
+        <!-- Custom css -->
+        <link rel = 'stylesheet' href="/assets/css/main.css">
+        <link rel = 'stylesheet' href="/assets/css//dashboard/dashboard.css">
+        <link rel="stylesheet" href="/assets/css/dashboard/page.css">
+        <link rel = 'stylesheet' href="/assets/css/custom_select.css">
+        <link rel  = 'stylesheet' href="/assets/css/confirm.css">
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+                <!-- Libs  -->
+                <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/css/selectize.default.min.css"
+                integrity="sha512-pTaEn+6gF1IeWv3W1+7X7eM60TFu/agjgoHmYhAfLEU8Phuf6JKiiE8YmsNC0aCgQv4192s4Vai8YZ6VNM6vyQ=="
+                crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js"
+                integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ=="
+                crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+                
+        <!-- Custom js  -->
+        <script src="/assets/js/dashboard_menu.js"></script>
+        <script src = '/assets/js/view_selector.js'></script>
+        <script src = '/assets/js/DynamicNodes.js'></script>
+        <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/customParseFormat.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+        <script src = '/assets/js/confirm.js'></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+        <script src="/assets/js/modal.js"></script>
+        <script src="/assets/js/column_selector.js"></script>
+
+    </head>
+    <body>
+        <input type = 'hidden' id = 'page_id' value='{{pageId}}'/>
+        <div class="body--wrapper">
+            <div class="bubble one small"></div>
+        </div>
+        
+        <div class="topbar">
+            <div class="left_side">
+                <img src = '/assets/images/shutterstock_1846527508 [Converted].png' height="40px" alt="Logo" /> 
+                <div class="farm_selector">
+                    
+                    <div class="farm_selector--header">
+                        <div class="farm_selector--image_holder">
+                            <img src="/assets/images/farmer-working-outdoors-harvesting-wheat-sunset-generated-by-ai.jpg">
+                        </div>
+                        <span>Nume ferma</span>
+                        <i class="fa-regular fa-chevron-down"></i>
+                    </div>
+
+                    <div class="farm_selector--container">
+                        <div class="farm_selector--farms">
+                        <div class="farm_selector--farm">
+                            <label>
+                                <img src = '/assets/images/Group 252.png'>
+                                <span>Nume ferma </span>
+                                <input type = 'radio' name="farm" value="1" class="hidden"/>
+                            </label>
+                        </div>
+
+                        <div class="farm_selector--farm">
+                            <label>
+                                <img src = '/assets/images/Group 252.png'>
+                                <span>Nume ferma </span>
+                                <input type = 'radio' name="farm" value="2" class="hidden"/>
+                            </label>
+                        </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="search_bar not_active" onclick="main()">
+                <input type = 'text' placeholder="Search"/>
+                <div class="cover">
+                    <i class="fa-solid fa-search"></i>
+                    <span>nexpert</span>
+                </div>
+            </div>
+            <div class="icons">
+                <i class="fa-light fa-bell"></i>
+                <i class="fa-light fa-message"></i>
+            </div>
+
+            <div class="logged_user--container" tabindex="2" onfocus="focus_user()" onblur="blur_user()">
+                Hello, <b>{{userFullName}}</b>
+
+                <div class="logged_user--info_container">
+                    <div class="logged_user--info">
+                        <span>Logged in as {{userRole}}</span>
+                        <a href = ''><i class="fa-solid fa-gear"></i> Manage account</a>
+                        <a href = ''><i class="fa-solid fa-gear"></i> Manage account</a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+       <div class="content_container menu_on">
+        <div class="menu">
+            <div class="menu_button" onclick="open_menu()">
+                <i class="fa-regular fa-chevrons-left"></i>
+            </div>
+            
+            <div class="menu_container">
+            <input type = 'hidden' id = 'page_name' value = '{{pageName}}'/>
+            <input type = 'hidden' id = 'doc_id' value = '{{doc_id}}' />
+            
+            <b>Pages</b>
+            <a class="menu_page--link" href = '/home'>
+                <span class="icon_holder">
+                    <i class="fa-regular fa-home"></i>
+                </span>
+                Acasa
+            </a>
+            <b>Documents</b>
+            {{#pages}}
+
+            <div class="menu_page--documents" data-id = {{_id}}>
+                <div class="menu_page--header">
+                    <span class="icon_holder">
+                        <i class='{{icon}}'></i>
+                    </span>
+
+                    <a href="/document/{{pageName}}" class="page_link">{{pageName}}</a> 
+
+                    <span class="icon_holder round" onclick="show_page(this)">
+                        <i class="fa-regular fa-chevron-down"></i>
+                    </span>
+                </div>
+                <div class="menu_page--content_container">
+                    <div class="menu_page--content">
+
+                        <button class="primary_button maxW small" onclick="toggle_doc_form(this)"><i class="fa-regular fa-plus"></i> Create document</button>
+
+                        <div class="add_doc--form_container">
+                            <div class="add_doc--form">
+                                <div class="add_doc--form_row">
+                                    <input type = 'radio' class="radio_color" name="doc_color" style="--color: var(--red)" value = "#FF3333"/>
+                                    <input type = 'radio' class="radio_color" name="doc_color" style="--color: var(--orange)" value="#FF914D"/>
+                                    <input type = 'radio' class="radio_color" name="doc_color" style="--color: var(--green)" value = "#7BA537"/>
+                                    <input type = 'radio' class="radio_color" name="doc_color" style="--color: var(--light_orange)" value = "#FFBD59"/>
+                                    <input type = 'radio' class="radio_color" name="doc_color" style="--color: #45C2A0" value = "#45C2A0"/>
+                                    <input type = 'radio' class="radio_color" name="doc_color" style="--color: #7ED957" value = "#7ED957"/>
+                                    
+                                </div>
+                                <div class="add_doc--form_row">
+                                    <label>
+                                        Name
+                                        <input class="input_one" placeholder="Document name" value="New document" id="doc_name"/>
+                                    </label>
+                                </div>
+        
+                                <button class="submit_button maxW small" onclick="submit_add_doc(this)"><i class="fa-regular fa-check"></i> Submit</button>
+                            </div>
+                        </div>
+
+                        
+                <div class="menu_group--list">
+
+                    {{#documents}}
+                        {{#.}}
+                    <div class="menu_group--item">
+
+                        <a class="menu_header" href="/document/{{pageName}}/{{name}}">
+                            <i class="fa-solid fa-folder-open" style="color: {{color}}"></i>
+                            <span>
+                                {{name}}
+                            </span>
+                            <button class="icon_button" onclick="toggle_actions(this, event)"><i class="fa-regular fa-gears"></i></button>
+                        </a>
+
+                        <div class="actions_container">
+                            <div class="actions_list" data-id = {{_id}}>
+                                <div class="action danger" onclick="delete_doc('{{_id}}', '{{name}}')">
+                                    <i class="fa-regular fa-trash"></i> Delete
+                                </div>
+                                <div class="action primary" onclick="rename_doc('{{_id}}', '{{name}}')">
+                                    <i class="fa-regular fa-edit"></i> Rename
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{/.}}
+                    {{/documents}}
+                    
+                </div>
+                    </div>
+                </div>
+
+            </div>
+
+            {{/pages}}
+
+            <div class="add_page--container">
+                <div class="add_page--form">
+                    <label class="page_icon">
+                        <i class="fa-solid fa-dollar-sign"></i>
+                        <input type = 'radio' name="page_icon" value="fa-solid fa-dollar-sign"/>
+                    </label>
+
+                    <label class="page_icon">
+                        <i class="fa-solid fa-gear"></i>
+                        <input type = 'radio' name="page_icon" value="fa-solid fa-gear" checked/>
+                    </label>
+
+                    <label class="page_icon">
+                        <i class="fa-solid fa-microchip-ai"></i>
+                        <input type = 'radio' name="page_icon" value="fa-solid fa-microchip-ai"/>
+                    </label>
+
+                    <label class="page_icon">
+                        <i class="fa-solid fa-truck"></i>
+                        <input type = 'radio' name="page_icon" value="fa-solid fa-truck"/>
+                    </label>
+
+                    <label style="margin-top: 10px;">
+                        Name
+                        <input class="input_one" placeholder="Page name" value="New page" id="page_name_add">
+                    </label>
+
+                    <button class="submit_button maxW small" onclick="add_page()" style="margin-top: 10px;"><i class="fa-regular fa-check"></i> Submit</button>
+                </div>
+            </div>
+
+            <button class="primary_button maxW small" onclick="toggle_add_page()" ><i class="fa-solid fa-plus"></i> Create new page</button>
+        </div>
+        </div>
+
+        <div class="page_content">
+            <h2>This is going to be the home</h2>
+
+
+       </div>
+
+    <template id = 'sheetMenu'>
+        <div class="menu_group--item">
+
+            <a class="menu_header" >
+                <i class="fa-solid fa-folder-open" ></i>
+                <span>
+                    
+                </span>
+                <button class="icon_button" onclick="toggle_actions(this, event)"><i class="fa-regular fa-gears"></i></button>
+            </a>
+
+            <div class="actions_container">
+                <div class="actions_list">
+                    <div class="action danger">
+                        <i class="fa-regular fa-trash"></i> Delete
+                    </div>
+                    <div class="action primary">
+                        <i class="fa-regular fa-edit"></i> Rename
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id = 'page_container'>
+        <div class="menu_page--documents">
+            <div class="menu_page--header">
+                <span class="icon_holder">
+                    <i class=''></i>
+                </span>
+
+                <a href="/document/{{pageName}}" class="page_link">{{pageName}}</a> 
+                
+                <span class="icon_holder round" onclick="show_page(this)">
+                    <i class="fa-regular fa-chevron-down"></i>
+                </span>
+            </div>
+            <div class="menu_page--content_container">
+                <div class="menu_page--content">
+                    <button class="primary_button maxW small" onclick="toggle_doc_form(this)"><i class="fa-regular fa-plus"></i> Create document</button>
+
+                    <div class="add_doc--form_container">
+                        <div class="add_doc--form">
+                            <div class="add_doc--form_row">
+                                <input type = 'radio' class="radio_color" name="doc_color" style="--color: var(--red)" value = "#FF3333"/>
+                                <input type = 'radio' class="radio_color" name="doc_color" style="--color: var(--orange)" value="#FF914D"/>
+                                <input type = 'radio' class="radio_color" name="doc_color" style="--color: var(--green)" value = "#7BA537"/>
+                                <input type = 'radio' class="radio_color" name="doc_color" style="--color: var(--light_orange)" value = "#FFBD59"/>
+                                <input type = 'radio' class="radio_color" name="doc_color" style="--color: #45C2A0" value = "#45C2A0"/>
+                                <input type = 'radio' class="radio_color" name="doc_color" style="--color: #7ED957" value = "#7ED957"/>
+                                
+                            </div>
+                            <div class="add_doc--form_row">
+                                <label>
+                                    Name
+                                    <input class="input_one" placeholder="Document name" value="New document" id="doc_name"/>
+                                </label>
+                            </div>
+    
+                            <button class="submit_button maxW small" onclick="submit_add_doc(this)"><i class="fa-regular fa-check"></i> Submit</button>
+                        </div>
+                    </div>
+
+                    
+            <div class="menu_group--list">
+
+                
+            </div>
+                </div>
+            </div>
+
+        </div>
+    </template>
+
+    <template id = 'document'>
+        <div class="document">
+            <a class="document--header" href="/document/ceva/ce">
+                <i class="fa-solid fa-folder-open"></i>
+                <span></span>
+            </a>
+            Sheets:
+            <div class="document--sheets">
+               
+            </div>
+        </div>
+    </template>
+
+        <script>
+            function main()
+            {
+                let search_bar = document.querySelector(".search_bar");
+
+                if (search_bar.classList.contains("not_active"))
+                {
+                    search_bar.classList.remove("not_active");
+                    search_bar.classList.add("active");
+
+                    search_bar.querySelector("input").focus();
+                }
+                else{
+                    search_bar.classList.remove("active");
+                    search_bar.classList.add("not_active");
+                }
+            }
+
+            function open_menu()
+            {
+                let content_container = document.querySelector(".content_container");
+
+                content_container.classList.toggle("menu_on");
+            }
+        </script>
+    </body>
+</html>

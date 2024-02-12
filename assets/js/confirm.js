@@ -62,10 +62,10 @@ Confirm.prototype.init = function(){
 Confirm.prototype.setListeners = function()
 {
     document.querySelector("#confirm_submit").onclick = ()=>{
-   
+        this.cb_submit.params.push(this);
+        
         if (this.cb_submit.context_submit)
         {
-            this.cb_submit.params.push(this);
             this.cb_submit.fn.apply(this.cb_submit.context_submit, this.cb_submit.params);
         }else{
             this.cb_submit.fn(...this.cb_submit.params);

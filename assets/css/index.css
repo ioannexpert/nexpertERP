@@ -1,6 +1,5 @@
 body{
-    background-image: url("/assets/images/colorful-farm-fields-from-sunflower-wheat-rye-corn.jpg");
-    background-repeat: no-repeat;
+    background: url('/assets/images/ffflux\ \(2\).svg');
     background-size: cover;
 }
 
@@ -8,7 +7,8 @@ body{
 {
     width: 100vw;
     min-height: 100vh;
-    background-image: linear-gradient(to right, transparent 40%, rgba(255, 255, 255, .8));
+    background-image: url("/assets/images/7140739_3516835.svg");
+    background-repeat: no-repeat;
 
     display: flex;
     justify-content: end;

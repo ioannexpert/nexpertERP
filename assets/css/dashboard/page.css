@@ -1,0 +1,83 @@
+.page_content{
+    background-color: white;
+    border-radius: var(--bRadius);
+
+    padding: 20px;
+}
+
+.documents_container{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 200px);
+    grid-template-rows: 400px;
+
+    row-gap: 15px;
+    column-gap: 10px;
+}
+
+.document{
+    background-color: var(--light_gray);
+    padding: var(--pad);
+    border-radius: var(--bRadius);
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .13), 0 1px 1px 0 rgba(0, 0, 0, .11);
+
+    transition: box-shadow .3s;
+}
+
+.document:hover{
+    box-shadow: 0 26px 58px 0 rgba(0, 0, 0, .22), 0 5px 14px 0 rgba(0, 0, 0, .18);
+}
+
+.document--header{
+   
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+
+    color: var(--color);
+    row-gap: 15px;
+    font-weight: bold;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.document--header:hover span{
+    text-decoration: underline;
+}
+
+.document--header i{
+    font-size: 60px;
+}
+
+.document--sheets{
+    max-height: 250px;
+    display: flex;
+    flex-direction: column;
+    margin-top: 5px;
+    overflow: auto;
+    row-gap: 10px;
+    padding: 2px 2px;
+}
+
+.document--sheets::-webkit-scrollbar{
+    width: 7px;
+}
+
+.document--sheets::-webkit-scrollbar-thumb{
+    background-color: var(--text_color);
+    border-radius: 10px;
+}
+
+.document--sheet{
+    padding: calc(var(--pad) / 2);
+    background-color: white;
+    border-radius: var(--bRadius);
+    color: var(--text_color);
+    text-decoration: none;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+.document--sheet:hover{
+    text-decoration: underline;
+}
